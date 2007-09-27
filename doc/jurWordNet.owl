@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:owns="http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#"
+    xmlns:ownsf="http://turing.ittig.cnr.it/jwn/ontologies/owns-full.owl#"
+    xmlns:t="file:///home/lorenzo/.MetaLeveler/types.owl#"
+    xmlns:langl="http://turing.ittig.cnr.it/jwn/ontologies/language-properties-light.owl#"
+    xmlns:claw="http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#"
+    xmlns="http://localhost/jwn/jurWordNet.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:indw="file:///home/lorenzo/.MetaLeveler/individuals-word.owl#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:langf="http://turing.ittig.cnr.it/jwn/ontologies/language-properties-full.owl#"
+    xmlns:langb="http://turing.ittig.cnr.it/jwn/ontologies/language-properties-base.owl#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:c="file:///home/lorenzo/.MetaLeveler/concepts.owl#"
+    xmlns:indclaw="file:///home/lorenzo/.MetaLeveler/ind-to-consumer.owl#"
+    xmlns:ind="file:///home/lorenzo/.MetaLeveler/individuals.owl#"
+    xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+  xml:base="http://localhost/jwn/jurWordNet.owl">
+  <owl:Ontology rdf:about="">
+    <owl:imports rdf:resource="file:///home/lorenzo/.MetaLeveler/ind-to-consumer.owl"/>
+    <owl:imports rdf:resource="file:///home/lorenzo/.MetaLeveler/types.owl"/>
+    <owl:imports rdf:resource="file:///home/lorenzo/.MetaLeveler/concepts.owl"/>
+    <owl:imports rdf:resource="file:///home/lorenzo/.MetaLeveler/individuals-word.owl"/>
+    <owl:imports rdf:resource="file:///home/lorenzo/.MetaLeveler/individuals.owl"/>
+    <owl:imports rdf:resource="http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl"/>
+    <owl:imports rdf:resource="http://turing.ittig.cnr.it/jwn/ontologies/owns-full.owl"/>
+  </owl:Ontology>
+</rdf:RDF>
+
+<!-- Created with Protege (with OWL Plugin 3.2.1, Build 365)  http://protege.stanford.edu -->
