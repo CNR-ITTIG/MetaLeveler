@@ -46,6 +46,7 @@ public class Leveler {
 			
 			System.out.println("Adding ontologies classifications...");
 			xParser.classify();
+			//xParser.createMappingClass();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -86,6 +87,7 @@ public class Leveler {
 			manager.addModel(EditorConf.onto_ind_claw, true);
 			manager.addModel(EditorConf.onto_concepts, true);
 			manager.addModel(EditorConf.onto_types, true);
+			manager.addModel(EditorConf.onto_sources, true);
 			
 			manager.writeModel(EditorConf.onto_ind,
 					EditorConf.local_onto_ind);
@@ -99,6 +101,8 @@ public class Leveler {
 					EditorConf.local_onto_concepts);
 			manager.writeModel(EditorConf.onto_types,
 					EditorConf.local_onto_types);
+			manager.writeModel(EditorConf.onto_sources,
+					EditorConf.local_onto_sources);
 		}
 			
 	}
@@ -174,6 +178,7 @@ public class Leveler {
 		EditorConf.local_onto_work = EditorConf.DATA_DIR + "/" + "jurWordNet.owl";
 		EditorConf.local_onto_concepts = EditorConf.DATA_DIR + "/" + "concepts.owl";
 		EditorConf.local_onto_types = EditorConf.DATA_DIR + "/" + "types.owl";
+		EditorConf.local_onto_sources = EditorConf.DATA_DIR + "/" + "sources.owl";
 		
 	//	EditorConf.PREFS_FILE = EditorConf.DATA_DIR + "/" + EditorConf.PREFS_FILE_NAME;
 	//	//init preferences class

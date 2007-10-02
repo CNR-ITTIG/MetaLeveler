@@ -46,6 +46,7 @@ public class EditorConf {
 	
 	public static String ownSchema = JWS + "ontologies/owns.owl";
 	public static String langSchema = JWS + "ontologies/language-properties-full.owl";
+	public static String sourceSchema = JWS + "ontologies/metasources.owl";
 //	public static String jwnModel = JWS + "ontologies/jurWordNet-model.owl";
 //	public static String jwnImportModel = JWS + "ontologies/jurWordNet-model-imports.owl";
 //	public static String jwnImportNoClassesModel = JWS + "ontologies/jurWordNet-model-imports-noclasses.owl";
@@ -61,6 +62,7 @@ public class EditorConf {
 	public static String onto_work = onto_ns + "jurWordNet.owl";
 	public static String onto_concepts = onto_ns + "concepts.owl";
 	public static String onto_types = onto_ns + "types.owl";
+	public static String onto_sources = onto_ns + "sources.owl";
 	
 	public static String local_onto_ind;
 	public static String local_onto_indw;
@@ -69,6 +71,7 @@ public class EditorConf {
 	public static String local_onto_work;
 	public static String local_onto_concepts;
 	public static String local_onto_types;
+	public static String local_onto_sources;
 	
 	//output level
 	public final static int DEBUG_LEVEL = 2; //0 error msg, 1 info msg, 2 debug msg

@@ -44,6 +44,7 @@ public class AddService {
 	OntModel m_ind_claw;
 	OntModel m_conc;
 	OntModel m_types;
+	OntModel m_sources;
 	
 	ModelMaker maker;
 	
@@ -55,7 +56,13 @@ public class AddService {
 	OntProperty senseProperty;
 	OntProperty lexicalProperty;
 //	OntProperty tagProperty;
-		
+	
+	OntProperty involvesSynset;
+	OntProperty involvesPartition;	
+	OntProperty belongsTo;
+	OntProperty docCode;
+	OntProperty partCode;
+	
 	ObjectProperty hypo;
 	ObjectProperty belongs;
 	
@@ -71,10 +78,15 @@ public class AddService {
 
 	OntClass conceptClass;
 	
+	OntClass documentClass;
+	OntClass partitionClass;
+	OntClass sourceClass;
+	
 	Vector<OntClass> upperClasses;
 	
 	String NS_SCHEMA; //schema namespace
 	String LANG_SCHEMA; //language properties namespace
+	String SOURCE_SCHEMA;
 	String NS_CURRENT; //this model namespace
 	
 	String NS_IND = "file://" + EditorConf.local_onto_ind + "#";
@@ -83,6 +95,7 @@ public class AddService {
 	String NS_IND_CLAW = "file://" + EditorConf.local_onto_ind_claw + "#";
 	String NS_CONC = "file://" + EditorConf.local_onto_concepts + "#";
 	String NS_TYPE = "file://" + EditorConf.local_onto_types + "#";
+	String NS_SOURCE = "file://" + EditorConf.local_onto_sources + "#";
 	
 	boolean logging = false;
 	
@@ -103,6 +116,8 @@ public class AddService {
 				maker.createModel(EditorConf.onto_concepts, false));
 		m_types = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_types, false));
+		m_sources = ModelFactory.createOntologyModel(spec,
+				maker.createModel(EditorConf.onto_sources, false));
 
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_ind);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_indw);
@@ -113,6 +128,7 @@ public class AddService {
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_ind_claw);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_concepts);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_types);
+		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.sourceSchema);
 		
 		OntDocumentManager odm = OntDocumentManager.getInstance();
 		odm.setProcessImports(true);
@@ -123,6 +139,7 @@ public class AddService {
 		setPrefixes(m_ind_claw);
 		setPrefixes(m_conc);
 		setPrefixes(m_types);
+		setPrefixes(m_sources);
 		
 		odm.addAltEntry(EditorConf.onto_ind, EditorConf.local_onto_ind);
 		odm.addAltEntry(EditorConf.onto_indw, EditorConf.local_onto_indw);
@@ -130,6 +147,7 @@ public class AddService {
 		odm.addAltEntry(EditorConf.onto_ind_claw, EditorConf.local_onto_ind_claw);
 		odm.addAltEntry(EditorConf.onto_concepts, EditorConf.local_onto_concepts);
 		odm.addAltEntry(EditorConf.onto_types, EditorConf.local_onto_types);
+		odm.addAltEntry(EditorConf.onto_sources, EditorConf.local_onto_sources);
 		
 		odm.loadImports(m);		
 	}
@@ -146,6 +164,12 @@ public class AddService {
 		senseProperty = m.getOntProperty(NS_SCHEMA + "sense");
 		lexicalProperty = m.getOntProperty(NS_SCHEMA + "lexicalForm");
 		
+		involvesSynset = m.getOntProperty(SOURCE_SCHEMA + "involvesSynset");
+		involvesPartition = m.getOntProperty(SOURCE_SCHEMA + "involvesPartition");	
+		belongsTo = m.getOntProperty(SOURCE_SCHEMA + "belongsTo");
+		docCode = m.getOntProperty(SOURCE_SCHEMA + "documentCode");
+		partCode = m.getOntProperty(SOURCE_SCHEMA + "partitionCode");
+
 		hypo = m.getObjectProperty(LANG_SCHEMA + EditorConf.iponimia);
 		belongs = m.getObjectProperty(LANG_SCHEMA + EditorConf.belongs);
 
@@ -159,9 +183,13 @@ public class AddService {
 		adverbWSClass = m.getOntClass(NS_SCHEMA + OWLUtil.getWordSenseClass("AV"));
 		wordClass = m.getOntClass(NS_SCHEMA + OWLUtil.getWordClass());
 		
-		conceptClass = m_conc.createClass(NS_CONC + "Concept");
+		conceptClass = m.createClass(NS_CONC + "Concept");
 		
-		upperClasses = new Vector<OntClass>();
+		documentClass = m.getOntClass(SOURCE_SCHEMA + "Document");
+		partitionClass = m.getOntClass(SOURCE_SCHEMA + "Partition");
+		sourceClass = m.getOntClass(SOURCE_SCHEMA + "Source");
+		
+		upperClasses = new Vector<OntClass>();		
 	}
 	
 	private void setPrefixes(OntModel mod) {
@@ -176,6 +204,8 @@ public class AddService {
 		mod.setNsPrefix("indclaw", NS_IND_CLAW);
 		mod.setNsPrefix("conc", NS_CONC);
 		mod.setNsPrefix("type", NS_TYPE);
+		mod.setNsPrefix("sources", SOURCE_SCHEMA);
+		mod.setNsPrefix("source", NS_SOURCE);
 	}
 	
 	private OntClass getUpperClass(String name, String ns) {
@@ -218,6 +248,28 @@ public class AddService {
 
 		m_ind_claw.add(res, RDF.type, upper); //oppure si linka la classe di concepts.owl ???
 
+	}
+	
+	private OntClass getUpperDocuments(String name, String ns) {
+		
+		for(int i = 0; i < upperClasses.size(); i++) {
+			OntClass item = upperClasses.get(i);
+			if(item.getLocalName().equals(name) &&
+					item.getNameSpace().equals(ns)) {
+				return item;
+			}
+		}
+		
+		//trova, aggiungi e restituisci la nuova upper class
+		OntClass oc = m.getOntClass(ns + name);
+		if(oc == null) {
+			System.err.println("ooo>> CLASS NOT FOUND ! (" +
+								ns + name + ")");
+			return null;
+		}
+
+		upperClasses.add(oc);
+		return oc;
 	}
 	
 	private void processIndividual(Concetto item) {
@@ -264,7 +316,7 @@ public class AddService {
 
 			//add schema relations...
 			addSchemaProperties(synset, wordsense, word);					
-		}		
+		}
 	}
 
 	private void processIndividualRelations(Concetto item) {
@@ -324,7 +376,33 @@ public class AddService {
 			}
 		}
 		
-		//Links to CLO/DOLCE		
+		//Aggiungi sources (non considera le frequenze al momento)
+		for(int k = 0; k < item.riferimenti.size(); k++) {
+			
+			String partitionCode = item.riferimenti.get(k);
+			String documentCode = partitionCode.substring(0, partitionCode.
+					indexOf('-', partitionCode.indexOf('-') + 1));
+			String cid = item.getID();
+			String sourceName = NS_SOURCE + "source-" + cid + "-" + partitionCode;
+			String partitionName = NS_SOURCE + "partition-" + partitionCode;
+			String documentName = NS_SOURCE + "document-" + documentCode;			
+			OntResource source = m_sources.createOntResource(sourceName);
+			OntResource partition = m_sources.getOntResource(partitionName);
+			if(partition == null) {
+				partition = m_sources.createOntResource(partitionName);
+			}
+			OntResource document =  m_sources.getOntResource(documentName);
+			if(document == null) {
+				document = m_sources.createOntResource(documentName);
+			}
+			source.addProperty(involvesSynset, synset);
+			source.addProperty(involvesPartition, partition);
+			partition.addProperty(belongsTo, document);
+			partition.addProperty(partCode, m_sources.createLiteral(partitionCode));
+			document.addProperty(docCode, m_sources.createLiteral(documentCode));
+		}
+		
+		//Links to CLO/DOLCE
 	}
 
 	public void process(OntologyContainer container, Collection concetti) {		
@@ -342,6 +420,7 @@ public class AddService {
 		NS_SCHEMA = EditorConf.ownSchema + "#";
 		LANG_SCHEMA = EditorConf.langSchema + "#";
 		NS_CURRENT = container.getNameSpace();
+		SOURCE_SCHEMA = EditorConf.sourceSchema + "#";
 
 		maker = ((PersistentOntology) container).getModelMaker();
 		

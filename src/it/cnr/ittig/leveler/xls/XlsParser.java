@@ -2,6 +2,7 @@ package it.cnr.ittig.leveler.xls;
 
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
+import it.cnr.ittig.jwneditor.jwn.Lemma;
 import it.cnr.ittig.leveler.Leveler;
 
 import java.io.File;
@@ -31,6 +32,7 @@ public class XlsParser {
 	
 	private String classification = EditorConf.DATA_DIR + "/" + "classification.xls";
 	private String mappings = EditorConf.DATA_DIR + "/" + "mappings.xls";
+	private String definitions = EditorConf.DATA_DIR + "/" + "claw-def.xls";
 	
 	private WritableWorkbook wb = null;
 	private WritableSheet sheet = null;
@@ -116,8 +118,59 @@ public class XlsParser {
 		return "";
 	}
 	
+	public void addDefinitions() {
+		//Aggiunge eventuali definizioni
+		
+		Workbook wb = null;
+		Sheet sheet = null;
+		
+		try {
+			wb = Workbook.getWorkbook(new File(classification));
+			Workbook tmpwb = Workbook.getWorkbook(new File(mappings));
+			mapSheet = tmpwb.getSheet(0);
+		} catch (BiffException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		sheet = wb.getSheet(0);
+		int rows = sheet.getRows();
+		for(row = 1; row < rows; row++) {
+			String num = sheet.getCell(0, row).getContents().trim();
+			String lemmaEN = sheet.getCell(3, row).getContents().trim();
+			String lemmaIT = sheet.getCell(3, row).getContents().trim();
+			String defEN = sheet.getCell(2, row).getContents().trim();
+			String defIT = sheet.getCell(4, row).getContents().trim();
+			Concetto c = getConcettoByLemma(lemmaIT);
+			if(c == null) {
+				System.out.println(">>WARNING<< Definition without matching synset! " +
+						"lemma: " + lemmaIT);				
+				continue;
+			}
+			c.setDefinizione(defIT + " (" + num + ")");
+		}
+	}
+	
+	private Concetto getConcettoByLemma(String lemma) {
+		
+		Collection<Concetto> syns = Leveler.appSynsets.values();
+		for(Iterator<Concetto> i = syns.iterator(); i.hasNext(); ) {
+			Concetto c = i.next(); 
+			for(int k = 0; k < c.lemmi.size(); k++) {
+				Lemma l = c.lemmi.get(k);
+				if(lemma.equalsIgnoreCase(l.getLexicalForm())) {
+					return c;
+				}
+			}
+		}
+		return null;
+	}
+	
 	//Da usare per creare il file excel la prima volta
-	private void fill() {
+	public void fill() {
 		
 		try {
 			wb = Workbook.createWorkbook(new File(classification));
@@ -198,7 +251,7 @@ public class XlsParser {
 		}
 	}
 	
-	private void createMappingClass() {
+	public void createMappingClass() {
 		
 		try {
 			wb = Workbook.createWorkbook(new File(mappings));
@@ -234,7 +287,8 @@ public class XlsParser {
         spec.setReasoner(r);
 		spec.setImportModelMaker(maker);
 		OntModel om = ModelFactory.createOntologyModel(spec, null);		
-		om.read(EditorConf.clawModel);
+		//om.read(EditorConf.clawModel);
+		om.read("file://" + EditorConf.DATA_DIR + "/consumer-law-merge25-09.owl");
 		String ns = EditorConf.clawModel + "#";
 
 		classes = new Vector<OntClass>();
@@ -262,8 +316,11 @@ public class XlsParser {
 			if(c.isAnon()) {
 				continue;
 			}
-			if(c.getLocalName().equalsIgnoreCase("thing") ||
-					c.getLocalName().equalsIgnoreCase("resource")) {
+//			if(c.getLocalName().equalsIgnoreCase("thing") ||
+//					c.getLocalName().equalsIgnoreCase("resource")) {
+//				continue;
+//			}
+			if(!c.getNameSpace().equalsIgnoreCase(EditorConf.clawModel + "#")) {
 				continue;
 			}
 			if(!classes.contains(c)) {
