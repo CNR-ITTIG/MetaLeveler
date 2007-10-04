@@ -45,8 +45,11 @@ public class Leveler {
 			parser.addRif();
 			
 			System.out.println("Adding ontologies classifications...");
-			xParser.classify();
-			//xParser.createMappingClass();
+			//xParser.classify();
+			//xParser.addDefinitions(); //Le def. vengono aggiunte in un secondo momento!
+			
+			xParser.createMappingClass();
+			return;
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -93,8 +96,6 @@ public class Leveler {
 					EditorConf.local_onto_ind);
 			manager.writeModel(EditorConf.onto_indw,
 					EditorConf.local_onto_indw);
-//			manager.writeModel(EditorConf.onto_ind_clo,
-//					EditorConf.local_onto_ind_clo);
 			manager.writeModel(EditorConf.onto_ind_claw,
 					EditorConf.local_onto_ind_claw);
 			manager.writeModel(EditorConf.onto_concepts,
@@ -107,16 +108,6 @@ public class Leveler {
 			
 	}
 
-	//  public static void main(String[] args) {
-	//  //Schedule a job for the event-dispatching thread:
-	//  //creating and showing this application's GUI.
-	//  javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	//      public void run() {
-	//          createAndShowGUI();
-	//      }
-	//  });
-	//}
-	
 	private static void initAppDataDir() {
 	
 		//Il nome dovrebbe essere diverso secondo il s.o.
@@ -166,42 +157,15 @@ public class Leveler {
 		
 		//Aggiorna il valore della directory in EditorConf
 		EditorConf.DATA_DIR = dataDir.getPath();
-		//EditorConf.PREF_FILE = EditorConf.DATA_DIR + "/" + EditorConf.PREF;
-		EditorConf.OWL_FILE = EditorConf.DATA_DIR + "/" + EditorConf.OWL;
-		//EditorConf. = "file:" + EditorConf.OWL; // "file://" + EditorConf.OWL_FILE;
 		EditorConf.MODEL_URI = EditorConf.onto_work;
 		
 		EditorConf.local_onto_ind = EditorConf.DATA_DIR + "/" + "individuals.owl";
 		EditorConf.local_onto_indw = EditorConf.DATA_DIR + "/" + "individuals-word.owl";
-//		EditorConf.local_onto_ind_clo = EditorConf.DATA_DIR + "/" + "ind-to-corelegal.owl";
 		EditorConf.local_onto_ind_claw = EditorConf.DATA_DIR + "/" + "ind-to-consumer.owl";
 		EditorConf.local_onto_work = EditorConf.DATA_DIR + "/" + "jurWordNet.owl";
 		EditorConf.local_onto_concepts = EditorConf.DATA_DIR + "/" + "concepts.owl";
 		EditorConf.local_onto_types = EditorConf.DATA_DIR + "/" + "types.owl";
-		EditorConf.local_onto_sources = EditorConf.DATA_DIR + "/" + "sources.owl";
-		
-	//	EditorConf.PREFS_FILE = EditorConf.DATA_DIR + "/" + EditorConf.PREFS_FILE_NAME;
-	//	//init preferences class
-	//	File prFile = new File(EditorConf.PREFS_FILE);
-	//	EditorPrefs prefsClass = null;
-	//	if(prFile.exists()) {
-	//		 prefsClass = new EditorPrefs(prFile);			
-	//	} else {
-	//		prefsClass = new EditorPrefs();
-	//	}
-	//	UtilEditor.prefs = prefsClass;
-		
-		//init external data
-	//	File imgFile = new File(EditorConf.DATA_DIR + "/" + EditorConf.SYNSET_GENERIC_IMG);
-	//	if(!imgFile.exists()) {		
-	//		UtilEditor.downloadFile(EditorConf.JWS_IMG + EditorConf.SYNSET_GENERIC_IMG,
-	//				EditorConf.DATA_DIR + "/" + EditorConf.SYNSET_GENERIC_IMG);
-	//	}
-	//	imgFile = new File(EditorConf.DATA_DIR + "/" + EditorConf.SYNSET_ONTO_IMG);
-	//	if(!imgFile.exists()) {		
-	//		UtilEditor.downloadFile(EditorConf.JWS_IMG + EditorConf.SYNSET_ONTO_IMG,
-	//				EditorConf.DATA_DIR + "/" + EditorConf.SYNSET_ONTO_IMG);
-	//	}
+		EditorConf.local_onto_sources = EditorConf.DATA_DIR + "/" + "sources.owl";		
 	}
 
 }

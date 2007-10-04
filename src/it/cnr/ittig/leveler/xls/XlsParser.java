@@ -37,7 +37,7 @@ public class XlsParser {
 	private WritableWorkbook wb = null;
 	private WritableSheet sheet = null;
 	private int row = 0;
-	Vector<OntClass> classes = null;
+	private Vector<OntClass> classes = null;
 	
 	private Sheet mapSheet = null;
 	
@@ -125,9 +125,7 @@ public class XlsParser {
 		Sheet sheet = null;
 		
 		try {
-			wb = Workbook.getWorkbook(new File(classification));
-			Workbook tmpwb = Workbook.getWorkbook(new File(mappings));
-			mapSheet = tmpwb.getSheet(0);
+			wb = Workbook.getWorkbook(new File(definitions));
 		} catch (BiffException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -144,12 +142,16 @@ public class XlsParser {
 			String lemmaIT = sheet.getCell(3, row).getContents().trim();
 			String defEN = sheet.getCell(2, row).getContents().trim();
 			String defIT = sheet.getCell(4, row).getContents().trim();
+			if(lemmaIT.length() < 1) {
+				continue;
+			}
 			Concetto c = getConcettoByLemma(lemmaIT);
 			if(c == null) {
 				System.out.println(">>WARNING<< Definition without matching synset! " +
 						"lemma: " + lemmaIT);				
 				continue;
 			}
+			//System.out.println("++ Adding DEFINITION : " + lemmaIT + " - " + defIT);
 			c.setDefinizione(defIT + " (" + num + ")");
 		}
 	}
@@ -289,12 +291,24 @@ public class XlsParser {
 		OntModel om = ModelFactory.createOntologyModel(spec, null);		
 		//om.read(EditorConf.clawModel);
 		om.read("file://" + EditorConf.DATA_DIR + "/consumer-law-merge25-09.owl");
-		String ns = EditorConf.clawModel + "#";
+		//String ns = EditorConf.clawModel + "#";
 
 		classes = new Vector<OntClass>();
-		OntClass oc = om.getOntClass("http://www.w3.org/2002/07/owl#Nothing");		
-		expand(oc);
+		
+//		OntClass oc = om.getOntClass("http://www.w3.org/2002/07/owl#Nothing");		
+//		expand(oc);
+		
+		for(Iterator<OntClass> i = om.listClasses(); i.hasNext();) {
+			OntClass oc = i.next();
+			if(oc.isAnon() || 
+					!oc.getNameSpace().equalsIgnoreCase(EditorConf.clawModel + "#")) {
+				continue;				
+			}
+			addSortedClass(oc);
+		}
+		
 		addMapping();
+		
 		try {
 			wb.write();
 			wb.close();
@@ -308,27 +322,46 @@ public class XlsParser {
 		
 	}
 	
-	private void expand(OntClass oc) {
-	
-		System.out.println("Expanding " + oc.getNameSpace() + oc.getLocalName());
-		for(Iterator i = oc.listSuperClasses(true); i.hasNext();) {
-			OntClass c = (OntClass) i.next();
-			if(c.isAnon()) {
-				continue;
+	private void addSortedClass(OntClass oc) {
+		
+		boolean ins = false;
+		for(int i = 0; i < classes.size(); i++) {
+			OntClass item = classes.get(i);
+			if(item.getLocalName().compareToIgnoreCase(oc.getLocalName()) < 0) continue;
+			if(item.getLocalName().compareToIgnoreCase(oc.getLocalName()) > 0) {
+				classes.add(i, oc);
+				ins = true;
+				break;
 			}
-//			if(c.getLocalName().equalsIgnoreCase("thing") ||
-//					c.getLocalName().equalsIgnoreCase("resource")) {
-//				continue;
-//			}
-			if(!c.getNameSpace().equalsIgnoreCase(EditorConf.clawModel + "#")) {
-				continue;
-			}
-			if(!classes.contains(c)) {
-				classes.add(c);
-			}
-			expand(c);
+		}
+		if(!ins) {
+			//Inserisci alla fine del vettore
+			classes.add(oc);
 		}
 	}
+
+	
+//	private void expand(OntClass oc) {
+//	
+//		System.out.println("Expanding " + oc.getNameSpace() + oc.getLocalName());
+//		for(Iterator i = oc.listSuperClasses(true); i.hasNext();) {
+//			OntClass c = (OntClass) i.next();
+//			if(c.isAnon()) {
+//				continue;
+//			}
+////			if(c.getLocalName().equalsIgnoreCase("thing") ||
+////					c.getLocalName().equalsIgnoreCase("resource")) {
+////				continue;
+////			}
+//			if(!c.getNameSpace().equalsIgnoreCase(EditorConf.clawModel + "#")) {
+//				continue;
+//			}
+//			if(!classes.contains(c)) {
+//				classes.add(c);
+//			}
+//			expand(c);
+//		}
+//	}
 	
 	//private void addMapping(OntClass oc) {
 	private void addMapping() {

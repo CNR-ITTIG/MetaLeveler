@@ -40,7 +40,6 @@ public class AddService {
 	OntModel m; //OntModel m_work;		
 	OntModel m_ind;
 	OntModel m_indw;
-	//OntModel m_ind_clo;
 	OntModel m_ind_claw;
 	OntModel m_conc;
 	OntModel m_types;
@@ -57,6 +56,7 @@ public class AddService {
 	OntProperty lexicalProperty;
 //	OntProperty tagProperty;
 	
+	OntProperty sourceProp;
 	OntProperty involvesSynset;
 	OntProperty involvesPartition;	
 	OntProperty belongsTo;
@@ -89,13 +89,19 @@ public class AddService {
 	String SOURCE_SCHEMA;
 	String NS_CURRENT; //this model namespace
 	
-	String NS_IND = "file://" + EditorConf.local_onto_ind + "#";
-	String NS_INDW = "file://" + EditorConf.local_onto_indw + "#";
-//	String NS_IND_CLO = "file://" + EditorConf.local_onto_ind_clo + "#";
-	String NS_IND_CLAW = "file://" + EditorConf.local_onto_ind_claw + "#";
-	String NS_CONC = "file://" + EditorConf.local_onto_concepts + "#";
-	String NS_TYPE = "file://" + EditorConf.local_onto_types + "#";
-	String NS_SOURCE = "file://" + EditorConf.local_onto_sources + "#";
+//	String NS_IND = "file://" + EditorConf.local_onto_ind + "#";
+//	String NS_INDW = "file://" + EditorConf.local_onto_indw + "#";
+//	String NS_IND_CLAW = "file://" + EditorConf.local_onto_ind_claw + "#";
+//	String NS_CONC = "file://" + EditorConf.local_onto_concepts + "#";
+//	String NS_TYPE = "file://" + EditorConf.local_onto_types + "#";
+//	String NS_SOURCE = "file://" + EditorConf.local_onto_sources + "#";
+	
+	String NS_IND = EditorConf.onto_ind + "#";
+	String NS_INDW = EditorConf.onto_indw + "#";
+	String NS_IND_CLAW = EditorConf.onto_ind_claw + "#";
+	String NS_CONC = EditorConf.onto_concepts + "#";
+	String NS_TYPE = EditorConf.onto_types + "#";
+	String NS_SOURCE = EditorConf.onto_sources + "#";
 	
 	boolean logging = false;
 	
@@ -124,7 +130,6 @@ public class AddService {
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.ownSchema);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.langSchema);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.clawModel);
-		//OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_ind_clo);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_ind_claw);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_concepts);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_types);
@@ -143,7 +148,6 @@ public class AddService {
 		
 		odm.addAltEntry(EditorConf.onto_ind, EditorConf.local_onto_ind);
 		odm.addAltEntry(EditorConf.onto_indw, EditorConf.local_onto_indw);
-//		odm.addAltEntry(EditorConf.onto_ind_clo, EditorConf.local_onto_ind_clo);
 		odm.addAltEntry(EditorConf.onto_ind_claw, EditorConf.local_onto_ind_claw);
 		odm.addAltEntry(EditorConf.onto_concepts, EditorConf.local_onto_concepts);
 		odm.addAltEntry(EditorConf.onto_types, EditorConf.local_onto_types);
@@ -164,6 +168,7 @@ public class AddService {
 		senseProperty = m.getOntProperty(NS_SCHEMA + "sense");
 		lexicalProperty = m.getOntProperty(NS_SCHEMA + "lexicalForm");
 		
+		sourceProp = m.getOntProperty(SOURCE_SCHEMA + "source");
 		involvesSynset = m.getOntProperty(SOURCE_SCHEMA + "involvesSynset");
 		involvesPartition = m.getOntProperty(SOURCE_SCHEMA + "involvesPartition");	
 		belongsTo = m.getOntProperty(SOURCE_SCHEMA + "belongsTo");
@@ -194,13 +199,11 @@ public class AddService {
 	
 	private void setPrefixes(OntModel mod) {
 		
-		//m.setNsPrefix("clo", "http://www.loa-cnr.it/ontologies/CLO/CoreLegal.owl#");
 		mod.setNsPrefix("claw", EditorConf.clawModel + "#");
 		mod.setNsPrefix("ind", NS_IND);
 		mod.setNsPrefix("indw", NS_INDW);
 		mod.setNsPrefix("owns", NS_SCHEMA);
 		mod.setNsPrefix("langf", LANG_SCHEMA);
-//		mod.setNsPrefix("indclo", NS_IND_CLO);
 		mod.setNsPrefix("indclaw", NS_IND_CLAW);
 		mod.setNsPrefix("conc", NS_CONC);
 		mod.setNsPrefix("type", NS_TYPE);
@@ -395,6 +398,7 @@ public class AddService {
 			if(document == null) {
 				document = m_sources.createOntResource(documentName);
 			}
+			synset.addProperty(sourceProp, source);
 			source.addProperty(involvesSynset, synset);
 			source.addProperty(involvesPartition, partition);
 			partition.addProperty(belongsTo, document);
