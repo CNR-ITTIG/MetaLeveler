@@ -21,7 +21,7 @@ public class Concetto {
 	public Vector<String> riferimenti;
 	public String language;
 	public Vector<String> ontoclassi;
-
+	
 	public Concetto() {
 		this("");
 	}

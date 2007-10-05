@@ -45,11 +45,11 @@ public class Leveler {
 			parser.addRif();
 			
 			System.out.println("Adding ontologies classifications...");
-			//xParser.classify();
+			xParser.classify();
 			//xParser.addDefinitions(); //Le def. vengono aggiunte in un secondo momento!
 			
-			xParser.createMappingClass();
-			return;
+			//xParser.createMappingClass();
+			//return;
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -44,16 +44,18 @@ public class TxtParser {
 					continue;
 				}
 				String proto = data[3].toLowerCase().trim();
-				Lemma lemma = new Lemma(proto);
+				String str = data[1].toLowerCase().trim();
 				Concetto conc = new Concetto();
 				conc.setID(data[0]);
+				Lemma lemma = new Lemma(proto);
+				lemma.protoForm = proto;
 				conc.add(lemma);
-				//Aggiungo anche la forma lessicale come secondo lemma
-				String str = data[1].toLowerCase().trim();
-				lemma = new Lemma(str);
-				conc.add(lemma);
-				
 				Leveler.appSynsets.put(data[0], conc);
+				
+				//aggiungi le varianti dalla tabella AL LEMMA !! 
+				lemma.variants.add(proto);
+				lemma.variants.add(str);
+				
 			}
 		} finally {
 			if(inputStream != null) {

@@ -1,5 +1,7 @@
 package it.cnr.ittig.jwneditor.jwn;
 
+import java.util.Vector;
+
 public class Lemma {
 
 	private String lexicalForm;
@@ -16,6 +18,10 @@ public class Lemma {
 	
 	private Concetto synset;
 	
+	public Vector<String> variants;
+	
+	public String protoForm;
+
 	public Lemma(String l) {
 		this(l, DEFAULT_POS);
 	}
@@ -34,6 +40,10 @@ public class Lemma {
 		id = null;
 		
 		synset = null;
+		
+		variants = new Vector<String>();
+		
+		protoForm = "";
 	}
 	
 	public void setID(String newId) { id = newId; }

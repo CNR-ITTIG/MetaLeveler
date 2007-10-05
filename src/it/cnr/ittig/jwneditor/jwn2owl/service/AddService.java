@@ -55,6 +55,7 @@ public class AddService {
 	OntProperty senseProperty;
 	OntProperty lexicalProperty;
 //	OntProperty tagProperty;
+	OntProperty protoProperty;
 	
 	OntProperty sourceProp;
 	OntProperty involvesSynset;
@@ -167,6 +168,7 @@ public class AddService {
 		wordProperty = m.getOntProperty(NS_SCHEMA + "word");
 		senseProperty = m.getOntProperty(NS_SCHEMA + "sense");
 		lexicalProperty = m.getOntProperty(NS_SCHEMA + "lexicalForm");
+		protoProperty = m.getOntProperty(NS_SCHEMA + "protoForm");
 		
 		sourceProp = m.getOntProperty(SOURCE_SCHEMA + "source");
 		involvesSynset = m.getOntProperty(SOURCE_SCHEMA + "involvesSynset");
@@ -311,11 +313,20 @@ public class AddService {
 				System.err.println("word is null! lemma:" + lemma);
 				continue;
 			}
-			
-			//add lexical form for this word
-			Literal lit = m_indw.createTypedLiteral((String) lemma.getLexicalForm());
-			//word.addProperty(lexicalProperty, lemma.getLexicalForm());
-			word.addProperty(lexicalProperty, lit);
+
+			//proto form and lexical forms
+			if(lemma.protoForm.length() > 0) {
+				//System.out.println("Adding protoform " + lemma.protoForm + " to " + word);
+				Literal lit = m_indw.createTypedLiteral(lemma.protoForm);
+				word.addProperty(protoProperty, lit);
+			}
+
+			for(int v = 0; v < lemma.variants.size(); v++) {
+				String variant = lemma.variants.get(v);
+				//add lexical form for this word
+				Literal lit = m_indw.createTypedLiteral(variant);
+				word.addProperty(lexicalProperty, lit);
+			}
 
 			//add schema relations...
 			addSchemaProperties(synset, wordsense, word);					
