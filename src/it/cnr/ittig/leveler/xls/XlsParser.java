@@ -290,7 +290,7 @@ public class XlsParser {
 		spec.setImportModelMaker(maker);
 		OntModel om = ModelFactory.createOntologyModel(spec, null);		
 		//om.read(EditorConf.clawModel);
-		om.read("file://" + EditorConf.DATA_DIR + "/consumer-law-merge25-09.owl");
+		om.read("file://" + EditorConf.DATA_DIR + "/consumer-law-merge10-10.owl");
 		//String ns = EditorConf.clawModel + "#";
 
 		classes = new Vector<OntClass>();
@@ -301,7 +301,8 @@ public class XlsParser {
 		for(Iterator<OntClass> i = om.listClasses(); i.hasNext();) {
 			OntClass oc = i.next();
 			if(oc.isAnon() || 
-					!oc.getNameSpace().equalsIgnoreCase(EditorConf.clawModel + "#")) {
+					//!oc.getNameSpace().equalsIgnoreCase(EditorConf.clawModel + "#")) {
+					!oc.getNameSpace().equalsIgnoreCase("file:./consumer-law-merge.owl#")) {				
 				continue;				
 			}
 			addSortedClass(oc);
