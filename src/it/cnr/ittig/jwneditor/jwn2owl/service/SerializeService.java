@@ -13,7 +13,7 @@ import com.hp.hpl.jena.rdf.model.RDFWriter;
 
 public class SerializeService {
 
-	public void process(OntologyContainer container, String outputFile) {
+	public void process(OntologyContainer container, String outputFile, String ns) {
 		
 		System.out.println("Serializing ontology model to " + outputFile + "...");
 
@@ -41,15 +41,18 @@ public class SerializeService {
 		
 		//set base property
 		//String relativeOutputFileName = EditorConf.onto_work;		
-		//writer.setProperty("xmlbase", relativeOutputFileName);		
+		//writer.setProperty("xmlbase", relativeOutputFileName);
 		String relativeOutputFileName = "file://" + outputFile;
-		writer.setProperty("xmlbase", relativeOutputFileName);
+		if(ns == null ||ns.equals("")) {
+			writer.setProperty("xmlbase", relativeOutputFileName);
+		} else {
+			writer.setProperty("xmlbase", ns);
+		}
 		
 		try {
 			OutputStream out = new FileOutputStream(outputFile);
 			//Write down the BASE model only (don't follow imports...)
 			writer.write(om.getBaseModel(), out, relativeOutputFileName);
-			//writer.write(om, out, relativeOutputFileName);
 			out.close();
 		} catch(Exception e) {
 			System.err.println("Exception serializing model:" + e.getMessage());

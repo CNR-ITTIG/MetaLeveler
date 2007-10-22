@@ -123,7 +123,7 @@ public class OWLManager {
 		validator.process(cont);
 	}	
 	
-	public void writeModel(String modelName, String file) {
+	public void writeModel(String modelName, String file, String ns) {
 		
 		//INPUT VALIDATION
 		//file esiste? nome valido?...
@@ -136,7 +136,7 @@ public class OWLManager {
 		}
 
 		//Serialize the OntModel
-		writer.process(cont, file);
+		writer.process(cont, file, ns);
 	}
 	
 //	public void checkModel(String modelName) {		

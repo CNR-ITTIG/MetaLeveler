@@ -93,19 +93,18 @@ public class Leveler {
 			manager.addModel(EditorConf.onto_sources, true);
 			
 			manager.writeModel(EditorConf.onto_ind,
-					EditorConf.local_onto_ind);
+					EditorConf.local_onto_ind, EditorConf.onto_ind);
 			manager.writeModel(EditorConf.onto_indw,
-					EditorConf.local_onto_indw);
+					EditorConf.local_onto_indw, EditorConf.onto_indw);
 			manager.writeModel(EditorConf.onto_ind_claw,
-					EditorConf.local_onto_ind_claw);
+					EditorConf.local_onto_ind_claw, EditorConf.onto_ind_claw);
 			manager.writeModel(EditorConf.onto_concepts,
-					EditorConf.local_onto_concepts);
+					EditorConf.local_onto_concepts, EditorConf.onto_concepts);
 			manager.writeModel(EditorConf.onto_types,
-					EditorConf.local_onto_types);
+					EditorConf.local_onto_types, EditorConf.onto_types);
 			manager.writeModel(EditorConf.onto_sources,
-					EditorConf.local_onto_sources);
-		}
-			
+					EditorConf.local_onto_sources, EditorConf.onto_sources);
+		}			
 	}
 
 	private static void initAppDataDir() {
