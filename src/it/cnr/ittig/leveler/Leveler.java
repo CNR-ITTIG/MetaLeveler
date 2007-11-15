@@ -44,8 +44,12 @@ public class Leveler {
 			System.out.println("Adding references...");
 			parser.addRif();
 			
+//			xParser.fill();
+//			return;
+			
 			System.out.println("Adding ontologies classifications...");
 			xParser.classify();
+
 			//xParser.addDefinitions(); //Le def. vengono aggiunte in un secondo momento!
 			
 			//xParser.createMappingClass();

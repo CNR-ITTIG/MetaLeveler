@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import com.hp.hpl.jena.ontology.OntClass;
@@ -205,27 +207,14 @@ public class XlsParser {
 		}
 		
 		row = 1;
-		Collection<String> keys = Leveler.appSynsets.keySet();		
-		Collection<Concetto> synsets = Leveler.appSynsets.values();
 		
-		//Trova la chiave più alta...
-		int max = 0;
-		for(Iterator<String> i = keys.iterator(); i.hasNext();) {
-			String str = i.next();
-			int value = Integer.valueOf(str);
-			if(value > max) {
-				max = value;
-			}
-		}		
-		max++;
+		//TreeSet per gestire l'ordine alfabetico
+		Set<Concetto> sortedSynsets = new TreeSet<Concetto>(
+				(Collection<Concetto>) Leveler.appSynsets.values());
 		
-		//Riempi il foglio excel con i termini ordinati per KWID
-		for(int i = 0; i < max; i++) {
-			String id = String.valueOf(i);
-			Concetto c = Leveler.appSynsets.get(id);
-			if(c == null) {
-				continue;
-			}
+		//Riempi il foglio excel con i termini ordinati alfabeticamente
+		for(Iterator<Concetto> i = sortedSynsets.iterator(); i.hasNext();) {			
+			Concetto c = i.next();
 			try {
 				label = new Label(0, row, c.getID());
 				sheet.addCell(label);

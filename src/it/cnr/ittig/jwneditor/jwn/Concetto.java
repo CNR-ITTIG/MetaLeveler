@@ -2,7 +2,7 @@ package it.cnr.ittig.jwneditor.jwn;
 
 import java.util.*;
 
-public class Concetto {
+public class Concetto implements Comparable {
 	
 	private String definizione;	
 	
@@ -313,6 +313,15 @@ public class Concetto {
 //			return Integer.valueOf(id);
 //		}
 		return 1;
+	}
+	
+	public int compareTo(Object obj) throws ClassCastException {
+		
+		if(!(obj instanceof Concetto)) {
+			throw new ClassCastException("Object is not a valid synset!");
+		}
+		String objForm = ((Concetto) obj).getLexicalForm();
+		return this.getLexicalForm().compareTo(objForm);
 	}
 	
 	public boolean setPrimario(Lemma l) {
