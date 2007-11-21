@@ -363,7 +363,7 @@ public class AddService {
 			Individual destIndividual = getIndividual(dest);
 			
 			if(sourceIndividual == null || destIndividual == null || op == null) {
-				System.err.println("processIndividualRelations() - failed.");
+				System.err.println("processIndividualRelations() - failed. -- Removed synset?");
 				System.out.println("s:" + sourceIndividual + " d:" + destIndividual +
 						" op:" + op);
 				System.out.println("Destination: " + dest);

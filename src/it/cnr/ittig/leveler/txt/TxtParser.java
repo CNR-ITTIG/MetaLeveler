@@ -55,13 +55,7 @@ public class TxtParser {
 				//aggiungi le varianti dalla tabella AL LEMMA !! 
 				lemma.variants.add(proto);
 				lemma.variants.add(str);
-				
-				if(conc.toString().indexOf("conto") > -1 ||
-						conc.getPrimario().toString().indexOf("conto") > -1 ) {
-					System.out.println("conc: " + conc);
-				}
-
-				
+								
 			}
 		} finally {
 			if(inputStream != null) {
