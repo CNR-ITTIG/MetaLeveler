@@ -10,7 +10,9 @@ import it.cnr.ittig.jwneditor.jwn2owl.container.OntologyContainer;
 import it.cnr.ittig.jwneditor.jwn2owl.container.PersistentOntology;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 
 import com.hp.hpl.jena.ontology.Individual;
@@ -83,7 +85,8 @@ public class AddService {
 	OntClass partitionClass;
 	OntClass sourceClass;
 	
-	Vector<OntClass> upperClasses;
+	Set<OntClass> validClasses;
+	Set<String> invalidClasses;
 	
 	String NS_SCHEMA; //schema namespace
 	String LANG_SCHEMA; //language properties namespace
@@ -196,12 +199,13 @@ public class AddService {
 		partitionClass = m.getOntClass(SOURCE_SCHEMA + "Partition");
 		sourceClass = m.getOntClass(SOURCE_SCHEMA + "Source");
 		
-		upperClasses = new Vector<OntClass>();		
+		validClasses = new HashSet<OntClass>();		
+		invalidClasses = new HashSet<String>();
 	}
 	
 	private void setPrefixes(OntModel mod) {
 		
-		mod.setNsPrefix("claw", EditorConf.clawModel + "#");
+		mod.setNsPrefix("claw", EditorConf.clawModelNs);
 		mod.setNsPrefix("ind", NS_IND);
 		mod.setNsPrefix("indw", NS_INDW);
 		mod.setNsPrefix("owns", NS_SCHEMA);
@@ -214,9 +218,13 @@ public class AddService {
 	}
 	
 	private OntClass getUpperClass(String name, String ns) {
+
+		if(invalidClasses.contains(ns + name)) {
+			return null;
+		}
 		
-		for(int i = 0; i < upperClasses.size(); i++) {
-			OntClass item = upperClasses.get(i);
+		for(Iterator<OntClass> i = validClasses.iterator(); i.hasNext();) {
+			OntClass item = i.next();
 			if(item.getLocalName().equals(name) &&
 					item.getNameSpace().equals(ns)) {
 				return item;
@@ -228,10 +236,12 @@ public class AddService {
 		if(oc == null) {
 			System.err.println("ooo>> CLASS NOT FOUND ! (" +
 								ns + name + ")");
+			invalidClasses.add(ns + name);
 			return null;
 		}
 
-		upperClasses.add(oc);
+		validClasses.add(oc);
+		
 		return oc;
 	}
 	
@@ -248,34 +258,34 @@ public class AddService {
 //			addUpperTypes(ores, upper); //, false);
 //		}
 		
-		System.out.println("Linking " + res.getLocalName() + 
-				" to " + upper.getLocalName() + "...");
+//		System.out.println("Linking " + res.getLocalName() + 
+//				" to " + upper.getLocalName() + "...");
 
 		m_ind_claw.add(res, RDF.type, upper); //oppure si linka la classe di concepts.owl ???
 
 	}
 	
-	private OntClass getUpperDocuments(String name, String ns) {
-		
-		for(int i = 0; i < upperClasses.size(); i++) {
-			OntClass item = upperClasses.get(i);
-			if(item.getLocalName().equals(name) &&
-					item.getNameSpace().equals(ns)) {
-				return item;
-			}
-		}
-		
-		//trova, aggiungi e restituisci la nuova upper class
-		OntClass oc = m.getOntClass(ns + name);
-		if(oc == null) {
-			System.err.println("ooo>> CLASS NOT FOUND ! (" +
-								ns + name + ")");
-			return null;
-		}
-
-		upperClasses.add(oc);
-		return oc;
-	}
+//	private OntClass getUpperDocuments(String name, String ns) {
+//		
+//		for(int i = 0; i < upperClasses.size(); i++) {
+//			OntClass item = upperClasses.get(i);
+//			if(item.getLocalName().equals(name) &&
+//					item.getNameSpace().equals(ns)) {
+//				return item;
+//			}
+//		}
+//		
+//		//trova, aggiungi e restituisci la nuova upper class
+//		OntClass oc = m.getOntClass(ns + name);
+//		if(oc == null) {
+//			System.err.println("ooo>> CLASS NOT FOUND ! (" +
+//								ns + name + ")");
+//			return null;
+//		}
+//
+//		upperClasses.add(oc);
+//		return oc;
+//	}
 	
 	private void processIndividual(Concetto item) {
 
@@ -288,6 +298,10 @@ public class AddService {
 		if(synset == null) {
 			System.err.println("synset is null! item:" + item);
 			return;
+		}
+		if(item.toString().startsWith("conto")) {
+			System.out.println("item: " + item + " synset: " + 
+					synset.getNameSpace() + synset.getLocalName());
 		}
 
 		if(logging) {
@@ -348,10 +362,12 @@ public class AddService {
 			//Retrive destination individual
 			Individual destIndividual = getIndividual(dest);
 			
-//			System.out.println("s:" + sourceIndividual + " d:" + destIndividual +
-//								" op:" + op);
 			if(sourceIndividual == null || destIndividual == null || op == null) {
 				System.err.println("processIndividualRelations() - failed.");
+				System.out.println("s:" + sourceIndividual + " d:" + destIndividual +
+						" op:" + op);
+				System.out.println("Destination: " + dest);
+				System.out.println("Source: " + item);
 				continue;
 			}
 			
@@ -381,6 +397,11 @@ public class AddService {
 		for(int k = 0; k < item.ontoclassi.size(); k++) {
 
 			String ontoclasse = item.ontoclassi.get(k);
+//			System.out.println("ontoclasse: " + ontoclasse);
+//			if(ontoclasse.trim().length() < 1 ||
+//					ontoclasse.equalsIgnoreCase("no")) {
+//				continue;
+//			}
 			String[] data = ontoclasse.split("#");
 			String namespace = data[0] + "#";
 			String ocname = data[1];

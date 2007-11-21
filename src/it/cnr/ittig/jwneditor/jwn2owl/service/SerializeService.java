@@ -1,10 +1,7 @@
 package it.cnr.ittig.jwneditor.jwn2owl.service;
 
-import it.cnr.ittig.jwneditor.editor.EditorConf;
-import it.cnr.ittig.jwneditor.jwn2owl.container.AbstractOntology;
 import it.cnr.ittig.jwneditor.jwn2owl.container.OntologyContainer;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 

@@ -35,7 +35,8 @@ public class EditorConf {
 	public static String langSchema = JWS + "ontologies/language-properties-full.owl";
 	public static String sourceSchema = JWS + "ontologies/metasources.owl";
 
-	public static String clawModel = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl"; //merge?
+	public static String clawModel = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law-merge.owl"; //merge?
+	public static String clawModelNs = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#";
 		
 	public static String dalos_ns = "http://localhost/dalos/";
 	public static String onto_ns =  dalos_ns + LANGUAGE + "/";
@@ -43,7 +44,7 @@ public class EditorConf {
 	public static String onto_ind = onto_ns + "individuals.owl";
 	public static String onto_indw = onto_ns + "individuals-word.owl";
 	public static String onto_ind_claw = onto_ns + "ind-to-consumer.owl";
-	public static String onto_work = onto_ns + "jurWordNet.owl";
+	public static String onto_work = onto_ns + "work.owl";
 	public static String onto_types = onto_ns + "types.owl";
 	public static String onto_sources = onto_ns + "sources.owl";
 	public static String onto_concepts = dalos_ns + "concepts.owl";

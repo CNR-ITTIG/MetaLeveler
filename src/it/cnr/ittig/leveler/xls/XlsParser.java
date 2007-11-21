@@ -32,8 +32,8 @@ import jxl.write.biff.RowsExceededException;
 
 public class XlsParser {
 	
-	private String classification = EditorConf.DATA_DIR + "/" + "classification.xls";
-	private String mappings = EditorConf.DATA_DIR + "/" + "mappings.xls";
+	private String classification = EditorConf.DATA_DIR + "/" + "classification-15-07.xls";
+	private String mappings = EditorConf.DATA_DIR + "/" + "mappings-15-07-mod.xls";
 	private String definitions = EditorConf.DATA_DIR + "/" + "claw-def.xls";
 	
 	private WritableWorkbook wb = null;
@@ -69,18 +69,25 @@ public class XlsParser {
 			String oc2 = sheet.getCell(3, row).getContents().trim();
 			String oc3 = sheet.getCell(4, row).getContents().trim();
 			String oc4 = sheet.getCell(5, row).getContents().trim();
-			if(oc1.length() > 0) {
+			if(oc1.trim().length() > 0) {
 				Concetto c = Leveler.appSynsets.get(kwid);
 				if(c == null) {
 					System.out.println("c is null!! kwid:" + kwid);
 					continue;
 				}
+				if(oc1.equalsIgnoreCase("no")) {
+					//Rimuovere il synset dal lessico
+					Leveler.appSynsets.keySet().remove(kwid);
+					Leveler.appSynsets.values().remove(c);
+					continue;
+				}
+				
 				c.ontoclassi.add(resolve(oc1));
-				if(oc2.length() > 0) {
+				if(oc2.trim().length() > 0) {
 					c.ontoclassi.add(resolve(oc2));
-					if(oc3.length() > 0) {
+					if(oc3.trim().length() > 0) {
 						c.ontoclassi.add(resolve(oc3));
-						if(oc4.length() > 0) {
+						if(oc4.trim().length() > 0) {
 							c.ontoclassi.add(resolve(oc4));
 						}
 					}
@@ -92,27 +99,28 @@ public class XlsParser {
 	private String resolve(String oc) {
 		//Restituisce la classe completa di namespace
 		
-		int id = -1;
-		
 		try {
-			id = Integer.valueOf(oc);
+			int id = Integer.valueOf(oc);
 		} catch (NumberFormatException e) {			
 
-			for(int i = 1; i < mapSheet.getRows(); i++) {
-				String rontoclasse = mapSheet.getCell(1, i).getContents().trim();
-				if(rontoclasse.equalsIgnoreCase(oc)) {
-					String rclasse = mapSheet.getCell(2, i).getContents().trim();
-					String rspace = mapSheet.getCell(3, i).getContents().trim();
-					return rspace + rclasse;
-				}
-			}			
+//			for(int i = 1; i < mapSheet.getRows(); i++) {
+//				String rontoclasse = mapSheet.getCell(1, i).getContents().trim();
+//				if(rontoclasse.equalsIgnoreCase(oc)) {
+//					String rclasse = mapSheet.getCell(2, i).getContents().trim();
+//					String rspace = mapSheet.getCell(3, i).getContents().trim();
+//					return rspace + rclasse;
+//				}
+//			}
+			System.err.println("Invalid onto class: " + oc);
+			return null;
 		}
 		
 		for(int i = 1; i < mapSheet.getRows(); i++) {
 			String rid = mapSheet.getCell(0, i).getContents().trim();
 			if(rid.equalsIgnoreCase(oc)) {
 				String rclasse = mapSheet.getCell(2, i).getContents().trim();
-				String rspace = mapSheet.getCell(3, i).getContents().trim();
+				//String rspace = mapSheet.getCell(3, i).getContents().trim();
+				String rspace = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#";
 				return rspace + rclasse;
 			}
 		}
