@@ -1,4 +1,4 @@
-package it.cnr.ittig.leveler.txt;
+package it.cnr.ittig.leveler.importer;
 
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class TxtParser {
+public class ilcTxtImporter implements metaImporter {
 	
 	private String glossario = EditorConf.DATA_DIR + "/" + "glossario.txt";
 	private String glossarioNT = EditorConf.DATA_DIR + "/" + "glossario_nt.txt";
@@ -193,5 +193,6 @@ public class TxtParser {
 		}
 	}
 	
-	
+	public void addAlignment() throws IOException {		
+	}
 }

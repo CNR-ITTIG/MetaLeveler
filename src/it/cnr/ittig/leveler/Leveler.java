@@ -4,7 +4,9 @@ import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
-import it.cnr.ittig.leveler.txt.TxtParser;
+import it.cnr.ittig.leveler.importer.celiDbImporter;
+import it.cnr.ittig.leveler.importer.ilcTxtImporter;
+import it.cnr.ittig.leveler.importer.metaImporter;
 import it.cnr.ittig.leveler.xls.XlsParser;
 
 import java.io.File;
@@ -13,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Leveler {
-	
 	
 	public static Map<String,Concetto> appSynsets = null;
 	
@@ -27,7 +28,13 @@ public class Leveler {
 		
 		System.out.println("DATA_DIR: " + EditorConf.DATA_DIR);
 		
-		TxtParser parser = new TxtParser();
+		metaImporter parser = null;
+		if(EditorConf.TXT_INPUT) {
+			parser = new ilcTxtImporter();
+		} else {
+			parser = new celiDbImporter();
+		}
+		
 		XlsParser xParser = new XlsParser();
 		
 		try {
@@ -35,20 +42,25 @@ public class Leveler {
 			System.out.println("Creating synsets...");
 			parser.createSynsets();
 			
-			System.out.println("Adding ipo/iper...");
-			parser.addIpo();
+//			System.out.println("Adding ipo/iper...");
+//			parser.addIpo();
 				
-			System.out.println("Adding related...");
-			parser.addRelated();
+//			System.out.println("Adding related...");
+//			parser.addRelated();
 			
 			System.out.println("Adding references...");
 			parser.addRif();
 			
+			System.out.println("Adding alignment...");
+			parser.addAlignment();
+
 //			xParser.fill();
 //			return;
 			
-			System.out.println("Adding ontologies classifications...");
-			xParser.classify();
+			if(EditorConf.LINK_TO_ONTOLOGY) {
+				System.out.println("Adding ontologies classifications...");
+				xParser.classify();
+			}
 
 			//xParser.addDefinitions(); //Le def. vengono aggiunte in un secondo momento!
 			
@@ -162,13 +174,20 @@ public class Leveler {
 		EditorConf.DATA_DIR = dataDir.getPath();
 		EditorConf.MODEL_URI = EditorConf.onto_work;
 		
-		EditorConf.local_onto_ind = EditorConf.DATA_DIR + "/" + "individuals.owl";
-		EditorConf.local_onto_indw = EditorConf.DATA_DIR + "/" + "individuals-word.owl";
-		EditorConf.local_onto_ind_claw = EditorConf.DATA_DIR + "/" + "ind-to-consumer.owl";
-		EditorConf.local_onto_work = EditorConf.DATA_DIR + "/" + "jurWordNet.owl";
-		EditorConf.local_onto_concepts = EditorConf.DATA_DIR + "/" + "concepts.owl";
-		EditorConf.local_onto_types = EditorConf.DATA_DIR + "/" + "types.owl";
-		EditorConf.local_onto_sources = EditorConf.DATA_DIR + "/" + "sources.owl";		
+		EditorConf.local_onto_ind = EditorConf.DATA_DIR 
+			+ File.separatorChar + "individuals.owl";
+		EditorConf.local_onto_indw = EditorConf.DATA_DIR 
+			+ File.separatorChar + "individuals-word.owl";
+		EditorConf.local_onto_ind_claw = EditorConf.DATA_DIR 
+			+ File.separatorChar + "ind-to-consumer.owl";
+		EditorConf.local_onto_work = EditorConf.DATA_DIR 
+			+ File.separatorChar + "jurWordNet.owl";
+		EditorConf.local_onto_concepts = EditorConf.DATA_DIR 
+			+ File.separatorChar + "concepts.owl";
+		EditorConf.local_onto_types = EditorConf.DATA_DIR 
+			+ File.separatorChar + "types.owl";
+		EditorConf.local_onto_sources = EditorConf.DATA_DIR 
+			+ File.separatorChar + "sources.owl";		
 	}
 
 }

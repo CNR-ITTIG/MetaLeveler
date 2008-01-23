@@ -9,6 +9,7 @@ import it.cnr.ittig.jwneditor.jwn2owl.OWLUtil;
 import it.cnr.ittig.jwneditor.jwn2owl.container.OntologyContainer;
 import it.cnr.ittig.jwneditor.jwn2owl.container.PersistentOntology;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -122,8 +123,7 @@ public class AddService {
 //				maker.createModel(EditorConf.onto_ind_clo, false));
 		m_ind_claw = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_ind_claw, false));
-		m_conc = ModelFactory.createOntologyModel(spec,
-				maker.createModel(EditorConf.onto_concepts, false));
+		m_conc = initConceptModel(spec, maker);
 		m_types = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_types, false));
 		m_sources = ModelFactory.createOntologyModel(spec,
@@ -158,6 +158,24 @@ public class AddService {
 		odm.addAltEntry(EditorConf.onto_sources, EditorConf.local_onto_sources);
 		
 		odm.loadImports(m);		
+	}
+	
+	/*
+	 * Check if a concept owl file exist and use it.
+	 */
+	private OntModel initConceptModel(OntModelSpec spec, ModelMaker maker) {
+		
+		OntModel cMod = ModelFactory.createOntologyModel(spec,
+				maker.createModel(EditorConf.onto_concepts, false));
+		
+		File conceptFile = new File(EditorConf.local_onto_concepts);
+		if(conceptFile.exists()) {
+			//Load the pre-existent concept model
+			System.out.println("Loading pre-existent concept model (" + 
+					conceptFile + ")...");
+			cMod.read(EditorConf.local_onto_concepts);
+		} 
+		return cMod;
 	}
 	
 	private void init() {
@@ -410,6 +428,17 @@ public class AddService {
 				addUpperTypes(synset, upper);				
 			}
 		}
+	}
+		
+	private void processSources(Concetto item) {
+
+		OntResource synset = null;
+		String sname = OWLUtil.getSynsetName(item.getPrimario());
+		synset = m_ind.getOntResource(NS_IND + sname);
+		if(synset == null) {
+			System.err.println("synset is null! item:" + item);
+			return;
+		}
 		
 		//Aggiungi sources (non considera le frequenze al momento)
 		for(int k = 0; k < item.riferimenti.size(); k++) {
@@ -437,8 +466,6 @@ public class AddService {
 			partition.addProperty(partCode, m_sources.createLiteral(partitionCode));
 			document.addProperty(docCode, m_sources.createLiteral(documentCode));
 		}
-		
-		//Links to CLO/DOLCE
 	}
 
 	public void process(OntologyContainer container, Collection concetti) {		
@@ -482,6 +509,11 @@ public class AddService {
 			processLinks((Concetto) i.next());
 		}
 		
+		System.out.println("AddService - Adding sources...");
+		for(Iterator i = concetti.iterator(); i.hasNext();) {
+			processSources((Concetto) i.next());
+		}
+
 		System.out.println("AddService - Done.");
 	}
 	
@@ -492,14 +524,26 @@ public class AddService {
 		if(value != null) {
 			//Non creare la classe concept relativa.
 			if(logging) {
-				System.out.println(">>>>>> Skipping " + syn + " BELONGS_TO_CLASS " + value);
+				System.out.println(">>>>>> Skipping " + 
+						syn + " BELONGS_TO_CLASS " + value);
 			}
 			return;
+		}		
+		
+		//Crea la classe concept in base al valore dell'attributo 'conceptClass'
+		if(c.conceptLemma == null) {
+			return;
 		}
-
-		String name = OWLUtil.getConceptClassName(c.getPrimario());
-		OntClass synsetClass = m_conc.createClass(NS_CONC + name);
-		synsetClass.addSuperClass(conceptClass);
+		//String name = OWLUtil.getConceptClassName(c.getPrimario());
+		String name = OWLUtil.getConceptClassName(c.conceptLemma);
+		//System.out.println("Concept: " + name);
+		OntClass synsetClass = m_conc.getOntClass(NS_CONC + name);
+		if(synsetClass == null) {
+			//Add a new concept class
+			synsetClass = m_conc.createClass(NS_CONC + name);
+			synsetClass.addSuperClass(conceptClass);
+		}
+		//Link this synset to the concept class
 		m_types.add(syn, RDF.type, synsetClass);
 	}
 	

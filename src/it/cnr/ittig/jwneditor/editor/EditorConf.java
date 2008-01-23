@@ -1,9 +1,35 @@
 package it.cnr.ittig.jwneditor.editor;
 
+import java.io.File;
+
 public class EditorConf {
 
-	public static String APP_DIR = System.getProperty("user.dir");
+	//output level
+	public final static int DEBUG_LEVEL = 2; //0 error msg, 1 info msg, 2 debug msg
 	
+	//import from txt or db?
+	public final static boolean TXT_INPUT = false;
+	
+	//link terms to ontology classes?
+	public final static boolean LINK_TO_ONTOLOGY = false;
+	public final static String CLASSIFICATION = "classification-15-07.xls"; 
+	public final static String MAPPING = "mappings-15-07-mod.xls"; 
+	
+	public static String DB_TABLES_DIR = "dbTables";
+
+	//DATABASE RDF:
+//	public final static String OWL_ADDRESS = "jdbc:mysql://172.16.0.12/jena";  //eulero
+//	public final static String OWL_USERNAME = "juris";
+//	public final static String OWL_PASSWORD = ".juris.";
+	public final static String OWL_ADDRESS = "jdbc:mysql://127.0.0.1/jena";
+	public final static String OWL_USERNAME = "root";
+	//public final static String OWL_PASSWORD = "";
+	public final static String OWL_PASSWORD = "root.";
+	public final static String OWL_TYPE = "MySQL";
+	public final static String OWL_DRIVER = "com.mysql.jdbc.Driver";
+
+
+	public static String APP_DIR = System.getProperty("user.dir");	
 	public static String HOME_DIR = System.getProperty("user.home");
 
 //	//Da configurare a runtime:
@@ -18,17 +44,7 @@ public class EditorConf {
 	
 	public static String JWS_URL = JWS + "editor/";
 	public static String JWS_IMG = JWS + "editor/img/";
-	
-	//DATABASE RDF:
-//	public final static String OWL_ADDRESS = "jdbc:mysql://172.16.0.12/jena";  //eulero
-//	public final static String OWL_USERNAME = "juris";
-//	public final static String OWL_PASSWORD = ".juris.";
-	public final static String OWL_ADDRESS = "jdbc:mysql://127.0.0.1/jena";
-	public final static String OWL_USERNAME = "root";
-	public final static String OWL_PASSWORD = "";
-	public final static String OWL_TYPE = "MySQL";
-	public final static String OWL_DRIVER = "com.mysql.jdbc.Driver";
-
+		
 	public static boolean addClassesHierarchy = true;
 	
 	public static String ownSchema = JWS + "ontologies/owns.owl";
@@ -39,7 +55,7 @@ public class EditorConf {
 	public static String clawModelNs = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#";
 		
 	public static String dalos_ns = "http://localhost/dalos/";
-	public static String onto_ns =  dalos_ns + LANGUAGE + "/";
+	public static String onto_ns =  dalos_ns + LANGUAGE + File.separatorChar;
 	
 	public static String onto_ind = onto_ns + "individuals.owl";
 	public static String onto_indw = onto_ns + "individuals-word.owl";
@@ -56,9 +72,6 @@ public class EditorConf {
 	public static String local_onto_concepts;
 	public static String local_onto_types;
 	public static String local_onto_sources;
-	
-	//output level
-	public final static int DEBUG_LEVEL = 2; //0 error msg, 1 info msg, 2 debug msg
 	
 	//immagini
 	public final static String SYNSET_GENERIC_IMG = "kontact_journal.png";

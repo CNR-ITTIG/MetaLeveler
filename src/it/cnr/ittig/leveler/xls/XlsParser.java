@@ -32,8 +32,11 @@ import jxl.write.biff.RowsExceededException;
 
 public class XlsParser {
 	
-	private String classification = EditorConf.DATA_DIR + "/" + "classification-15-07.xls";
-	private String mappings = EditorConf.DATA_DIR + "/" + "mappings-15-07-mod.xls";
+	private String classification = EditorConf.DATA_DIR + File.separatorChar 
+		+ EditorConf.CLASSIFICATION;
+	private String mappings = EditorConf.DATA_DIR + "/" + File.separatorChar 
+		+ EditorConf.MAPPING;
+	
 	private String definitions = EditorConf.DATA_DIR + "/" + "claw-def.xls";
 	
 	private WritableWorkbook wb = null;

@@ -22,6 +22,8 @@ public class Concetto implements Comparable {
 	public String language;
 	public Vector<String> ontoclassi;
 	
+	public Lemma conceptLemma;
+	
 	public Concetto() {
 		this("");
 	}
@@ -42,6 +44,8 @@ public class Concetto implements Comparable {
 		fonti = new Vector<Fonte>();
 		ontoclassi = new Vector<String>();
 		riferimenti = new Vector<String>();
+		
+		conceptLemma = null;
 	}
 	
 	//get & set:
