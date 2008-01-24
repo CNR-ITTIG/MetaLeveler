@@ -4,9 +4,9 @@ import java.io.File;
 
 public class EditorConf {
 
-	//output level
-	public final static int DEBUG_LEVEL = 2; //0 error msg, 1 info msg, 2 debug msg
-	
+	//public static String LANGUAGE = "IT";
+	public static String LANGUAGE = "EN";
+
 	//import from txt or db?
 	public final static boolean TXT_INPUT = false;
 	
@@ -14,6 +14,9 @@ public class EditorConf {
 	public final static boolean LINK_TO_ONTOLOGY = false;
 	public final static String CLASSIFICATION = "classification-15-07.xls"; 
 	public final static String MAPPING = "mappings-15-07-mod.xls"; 
+	
+	//output level
+	public final static int DEBUG_LEVEL = 2; //0 error msg, 1 info msg, 2 debug msg
 	
 	public static String DB_TABLES_DIR = "dbTables";
 
@@ -37,8 +40,6 @@ public class EditorConf {
 	public static String PREFS_FILE;
 	public static String OWL_FILE;
 	public static String MODEL_URI;
-
-	public static String LANGUAGE = "IT";
 
 	private static String JWS = "http://turing.ittig.cnr.it/jwn/";
 	

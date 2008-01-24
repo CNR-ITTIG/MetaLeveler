@@ -173,7 +173,7 @@ public class AddService {
 			//Load the pre-existent concept model
 			System.out.println("Loading pre-existent concept model (" + 
 					conceptFile + ")...");
-			cMod.read(EditorConf.local_onto_concepts);
+			cMod.read("file:///" + EditorConf.local_onto_concepts);
 		} 
 		return cMod;
 	}

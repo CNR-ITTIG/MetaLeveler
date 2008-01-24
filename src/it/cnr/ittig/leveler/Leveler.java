@@ -4,7 +4,7 @@ import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
-import it.cnr.ittig.leveler.importer.celiDbImporter;
+import it.cnr.ittig.leveler.importer.celiTablesImporter;
 import it.cnr.ittig.leveler.importer.ilcTxtImporter;
 import it.cnr.ittig.leveler.importer.metaImporter;
 import it.cnr.ittig.leveler.xls.XlsParser;
@@ -32,7 +32,7 @@ public class Leveler {
 		if(EditorConf.TXT_INPUT) {
 			parser = new ilcTxtImporter();
 		} else {
-			parser = new celiDbImporter();
+			parser = new celiTablesImporter();
 		}
 		
 		XlsParser xParser = new XlsParser();
