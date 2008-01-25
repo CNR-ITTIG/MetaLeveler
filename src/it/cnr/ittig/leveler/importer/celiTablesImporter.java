@@ -21,8 +21,8 @@ public class celiTablesImporter implements metaImporter {
 	
 	private String termsFN = baseDir + "TD_Terms.xls";
 	private String corpusFN = baseDir + "TD_Corpus.xls";
-	private String internationalFN = baseDir + "TD_DocumntsInternational.xls";
-	private String nationalFN = baseDir + "TD_DocumntsNational.xls";
+	private String internationalFN = baseDir + "TD_DocumentsInternational.xls";
+	private String nationalFN = baseDir + "TD_DocumentsNational.xls";
 	private String interlinguisticFN = baseDir + "TD_InterlinguisticRelations.xls";
 	private String intralinguisticFN = baseDir + "TD_IntralinguisticRelations.xls";
 	private String termdocumentFN = baseDir + "TD_TermDocumentRelations.xls";

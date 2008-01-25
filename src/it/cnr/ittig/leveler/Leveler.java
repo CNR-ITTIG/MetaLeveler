@@ -4,6 +4,7 @@ import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
+import it.cnr.ittig.leveler.importer.CeliOdbcImporter;
 import it.cnr.ittig.leveler.importer.celiTablesImporter;
 import it.cnr.ittig.leveler.importer.ilcTxtImporter;
 import it.cnr.ittig.leveler.importer.metaImporter;
@@ -29,10 +30,15 @@ public class Leveler {
 		System.out.println("DATA_DIR: " + EditorConf.DATA_DIR);
 		
 		metaImporter parser = null;
-		if(EditorConf.TXT_INPUT) {
+		if(EditorConf.TYPE_INPUT.equalsIgnoreCase("txt")) {
 			parser = new ilcTxtImporter();
-		} else {
+		} else if(EditorConf.TYPE_INPUT.equalsIgnoreCase("xls")) {
 			parser = new celiTablesImporter();
+		} else if(EditorConf.TYPE_INPUT.equalsIgnoreCase("mdb")) {
+			parser = new CeliOdbcImporter();
+		} else {
+			System.err.println("Unknown input type.");
+			return;
 		}
 		
 		XlsParser xParser = new XlsParser();
@@ -42,11 +48,11 @@ public class Leveler {
 			System.out.println("Creating synsets...");
 			parser.createSynsets();
 			
-//			System.out.println("Adding ipo/iper...");
-//			parser.addIpo();
+			System.out.println("Adding ipo/iper...");
+			parser.addIpo();
 				
-//			System.out.println("Adding related...");
-//			parser.addRelated();
+			System.out.println("Adding related...");
+			parser.addRelated();
 			
 			System.out.println("Adding references...");
 			parser.addRif();
@@ -73,6 +79,7 @@ public class Leveler {
 		}
 		
 		//Adesso si salvano su DB i modelli popolati con gli oggetti synset
+		long t1 = System.currentTimeMillis();
 		manager = new OWLManager();
 		
 		owlProcessing("create");
@@ -82,7 +89,9 @@ public class Leveler {
 		//System.out.println("Serializing...");
 		owlProcessing("write");
 		
-		System.out.println("Done.");
+		long t2 = System.currentTimeMillis();
+		long t3 = (t2 - t1) / 1000;
+		System.out.println("OWL processing done in " + t3 + "s.");
 	}
 		
 	private static void owlProcessing(String function) {

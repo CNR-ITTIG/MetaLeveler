@@ -441,15 +441,21 @@ public class AddService {
 		}
 		
 		//Aggiungi sources (non considera le frequenze al momento)
-		for(int k = 0; k < item.riferimenti.size(); k++) {
-			
+		int maxSources = 2;
+		if(item.riferimenti.size() < maxSources) {
+			maxSources = item.riferimenti.size();
+		}
+		for(int k = 0; k < maxSources; k++) {
 			String partitionCode = item.riferimenti.get(k);
 			String documentCode = partitionCode.substring(0, partitionCode.
 					indexOf('-', partitionCode.indexOf('-') + 1));
 			String cid = item.getID();
 			String sourceName = NS_SOURCE + "source-" + cid + "-" + partitionCode;
 			String partitionName = NS_SOURCE + "partition-" + partitionCode;
-			String documentName = NS_SOURCE + "document-" + documentCode;			
+			String documentName = NS_SOURCE + "document-" + documentCode;
+			
+			//System.out.println(">>" + item + " rif: " +  partitionName);
+			
 			OntResource source = m_sources.createOntResource(sourceName);
 			OntResource partition = m_sources.getOntResource(partitionName);
 			if(partition == null) {
@@ -493,24 +499,60 @@ public class AddService {
 		System.out.println("AddService - Adding synsets individuals...");
 		
 		//create synset and individuals
+		long t1 = System.currentTimeMillis();
+		int recordCount = 0;
 		for(Iterator i = concetti.iterator(); i.hasNext();) {
+			recordCount++;
+			if( ( recordCount % 100 ) == 0) {
+				long t2 = System.currentTimeMillis();
+				long t3 = (t2 - t1) / 1000;
+				System.out.println(recordCount + " in " +
+						 t3 + " s)");
+			}
 			processIndividual((Concetto) i.next());
 		}
 		
 		System.out.println("AddService - Adding individual relations...");
 
 		//Relations between synsets individuals
+		t1 = System.currentTimeMillis();
+		recordCount = 0;
 		for(Iterator i = concetti.iterator(); i.hasNext();) {
+			recordCount++;
+			if( ( recordCount % 100 ) == 0) {
+				long t2 = System.currentTimeMillis();
+				long t3 = (t2 - t1) / 1000;
+				System.out.println(recordCount + " in " +
+						 t3 + " s)");
+			}
 			processIndividualRelations((Concetto) i.next());
 		}
 		
 		System.out.println("AddService - Adding external links...");
+		t1 = System.currentTimeMillis();
+		recordCount = 0;
 		for(Iterator i = concetti.iterator(); i.hasNext();) {
+			recordCount++;
+			if( ( recordCount % 100 ) == 0) {
+				long t2 = System.currentTimeMillis();
+				long t3 = (t2 - t1) / 1000;
+				System.out.println(recordCount + " in " +
+						 t3 + " s)");
+			}
 			processLinks((Concetto) i.next());
 		}
 		
 		System.out.println("AddService - Adding sources...");
+		t1 = System.currentTimeMillis();
+		recordCount = 0;
 		for(Iterator i = concetti.iterator(); i.hasNext();) {
+			recordCount++;
+			if( ( recordCount % 100 ) == 0) {
+				long t2 = System.currentTimeMillis();
+				long t3 = (t2 - t1) / 1000;
+				System.out.println(recordCount + " in " +
+						 t3 + " s)");
+			}
 			processSources((Concetto) i.next());
 		}
 

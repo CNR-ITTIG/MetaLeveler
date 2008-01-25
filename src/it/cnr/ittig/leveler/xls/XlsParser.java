@@ -289,7 +289,6 @@ public class XlsParser {
         spec.setReasoner(r);
 		spec.setImportModelMaker(maker);
 		OntModel om = ModelFactory.createOntologyModel(spec, null);		
-		//om.read(EditorConf.clawModel);
 		String input = "file://" + EditorConf.DATA_DIR + "/consumer-law-merge10-10.owl";
 		System.out.println("Reading " + input);
 		om.read(input);

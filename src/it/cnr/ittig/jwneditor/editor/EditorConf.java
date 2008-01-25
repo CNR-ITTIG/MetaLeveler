@@ -4,12 +4,15 @@ import java.io.File;
 
 public class EditorConf {
 
-	//public static String LANGUAGE = "IT";
-	public static String LANGUAGE = "EN";
+	public static String LANGUAGE = "IT";
+	//public static String LANGUAGE = "EN";
 
-	//import from txt or db?
-	public final static boolean TXT_INPUT = false;
+	//type of import (one of: txt, xls, mdb)
+	public final static String TYPE_INPUT = "mdb";
 	
+	public static String DB_TABLES_DIR = "dbTables";
+	public static String MDB_FILE_NAME = "DalosAlignment.mdb";
+
 	//link terms to ontology classes?
 	public final static boolean LINK_TO_ONTOLOGY = false;
 	public final static String CLASSIFICATION = "classification-15-07.xls"; 
@@ -18,8 +21,6 @@ public class EditorConf {
 	//output level
 	public final static int DEBUG_LEVEL = 2; //0 error msg, 1 info msg, 2 debug msg
 	
-	public static String DB_TABLES_DIR = "dbTables";
-
 	//DATABASE RDF:
 //	public final static String OWL_ADDRESS = "jdbc:mysql://172.16.0.12/jena";  //eulero
 //	public final static String OWL_USERNAME = "juris";
@@ -52,7 +53,8 @@ public class EditorConf {
 	public static String langSchema = JWS + "ontologies/language-properties-full.owl";
 	public static String sourceSchema = JWS + "ontologies/metasources.owl";
 
-	public static String clawModel = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law-merge.owl"; //merge?
+	//public static String clawModel = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law-merge.owl"; //merge?
+	public static String clawModel = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl"; //merge?
 	public static String clawModelNs = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#";
 		
 	public static String dalos_ns = "http://localhost/dalos/";
