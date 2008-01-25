@@ -5,10 +5,10 @@ import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
 import it.cnr.ittig.leveler.importer.CeliOdbcImporter;
-import it.cnr.ittig.leveler.importer.celiTablesImporter;
-import it.cnr.ittig.leveler.importer.ilcTxtImporter;
-import it.cnr.ittig.leveler.importer.metaImporter;
-import it.cnr.ittig.leveler.xls.XlsParser;
+import it.cnr.ittig.leveler.importer.CeliTablesImporter;
+import it.cnr.ittig.leveler.importer.ILCTxtImporter;
+import it.cnr.ittig.leveler.importer.MetaImporter;
+import it.cnr.ittig.leveler.mapper.XlsMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +29,11 @@ public class Leveler {
 		
 		System.out.println("DATA_DIR: " + EditorConf.DATA_DIR);
 		
-		metaImporter parser = null;
+		MetaImporter parser = null;
 		if(EditorConf.TYPE_INPUT.equalsIgnoreCase("txt")) {
-			parser = new ilcTxtImporter();
+			parser = new ILCTxtImporter();
 		} else if(EditorConf.TYPE_INPUT.equalsIgnoreCase("xls")) {
-			parser = new celiTablesImporter();
+			parser = new CeliTablesImporter();
 		} else if(EditorConf.TYPE_INPUT.equalsIgnoreCase("mdb")) {
 			parser = new CeliOdbcImporter();
 		} else {
@@ -41,7 +41,7 @@ public class Leveler {
 			return;
 		}
 		
-		XlsParser xParser = new XlsParser();
+		XlsMapper xParser = new XlsMapper();
 		
 		try {
 			

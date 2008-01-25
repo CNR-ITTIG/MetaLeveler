@@ -17,13 +17,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Vector;
 
-import com.healthmarketscience.jackcess.Database;
-import com.healthmarketscience.jackcess.Table;
-
-public class CeliOdbcImporter implements metaImporter {
+public class CeliOdbcImporter implements MetaImporter {
 	
 	private String mdbFileName = EditorConf.DATA_DIR + File.separatorChar 
 		+ EditorConf.MDB_FILE_NAME;

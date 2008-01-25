@@ -14,7 +14,7 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 
-public class celiTablesImporter implements metaImporter {
+public class CeliTablesImporter implements MetaImporter {
 	
 	private String baseDir = EditorConf.DATA_DIR + File.separatorChar 
 			+ EditorConf.DB_TABLES_DIR + File.separatorChar;

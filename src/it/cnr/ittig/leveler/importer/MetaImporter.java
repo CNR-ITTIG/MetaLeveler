@@ -2,7 +2,7 @@ package it.cnr.ittig.leveler.importer;
 
 import java.io.IOException;
 
-public interface metaImporter {
+public interface MetaImporter {
 
 	/**
 	 * Create synset (Concetto object) and add it

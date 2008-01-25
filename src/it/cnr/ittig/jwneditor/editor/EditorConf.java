@@ -4,8 +4,8 @@ import java.io.File;
 
 public class EditorConf {
 
-	public static String LANGUAGE = "IT";
-	//public static String LANGUAGE = "EN";
+	//public static String LANGUAGE = "IT";
+	public static String LANGUAGE = "EN";
 
 	//type of import (one of: txt, xls, mdb)
 	public final static String TYPE_INPUT = "mdb";

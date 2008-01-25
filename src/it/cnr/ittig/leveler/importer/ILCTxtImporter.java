@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class ilcTxtImporter implements metaImporter {
+public class ILCTxtImporter implements MetaImporter {
 	
 	private String glossario = EditorConf.DATA_DIR + "/" + "glossario.txt";
 	private String glossarioNT = EditorConf.DATA_DIR + "/" + "glossario_nt.txt";

@@ -64,18 +64,30 @@ public class XlsMapper {
 			e.printStackTrace();
 		}
 		
+		//Se importi txt-ILC usa i "kwid", altrimenti string matching & prey...
+		boolean matchString = true;
+		if(EditorConf.TYPE_INPUT.equalsIgnoreCase("txt")) {
+			matchString = false;
+		}
+		
 		sheet = wb.getSheet(0);
 		int rows = sheet.getRows();
-		for(row = 1; row < rows; row++) {
+		for(row = 1; row < rows; row++) {			
 			String kwid = sheet.getCell(0, row).getContents().trim();
+			String lemma = sheet.getCell(1, row).getContents().trim();
 			String oc1 = sheet.getCell(2, row).getContents().trim();
 			String oc2 = sheet.getCell(3, row).getContents().trim();
 			String oc3 = sheet.getCell(4, row).getContents().trim();
 			String oc4 = sheet.getCell(5, row).getContents().trim();
-			if(oc1.trim().length() > 0) {
-				Concetto c = Leveler.appSynsets.get(kwid);
+			if(oc1.length() > 0) {
+				Concetto c = null;
+				if(matchString) {
+					
+				} else {
+					Leveler.appSynsets.get(kwid);
+				}
 				if(c == null) {
-					System.out.println("c is null!! kwid:" + kwid);
+					System.out.println("c is null!! kwid:" + kwid + " lemma:" + lemma);
 					continue;
 				}
 				if(oc1.equalsIgnoreCase("no")) {
