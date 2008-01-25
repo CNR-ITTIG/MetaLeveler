@@ -1,4 +1,4 @@
-package it.cnr.ittig.leveler.xls;
+package it.cnr.ittig.leveler.mapper;
 
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
