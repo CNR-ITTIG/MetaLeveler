@@ -506,8 +506,8 @@ public class AddService {
 			if( ( recordCount % 100 ) == 0) {
 				long t2 = System.currentTimeMillis();
 				long t3 = (t2 - t1) / 1000;
-				System.out.println(recordCount + " in " +
-						 t3 + " s)");
+				System.out.println(recordCount + "/" + 
+						concetti.size() + " in " + t3 + " s)");
 			}
 			processIndividual((Concetto) i.next());
 		}
@@ -522,8 +522,8 @@ public class AddService {
 			if( ( recordCount % 100 ) == 0) {
 				long t2 = System.currentTimeMillis();
 				long t3 = (t2 - t1) / 1000;
-				System.out.println(recordCount + " in " +
-						 t3 + " s)");
+				System.out.println(recordCount + "/" + 
+						concetti.size() + " in " + t3 + " s)");
 			}
 			processIndividualRelations((Concetto) i.next());
 		}
@@ -536,8 +536,8 @@ public class AddService {
 			if( ( recordCount % 100 ) == 0) {
 				long t2 = System.currentTimeMillis();
 				long t3 = (t2 - t1) / 1000;
-				System.out.println(recordCount + " in " +
-						 t3 + " s)");
+				System.out.println(recordCount + "/" + 
+						concetti.size() + " in " + t3 + " s)");
 			}
 			processLinks((Concetto) i.next());
 		}
@@ -550,8 +550,8 @@ public class AddService {
 			if( ( recordCount % 100 ) == 0) {
 				long t2 = System.currentTimeMillis();
 				long t3 = (t2 - t1) / 1000;
-				System.out.println(recordCount + " in " +
-						 t3 + " s)");
+				System.out.println(recordCount + "/" + 
+						concetti.size() + " in " + t3 + " s)");
 			}
 			processSources((Concetto) i.next());
 		}

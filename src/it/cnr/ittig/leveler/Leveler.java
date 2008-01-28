@@ -1,5 +1,6 @@
 package it.cnr.ittig.leveler;
 
+import it.cnr.ittig.bacci.divide.Divider;
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
@@ -15,6 +16,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.ModelMaker;
+
 public class Leveler {
 	
 	public static Map<String,Concetto> appSynsets = null;
@@ -28,6 +34,32 @@ public class Leveler {
 		initAppDataDir();
 		
 		System.out.println("DATA_DIR: " + EditorConf.DATA_DIR);
+		
+		if(EditorConf.DIVIDE) {
+			
+			String baseDirName = EditorConf.DATA_DIR + File.separatorChar +
+				EditorConf.DIVIDE_DIR + File.separatorChar;
+			
+			String owlFileName = EditorConf.DATA_DIR + 
+				File.separatorChar + "individuals.owl";
+			String owlTemplateName = EditorConf.DATA_DIR + 
+			File.separatorChar + "individuals-template.owl";
+			
+			ModelMaker maker = ModelFactory.createMemModelMaker();
+			OntModelSpec spec = new OntModelSpec( OntModelSpec.OWL_MEM );
+			spec.setImportModelMaker(maker);
+			OntModel template = ModelFactory.createOntologyModel(spec, null);
+			template.read("file:////" + owlTemplateName);
+
+			File owlFile = new File(owlFileName);	
+			Divider divider = new Divider(owlFile, template);
+			divider.baseDir = new File(baseDirName); 
+			divider.prefix = "lexical-" + EditorConf.LANGUAGE;
+			divider.typeOfSizing = "triple";
+			divider.process();
+			
+			return;
+		}
 		
 		MetaImporter parser = null;
 		if(EditorConf.TYPE_INPUT.equalsIgnoreCase("txt")) {

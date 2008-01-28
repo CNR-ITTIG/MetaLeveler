@@ -1,11 +1,14 @@
 package it.cnr.ittig.jwneditor.editor;
 
-import java.io.File;
 
 public class EditorConf {
 
-	//public static String LANGUAGE = "IT";
-	public static String LANGUAGE = "EN";
+	public static boolean DIVIDE = true;
+	
+	public static String DIVIDE_DIR = "segment";
+	
+	public static String LANGUAGE = "IT";
+	//public static String LANGUAGE = "EN";
 
 	//type of import (one of: txt, xls, mdb)
 	public final static String TYPE_INPUT = "mdb";
@@ -14,7 +17,7 @@ public class EditorConf {
 	public static String MDB_FILE_NAME = "DalosAlignment.mdb";
 
 	//link terms to ontology classes?
-	public final static boolean LINK_TO_ONTOLOGY = false;
+	public final static boolean LINK_TO_ONTOLOGY = true;
 	public final static String CLASSIFICATION = "classification-15-07.xls"; 
 	public final static String MAPPING = "mappings-15-07-mod.xls"; 
 	
@@ -58,7 +61,7 @@ public class EditorConf {
 	public static String clawModelNs = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#";
 		
 	public static String dalos_ns = "http://localhost/dalos/";
-	public static String onto_ns =  dalos_ns + LANGUAGE + File.separatorChar;
+	public static String onto_ns =  dalos_ns + LANGUAGE + "/";
 	
 	public static String onto_ind = onto_ns + "individuals.owl";
 	public static String onto_indw = onto_ns + "individuals-word.owl";

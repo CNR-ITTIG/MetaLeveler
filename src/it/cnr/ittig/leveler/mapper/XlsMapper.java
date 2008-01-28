@@ -82,12 +82,15 @@ public class XlsMapper {
 			if(oc1.length() > 0) {
 				Concetto c = null;
 				if(matchString) {
-					
+					c = getSynsetByLemma(lemma);
 				} else {
-					Leveler.appSynsets.get(kwid);
+					c = Leveler.appSynsets.get(kwid);
 				}
 				if(c == null) {
-					System.out.println("c is null!! kwid:" + kwid + " lemma:" + lemma);
+					System.err.println(
+							">> WARNING! classify() - c is null, " +
+							"matching lemma not found or invalid kwid! (kwid:" 
+							+ kwid + ", lemma:" + lemma + ")");
 					continue;
 				}
 				if(oc1.equalsIgnoreCase("no")) {
@@ -109,6 +112,45 @@ public class XlsMapper {
 				}
 			}			
 		}		
+	}
+	
+	private Concetto getSynsetByLemma(String lemma) {
+		
+		Concetto c = null;
+		Collection<Concetto> synsets = Leveler.appSynsets.values();		
+		for(Iterator<Concetto> iter = synsets.iterator(); iter.hasNext(); ) {
+			Concetto item = iter.next();
+			for(int i = 0; i < item.lemmi.size(); i++) {
+				Lemma thisLemma = item.lemmi.get(i);
+				for(int v = 0; v < thisLemma.variants.size(); v++) {
+					String variant = thisLemma.variants.get(v);
+					if(matchLemma(lemma, variant)) {
+						c = item;
+						//System.out.println("LEMMA OK a: " + lemma + " b:" + variant);
+						break;
+					}					
+				}
+			}
+		}		
+		return c;
+	}
+	
+	private boolean matchLemma(String lemma1, String lemma2) {
+		
+		String a = lemma1.trim();
+		String b = lemma2.trim();
+		//System.out.println("a: " + lemma1 + " b:" + lemma2);
+		if(a.equalsIgnoreCase(b)) {
+			return true;
+		}
+		String empty = "";
+		a = a.replaceAll(" ", empty);
+		b = b.replaceAll(" ", empty);
+		if(a.equalsIgnoreCase(b)) {
+			System.out.println("matchLemma(): (1) " + a + " <-> " + b);
+			return true;
+		}
+		return false;
 	}
 	
 	private String resolve(String oc) {
