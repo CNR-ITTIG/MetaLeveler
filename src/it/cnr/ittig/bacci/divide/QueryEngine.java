@@ -8,6 +8,7 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
+import com.hp.hpl.jena.rdf.model.Model;
 
 public class QueryEngine {
 
@@ -15,15 +16,51 @@ public class QueryEngine {
 	
 	private OntModel model;
 	
-	private void run(String query) {
+	public Model run(String query) {
 		
 		dataset = DatasetFactory.create(model);
 		
 		Query q = QueryFactory.create(query);
-		ResultSet results = QueryExecutionFactory.
-								create(q, dataset).execSelect();
+		Model resultModel = QueryExecutionFactory.
+								create(q, dataset).execConstruct();
 		
-		ResultSetFormatter.out(System.out, results, q);
+		return resultModel;
 		
 	}
+	
+	/*
+	 * QUERIES;
+	 * 
+
+//LEXICAL & GENERICS
+
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+  <synset-xyz> ?p ?o .
+  ?s ?p1 <synset-xyz> .
+  ?o ?p2 ?o2 .
+  ?o2 ?p3 ?o4 .
+}
+WHERE { 
+  <synset-xyz> ?p ?o .
+  ?s ?p1 <synset-xyz> .
+  ?o ?p2 ?o2 .
+  ?o2 ?p3 ?o4 .
+}
+
+//SOURCES:
+
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+  <synset-xyz> ?p ?o .
+  ?s ?p1 <synset-xyz> .
+}
+WHERE { 
+  <synset-xyz> ?p ?o .
+  ?s ?p1 <synset-xyz> .
+}
+
+
+
+	 */
 }

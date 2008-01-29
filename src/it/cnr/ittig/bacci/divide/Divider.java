@@ -13,6 +13,7 @@ import java.util.Map;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntResource;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -57,7 +58,7 @@ public class Divider {
 	
 	private File segmentDir;
 	
-	private int tripleInSegment;
+	//private int tripleInSegment;
 	
 	private final int MAX_TRIPLE_SEGMENT = 64;
 	
@@ -116,7 +117,7 @@ public class Divider {
 		
 		typeOfSizing = "single"; //Triples num? Memory occupation?
 		
-		tripleInSegment = 0;
+		//tripleInSegment = 0;
 		
 		typeFilter = null;
 		
@@ -208,7 +209,7 @@ public class Divider {
 			//Count triples in actualSegment, then
 			//return the actual or a new segment.
 			//Save segment if necessary.
-			if(tripleInSegment > MAX_TRIPLE_SEGMENT) {
+			if(segment.size() > MAX_TRIPLE_SEGMENT) {
 				createSegment();
 			} 
 		}
@@ -220,7 +221,8 @@ public class Divider {
 			saveSegment();
 		}
 		
-		tripleInSegment = 0;
+		//tripleInSegment = 0;
+		
 		//Crea un modello vuoto in memoria e fagli leggere
 		//il modello template.
 		segment = ModelFactory.createOntologyModel(spec, null);
@@ -306,6 +308,18 @@ public class Divider {
 		}	
 		if(typeOfSegment.equalsIgnoreCase("heavy")) {
 			
+			QueryEngine engine = new QueryEngine();
+			
+			String query = "PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+					"CONSTRUCT { " +
+					" <synset-xyz> ?p ?o .  ?s ?p1 <synset-xyz> .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . " +
+					"} WHERE { " +
+					" <synset-xyz> ?p ?o .  ?s ?p1 <synset-xyz> .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . }";
+			
+			Model resultModel = engine.run(query);
+			
+			addDataFromModel(resultModel);
+			
 		}	
 		if(typeOfSegment.equalsIgnoreCase("heavier")) {
 			
@@ -313,9 +327,7 @@ public class Divider {
 		
 		if(typeOfSegment.equalsIgnoreCase("query")) {
 			
-			QueryEngine engine = new QueryEngine();
-			
-			String query = "";
+			//Customize query string...
 		}		
 			
 	}
@@ -329,23 +341,14 @@ public class Divider {
 
 		while(iter.hasNext()) {
 			
-			tripleInSegment++;
+			//tripleInSegment++;
 			segment.add(iter.nextStatement());
 		}
 	}
 	
-	private void addNormalData(Resource res) {
+	private void addDataFromModel(Model dataModel) {
 		
-		RDFNode obj = null;
-		
-		StmtIterator iter = 
-			model.listStatements(res, null, obj);
-
-		while(iter.hasNext()) {
-			
-			tripleInSegment++;
-			segment.add(iter.nextStatement());
-		}
+		segment.add(dataModel);
 	}
 	
 	private boolean prepareDir() {
