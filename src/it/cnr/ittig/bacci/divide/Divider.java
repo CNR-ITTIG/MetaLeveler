@@ -41,8 +41,6 @@ public class Divider {
 	
 	private RDFNode typeFilter;
 	
-	private int weight;
-	
 	private OntModel templateModel;
 	
 	private OntModel segment;
@@ -62,6 +60,8 @@ public class Divider {
 	private int tripleInSegment;
 	
 	private final int MAX_TRIPLE_SEGMENT = 64;
+	
+	private String query;
 
 	//Public Fields
 	public File baseDir;	
@@ -123,19 +123,26 @@ public class Divider {
 		baseDir = new File(".");
 		
 		prefix = "segment";
+		
+		query = "";
 	}
 	
-	private void initWeight() {
+	public void setQuery(String query) {
 		
-		if(typeOfSegment.equalsIgnoreCase("light")) weight = 0;
-		if(typeOfSegment.equalsIgnoreCase("normal")) weight = 1;
-		if(typeOfSegment.equalsIgnoreCase("heavy")) weight = 2;
-		if(typeOfSegment.equalsIgnoreCase("heavier")) weight = 3;
+		this.query = query;
 	}
+	
+//	private void initWeight() {
+//		
+//		if(typeOfSegment.equalsIgnoreCase("light")) weight = 0;
+//		if(typeOfSegment.equalsIgnoreCase("normal")) weight = 1;
+//		if(typeOfSegment.equalsIgnoreCase("heavy")) weight = 2;
+//		if(typeOfSegment.equalsIgnoreCase("heavier")) weight = 3;
+//	}
 
 	public void process() {
 		
-		initWeight();
+		//initWeight();
 		
 		segment = null;
 		segmentName = "-";
@@ -288,23 +295,46 @@ public class Divider {
 	private void fillSegment(Resource res) {
 		
 		addMapping(res);
-		addLightData(res);
 		
-		if(weight > 0) {
+		if(typeOfSegment.equalsIgnoreCase("light")) {
+			addLightData(res);
 			
+		}	
+		if(typeOfSegment.equalsIgnoreCase("normal")) {
 			//addNormalData(res, segment);
-			if(weight > 1) {
-				
-				//addHeavyData(res, segment);
-				if(weight > 2) {
-					
-					//addHeavierData(res, segment);
-				}				
-			}			
+			
+		}	
+		if(typeOfSegment.equalsIgnoreCase("heavy")) {
+			
+		}	
+		if(typeOfSegment.equalsIgnoreCase("heavier")) {
+			
 		}
+		
+		if(typeOfSegment.equalsIgnoreCase("query")) {
+			
+			QueryEngine engine = new QueryEngine();
+			
+			String query = "";
+		}		
+			
 	}
 	
 	private void addLightData(Resource res) {
+		
+		RDFNode obj = null;
+		
+		StmtIterator iter = 
+			model.listStatements(res, null, obj);
+
+		while(iter.hasNext()) {
+			
+			tripleInSegment++;
+			segment.add(iter.nextStatement());
+		}
+	}
+	
+	private void addNormalData(Resource res) {
 		
 		RDFNode obj = null;
 		
