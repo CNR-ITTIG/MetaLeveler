@@ -5,7 +5,6 @@ import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
-import it.cnr.ittig.jwneditor.jwn2owl.OWLUtil;
 import it.cnr.ittig.leveler.importer.CeliOdbcImporter;
 import it.cnr.ittig.leveler.importer.CeliTablesImporter;
 import it.cnr.ittig.leveler.importer.ILCTxtImporter;
@@ -13,10 +12,7 @@ import it.cnr.ittig.leveler.importer.MetaImporter;
 import it.cnr.ittig.leveler.mapper.XlsMapper;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -241,9 +237,9 @@ public class Leveler {
 		file = new File(EditorConf.DATA_DIR + 
 				File.separatorChar + "types.owl");
 		model.read("file:////" + file.getAbsolutePath());
-		file = new File(EditorConf.DATA_DIR + 
-				File.separatorChar + "ind-to-consumer.owl");
-		model.read("file:////" + file.getAbsolutePath());
+//		file = new File(EditorConf.DATA_DIR + 
+//				File.separatorChar + "ind-to-consumer.owl");
+//		model.read("file:////" + file.getAbsolutePath());
 		
 		addImport(model, 
 				"http://localhost/runtime.owl", 

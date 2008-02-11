@@ -265,20 +265,6 @@ public class AddService {
 	
 	private void addUpperTypes(OntResource res, OntClass upper) { //, boolean first) {
 
-		//NON E' AUTOMATICO CHE GLI IPONIMI VENGANO CLASSIFICATI ALLO STESSO MODO!!!!!!!!!!
-		
-//		for(StmtIterator i = res.listProperties(hypo); i.hasNext(); ) {
-//			Statement stmt = i.nextStatement();
-//			Resource r = stmt.getResource();
-//			OntResource ores = m_ind.getOntResource(NS_IND + r.getLocalName());
-////			System.out.println("@@ " + res.getLocalName() + " --> " + ores.getLocalName()
-////					+ " (" + r.getLocalName() + ")");
-//			addUpperTypes(ores, upper); //, false);
-//		}
-		
-//		System.out.println("Linking " + res.getLocalName() + 
-//				" to " + upper.getLocalName() + "...");
-
 		m_ind_claw.add(res, RDF.type, upper); //oppure si linka la classe di concepts.owl ???
 
 	}
