@@ -94,9 +94,9 @@ public class XlsMapper {
 					continue;
 				}
 				if(oc1.equalsIgnoreCase("no")) {
-					//Rimuovere il synset dal lessico
-					Leveler.appSynsets.keySet().remove(kwid);
-					Leveler.appSynsets.values().remove(c);
+					//Rimuovere il synset dal lessico ?
+//					Leveler.appSynsets.keySet().remove(kwid);
+//					Leveler.appSynsets.values().remove(c);
 					continue;
 				}
 				

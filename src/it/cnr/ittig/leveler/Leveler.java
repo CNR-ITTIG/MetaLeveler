@@ -5,6 +5,7 @@ import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
+import it.cnr.ittig.jwneditor.jwn2owl.OWLUtil;
 import it.cnr.ittig.leveler.importer.CeliOdbcImporter;
 import it.cnr.ittig.leveler.importer.CeliTablesImporter;
 import it.cnr.ittig.leveler.importer.ILCTxtImporter;
@@ -12,14 +13,22 @@ import it.cnr.ittig.leveler.importer.MetaImporter;
 import it.cnr.ittig.leveler.mapper.XlsMapper;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hp.hpl.jena.ontology.OntDocumentManager;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.Ontology;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
+import com.hp.hpl.jena.reasoner.Reasoner;
+import com.hp.hpl.jena.reasoner.ReasonerRegistry;
+import com.hp.hpl.jena.vocabulary.OWL;
 
 public class Leveler {
 	
@@ -36,27 +45,8 @@ public class Leveler {
 		System.out.println("DATA_DIR: " + EditorConf.DATA_DIR);
 		
 		if(EditorConf.DIVIDE) {
-			
-			String baseDirName = EditorConf.DATA_DIR + File.separatorChar +
-				EditorConf.DIVIDE_DIR + File.separatorChar;
-			
-			String owlFileName = EditorConf.DATA_DIR + 
-				File.separatorChar + "individuals.owl";
-			String owlTemplateName = EditorConf.DATA_DIR + 
-			File.separatorChar + "individuals-template.owl";
-			
-			ModelMaker maker = ModelFactory.createMemModelMaker();
-			OntModelSpec spec = new OntModelSpec( OntModelSpec.OWL_MEM );
-			spec.setImportModelMaker(maker);
-			OntModel template = ModelFactory.createOntologyModel(spec, null);
-			template.read("file:////" + owlTemplateName);
 
-			File owlFile = new File(owlFileName);	
-			Divider divider = new Divider(owlFile, template);
-			divider.baseDir = new File(baseDirName); 
-			divider.prefix = "lexical-" + EditorConf.LANGUAGE;
-			divider.typeOfSizing = "triple";
-			divider.process();
+			segmentData();
 			
 			return;
 		}
@@ -229,6 +219,66 @@ public class Leveler {
 			+ File.separatorChar + "types.owl";
 		EditorConf.local_onto_sources = EditorConf.DATA_DIR 
 			+ File.separatorChar + "sources.owl";		
+	}
+
+	private static void segmentData() {
+		
+		//init data model		
+		ModelMaker maker = ModelFactory.createMemModelMaker();
+		//OntModelSpec spec =  OntModelSpec.OWL_MEM ;
+		OntModelSpec spec = new OntModelSpec( OntModelSpec.OWL_MEM );
+		spec.setImportModelMaker(maker);
+		Reasoner r = ReasonerRegistry.getOWLMicroReasoner();
+		spec.setReasoner(r);
+		OntModel model = ModelFactory.createOntologyModel(spec, null);
+		
+		File file = new File(EditorConf.DATA_DIR + 
+			File.separatorChar + "individuals.owl");
+		model.read("file:////" + file.getAbsolutePath());
+		file = new File(EditorConf.DATA_DIR + 
+				File.separatorChar + "individuals-word.owl");
+		model.read("file:////" + file.getAbsolutePath());
+		file = new File(EditorConf.DATA_DIR + 
+				File.separatorChar + "types.owl");
+		model.read("file:////" + file.getAbsolutePath());
+		file = new File(EditorConf.DATA_DIR + 
+				File.separatorChar + "ind-to-consumer.owl");
+		model.read("file:////" + file.getAbsolutePath());
+		
+		addImport(model, 
+				"http://localhost/runtime.owl", 
+				"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl");
+		addImport(model, 
+				"http://localhost/runtime.owl", 
+				"http://turing.ittig.cnr.it/jwn/ontologies/language-properties-full.owl");		
+
+		OntDocumentManager odm = OntDocumentManager.getInstance();
+		odm.setProcessImports(true);
+		odm.loadImports(model);
+		
+//		String owlTemplateName = EditorConf.DATA_DIR + 
+//		File.separatorChar + "individuals-template.owl";
+//		
+//		OntModel template = ModelFactory.createOntologyModel(spec, null);
+//		template.read("file:////" + owlTemplateName);
+	
+		//Go on...
+		String baseDirName = EditorConf.DATA_DIR + File.separatorChar +
+		EditorConf.DIVIDE_DIR + File.separatorChar;
+	
+		Divider divider = new Divider(model);
+		divider.baseDir = new File(baseDirName); 
+		divider.prefix = "seglex-" + EditorConf.LANGUAGE;
+		divider.typeOfSizing = "triple";
+		divider.typeOfSegment = "heavy";
+		divider.maxSegmentSize = 64;
+		divider.process();
+	}
+	
+	public static void addImport(OntModel om, String source, String dest) {
+
+		Ontology ont = om.createOntology(source); 
+		om.add(ont, OWL.imports, om.createResource(dest));
 	}
 
 }

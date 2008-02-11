@@ -7,14 +7,14 @@ public class EditorConf {
 	
 	public static String DIVIDE_DIR = "segment";
 	
-	public static String LANGUAGE = "IT";
-	//public static String LANGUAGE = "EN";
+	//public static String LANGUAGE = "IT";
+	public static String LANGUAGE = "EN";
 
 	//type of import (one of: txt, xls, mdb)
 	public final static String TYPE_INPUT = "mdb";
 	
 	public static String DB_TABLES_DIR = "dbTables";
-	public static String MDB_FILE_NAME = "DalosAlignment.mdb";
+	public static String MDB_FILE_NAME = "DalosAlignmen-t01-02.mdb";
 
 	//link terms to ontology classes?
 	public final static boolean LINK_TO_ONTOLOGY = true;

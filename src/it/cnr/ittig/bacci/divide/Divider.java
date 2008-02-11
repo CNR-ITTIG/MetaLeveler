@@ -1,5 +1,7 @@
 package it.cnr.ittig.bacci.divide;
 
+import it.cnr.ittig.jwneditor.editor.EditorConf;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntResource;
@@ -42,7 +45,7 @@ public class Divider {
 	
 	private RDFNode typeFilter;
 	
-	private OntModel templateModel;
+	//private OntModel templateModel;
 	
 	private OntModel segment;
 	
@@ -60,8 +63,6 @@ public class Divider {
 	
 	//private int tripleInSegment;
 	
-	private final int MAX_TRIPLE_SEGMENT = 64;
-	
 	private String query;
 
 	//Public Fields
@@ -73,23 +74,24 @@ public class Divider {
 	
 	public String typeOfSizing;
 	
+	public int maxSegmentSize;	
+	
 	//Constructors
-	public Divider(File owlFile, OntModel template) {
+	public Divider(File owlFile) { //, OntModel template) {
 		
 		//init model...
 		
-		templateModel = template;
+		//templateModel = template;
 		
 		initModel(owlFile);
 		initData();
 	}
 
-	public Divider(OntModel mod, OntModel template) {
+	public Divider(OntModel mod) { //, OntModel template) {
 		
 		model = mod;
-		templateModel = template;
-		segment = null;
-		
+		//templateModel = template;
+
 		initData();
 	}
 	
@@ -126,6 +128,8 @@ public class Divider {
 		prefix = "segment";
 		
 		query = "";
+		
+		maxSegmentSize = 64;
 	}
 	
 	public void setQuery(String query) {
@@ -159,23 +163,37 @@ public class Divider {
 		int count = 0;
 
 		//ExtendedIterator iter = model.listIndividuals();
-		ResIterator iter = model.listSubjects();
+		System.out.println("size: " + model.size());
+
+//		ResIterator iter = model.listSubjects();
+		OntClass synClass = model.getOntClass(
+				"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#Synset");
+		ExtendedIterator iter = synClass.listInstances(false);
 		
 		while(iter.hasNext()) {
+			
+			OntResource res = (OntResource) iter.next();
+			//Resource res = (Resource) iter.next();
+			//Resource res = iter.nextResource();
+			//System.out.println("Processing resource " + res.getLocalName());
+			
+//			String resName = res.getLocalName();
+//			if(!resName.startsWith("synset-")) {
+//				continue;
+//			}
+
+			if(typeFilter != null) {
+				// ?
+			}
+
 			count++;
 			if( ( count % 100 ) == 0) {
 				long t2 = System.currentTimeMillis();
 				long t3 = (t2 - t1) / 1000;
 				System.out.println(count + " in " + t3 + " s)");
 			}
+			//System.out.println(">> " + res.getLocalName() + " (" + count + ")" );
 
-			//OntResource res = (OntResource) iter.next();
-			Resource res = iter.nextResource();
-			//System.out.println("Processing resource " + res.getLocalName());
-
-			if(typeFilter != null) {
-				// ?
-			}
 			checkSegment();
 			fillSegment(res);
 		}
@@ -209,7 +227,7 @@ public class Divider {
 			//Count triples in actualSegment, then
 			//return the actual or a new segment.
 			//Save segment if necessary.
-			if(segment.size() > MAX_TRIPLE_SEGMENT) {
+			if(segment.size() > maxSegmentSize) {
 				createSegment();
 			} 
 		}
@@ -226,7 +244,7 @@ public class Divider {
 		//Crea un modello vuoto in memoria e fagli leggere
 		//il modello template.
 		segment = ModelFactory.createOntologyModel(spec, null);
-		segment.add(templateModel, true); //true adds also reified statements
+		//segment.add(templateModel, true); //true adds also reified statements
 		
 		//Set next segment name
 		setNextSegmentName();
@@ -308,16 +326,39 @@ public class Divider {
 		}	
 		if(typeOfSegment.equalsIgnoreCase("heavy")) {
 			
-			QueryEngine engine = new QueryEngine();
+			//String resURI = res.getNameSpace() + res.getLocalName();
+			String resName = "rns:" + res.getLocalName();
+			//String resNS = res.getNameSpace();
+//			String ns = res.getNameSpace();
+//			String resName = "owns:" + res.getLocalName();
 			
-			String query = "PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-					"CONSTRUCT { " +
-					" <synset-xyz> ?p ?o .  ?s ?p1 <synset-xyz> .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . " +
-					"} WHERE { " +
-					" <synset-xyz> ?p ?o .  ?s ?p1 <synset-xyz> .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . }";
+//			String query =  "PREFIX rns:   <" + res.getNameSpace() + "> " +
+//					"PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+//					"CONSTRUCT { " + resName + " " +
+//					"?p ?o .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . " +
+//					"} WHERE { " + resName + "  ?p ?o .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . } ";
+
 			
-			Model resultModel = engine.run(query);
+			//Per le lexical properties non ci sarebbe bisogno di individual-words...
+			String lang = EditorConf.LANGUAGE;
+			String query =  
+			"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
+			"PREFIX owns: <http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#> " +
+			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+			"CONSTRUCT { " + resName + " ?p ?o .  ?o1 ?p2 ?o2 .  ?o4 ?p5 ?o5 . " +
+			" } WHERE { { " + resName + " ?p ?o . } UNION { " + resName + 
+			" ?p1 ?o1 .  ?o1 rdf:type owns:WordSense .  ?o1 ?p2 ?o2 .  " +
+			" } UNION {  " + resName + " ?p3 ?o3 .  ?o3 ?p4 ?o4 ." +
+			"  ?o4 rdf:type owns:Word .  ?o4 ?p5 ?o5 .  } } ";			
 			
+			Model resultModel = QueryEngine.run(model, query);
+
+			if(resName.contains("synset-legislatore_comunitario-noun-1")) {
+				System.out.println("SPARQL: " + query);
+				System.out.println("Result size: " + resultModel.size());
+				System.out.println("NS+NAME: " + res.getNameSpace() + res.getLocalName());
+			}
+
 			addDataFromModel(resultModel);
 			
 		}	

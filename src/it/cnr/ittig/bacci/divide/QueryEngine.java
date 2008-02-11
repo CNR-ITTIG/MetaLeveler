@@ -12,13 +12,11 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 public class QueryEngine {
 
-	private Dataset dataset;
-	
-	private OntModel model;
-	
-	public Model run(String query) {
+	public static Model run(Model model, String query) {
 		
-		dataset = DatasetFactory.create(model);
+		Dataset dataset = DatasetFactory.create(model);
+		
+		//System.out.println("Exec Sparql: " + query);
 		
 		Query q = QueryFactory.create(query);
 		Model resultModel = QueryExecutionFactory.
@@ -58,6 +56,49 @@ CONSTRUCT {
 WHERE { 
   <synset-xyz> ?p ?o .
   ?s ?p1 <synset-xyz> .
+}
+
+//NUOVA:
+CONSTRUCT {
+  <synset-xyz> ?p ?o .
+  ?o1 ?p2 ?o2 .
+  ?o4 ?p5 ?o5 .
+}
+WHERE { 
+  {
+  <synset-xyz> ?p ?o .
+  } UNION {
+  <synset-xyz> ?p1 ?o1 .
+  ?o1 rdf:type owns:WordSense .
+  ?o1 ?p2 ?o2 .
+  } UNION {
+  <synset-xyz> ?p3 ?o3 .
+  ?o3 ?p4 ?o4 .
+  ?o4 rdf:type owns:Word .
+  ?o4 ?p5 ?o5 .
+  }
+}
+
+///////////////////////////////
+CONSTRUCT {
+  <synset-xyz> ?p ?o .
+  ?o1 ?p2 ?o2 .
+  ?o4 ?p5 ?o5 .
+}
+WHERE { 
+  {
+  <synset-xyz> ?p ?o .
+  ?o rdf:type owns:Source
+  } UNION {
+  <synset-xyz> ?p1 ?o1 .
+  ?o1 rdf:type owns:WordSense .
+  ?o1 ?p2 ?o2 .
+  } UNION {
+  <synset-xyz> ?p3 ?o3 .
+  ?o3 ?p4 ?o4 .
+  ?o4 rdf:type owns:Word .
+  ?o4 ?p5 ?o5 .
+  }
 }
 
 

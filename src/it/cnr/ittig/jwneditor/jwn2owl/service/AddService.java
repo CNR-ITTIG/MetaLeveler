@@ -157,7 +157,7 @@ public class AddService {
 		odm.addAltEntry(EditorConf.onto_types, EditorConf.local_onto_types);
 		odm.addAltEntry(EditorConf.onto_sources, EditorConf.local_onto_sources);
 		
-		odm.loadImports(m);		
+		odm.loadImports(m);
 	}
 	
 	/*
@@ -281,6 +281,11 @@ public class AddService {
 
 		m_ind_claw.add(res, RDF.type, upper); //oppure si linka la classe di concepts.owl ???
 
+	}
+	
+	private void addUpperSubClass(OntClass synClass, OntClass upper) {
+		
+		m_conc.add(synClass, RDFS.subClassOf, upper);
 	}
 	
 //	private OntClass getUpperDocuments(String name, String ns) {
@@ -409,25 +414,39 @@ public class AddService {
 
 		//Links to concepts.owl
 		//crea la classe corrispondente
-		createConceptClass(item, synset);
+		OntClass synsetClass = createConceptClass(item, synset);
 		
-		//Links to some domain ontology...
-		for(int k = 0; k < item.ontoclassi.size(); k++) {
-
-			String ontoclasse = item.ontoclassi.get(k);
-//			System.out.println("ontoclasse: " + ontoclasse);
-//			if(ontoclasse.trim().length() < 1 ||
-//					ontoclasse.equalsIgnoreCase("no")) {
-//				continue;
-//			}
-			String[] data = ontoclasse.split("#");
+		if(synsetClass == null) {
+			return;
+		}
+		
+		for(Iterator<String> ci = item.ontoclassi.iterator(); ci.hasNext();) {
+			String ocName = ci.next();
+			String[] data = ocName.split("#");
 			String namespace = data[0] + "#";
 			String ocname = data[1];
 			OntClass upper = getUpperClass(ocname, namespace);
 			if(upper != null) {
-				addUpperTypes(synset, upper);				
+				addUpperSubClass(synsetClass, upper);							}			
 			}
-		}
+		
+		//Links to some domain ontology...
+//		for(int k = 0; k < item.ontoclassi.size(); k++) {
+//
+//			String ontoclasse = item.ontoclassi.get(k);
+////			System.out.println("ontoclasse: " + ontoclasse);
+////			if(ontoclasse.trim().length() < 1 ||
+////					ontoclasse.equalsIgnoreCase("no")) {
+////				continue;
+////			}
+//			String[] data = ontoclasse.split("#");
+//			String namespace = data[0] + "#";
+//			String ocname = data[1];
+//			OntClass upper = getUpperClass(ocname, namespace);
+//			if(upper != null) {
+//				addUpperTypes(synset, upper);				
+//			}
+//		}
 	}
 		
 	private void processSources(Concetto item) {
@@ -440,11 +459,15 @@ public class AddService {
 			return;
 		}
 		
-		//Aggiungi sources (non considera le frequenze al momento)
-		int maxSources = 2;
+		int maxSources = item.riferimenti.size();
+
+		//Set a BOUND?
+		maxSources = 5;
 		if(item.riferimenti.size() < maxSources) {
 			maxSources = item.riferimenti.size();
 		}
+
+		//Aggiungi sources (non considera le frequenze al momento)		
 		for(int k = 0; k < maxSources; k++) {
 			String partitionCode = item.riferimenti.get(k);
 			String documentCode = partitionCode.substring(0, partitionCode.
@@ -559,7 +582,7 @@ public class AddService {
 		System.out.println("AddService - Done.");
 	}
 	
-	private void createConceptClass(Concetto c, OntResource syn) {
+	private OntClass createConceptClass(Concetto c, OntResource syn) {
 		
 		//Verifica se ha belongs_to_class per WordNet
 		RDFNode value = syn.getPropertyValue(belongs);
@@ -569,12 +592,12 @@ public class AddService {
 				System.out.println(">>>>>> Skipping " + 
 						syn + " BELONGS_TO_CLASS " + value);
 			}
-			return;
+			return null;
 		}		
 		
 		//Crea la classe concept in base al valore dell'attributo 'conceptClass'
 		if(c.conceptLemma == null) {
-			return;
+			return null;
 		}
 		//String name = OWLUtil.getConceptClassName(c.getPrimario());
 		String name = OWLUtil.getConceptClassName(c.conceptLemma);
@@ -587,6 +610,8 @@ public class AddService {
 		}
 		//Link this synset to the concept class
 		m_types.add(syn, RDF.type, synsetClass);
+		
+		return synsetClass;
 	}
 	
 	private OntResource createSynsetIndividual(Concetto c) {
