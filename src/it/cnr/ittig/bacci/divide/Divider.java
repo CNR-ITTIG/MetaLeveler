@@ -163,7 +163,7 @@ public class Divider {
 		int count = 0;
 
 		//ExtendedIterator iter = model.listIndividuals();
-		System.out.println("size: " + model.size());
+		//System.out.println("size: " + model.size());
 
 //		ResIterator iter = model.listSubjects();
 		OntClass synClass = model.getOntClass(
@@ -190,7 +190,7 @@ public class Divider {
 			if( ( count % 100 ) == 0) {
 				long t2 = System.currentTimeMillis();
 				long t3 = (t2 - t1) / 1000;
-				System.out.println(count + " in " + t3 + " s)");
+				System.out.println(count + " in " + t3 + " s");
 			}
 			//System.out.println(">> " + res.getLocalName() + " (" + count + ")" );
 

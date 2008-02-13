@@ -3,12 +3,12 @@ package it.cnr.ittig.jwneditor.editor;
 
 public class EditorConf {
 
-	public static boolean DIVIDE = true;
+	public static boolean DIVIDE = false;
 	
 	public static String DIVIDE_DIR = "segment";
 	
-	public static String LANGUAGE = "IT";
-	//public static String LANGUAGE = "EN";
+	//public static String LANGUAGE = "IT";
+	public static String LANGUAGE = "EN";
 
 	//type of import (one of: txt, xls, mdb)
 	public final static String TYPE_INPUT = "mdb";

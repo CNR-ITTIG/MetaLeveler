@@ -171,8 +171,13 @@ public class CeliOdbcImporter implements MetaImporter {
 		}
 		closeConnection(c);
 	}
-
+	
 	public void addAlignment() throws IOException {
+		
+		if(EditorConf.LANGUAGE.equalsIgnoreCase("en")) {
+			processMainLanguage();
+			return;
+		}
 		
 		Connection c = openConnection();		
 		
@@ -180,11 +185,12 @@ public class CeliOdbcImporter implements MetaImporter {
 //			termsTBL + " T on (I.IL_TE_IdTerm_To = T.TE_IdTerm ) ";
 			
 		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_TE_IdTerm_From, T1.IL_LG_IdLanguage_To, T2.TE_Lemma " +
-		"FROM " + interlinguisticTBL + " T1, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + 
-		" ) AS T2 WHERE T1.IL_TE_IdTerm_To = T2.TE_IdTerm " +
-		"AND T1.IL_LG_IdLanguage_From = '" + EditorConf.LANGUAGE + "' " +
-		//"AND T1.TD_OT_IdRelType = 'mention' " +
-		"";
+			"FROM " + interlinguisticTBL + " T1, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + 
+			" ) AS T2 WHERE T1.IL_TE_IdTerm_To = T2.TE_IdTerm " +
+			"AND T1.IL_LG_IdLanguage_From = '" + EditorConf.LANGUAGE + "' " +
+			//"AND T1.TD_OT_IdRelType = 'mention' " +
+			"";	
+
 		Vector<String[]> results = eseguiQuery(c, sql);
 
 		int counter = 0;
@@ -230,6 +236,42 @@ public class CeliOdbcImporter implements MetaImporter {
 		closeConnection(c);
 	}
 	
+	private void processMainLanguage() throws IOException {
+		
+		Connection c = openConnection();
+
+		String sql = "select * from " + termsTBL + 
+			" where TE_LG_IdLanguage = '" + EditorConf.LANGUAGE + "'";
+		
+		Vector<String[]> results = eseguiQuery(c, sql);
+
+		int counter = 0;
+		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
+			String[] row = i.next();
+
+			String id = row[1].trim();
+			String protoConcept = row[3].trim();
+						
+			if(counter < 10) {
+				System.out.println("idf: " + id + " proto: " + protoConcept);
+			}
+			counter++;
+
+			Concetto c1 = Leveler.appSynsets.get(id);
+			if(c1 == null ) {
+				System.out.println(">>WARNING<< NULL - " + c1);
+				continue;
+			}
+
+			//Link the concept class to the synset
+			Lemma lemma = new Lemma(protoConcept);
+			lemma.protoForm = protoConcept;
+			lemma.variants.add(protoConcept);
+			c1.conceptLemma = lemma;
+		}
+		closeConnection(c);
+	}
+
 	private Vector<String[]> eseguiQuery(Connection c, String query) {
 		System.out.println("Exec query: " + query);
 		Vector<String[]> v = null;

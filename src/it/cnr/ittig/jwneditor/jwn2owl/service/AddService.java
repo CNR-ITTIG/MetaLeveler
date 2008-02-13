@@ -211,7 +211,7 @@ public class AddService {
 		adverbWSClass = m.getOntClass(NS_SCHEMA + OWLUtil.getWordSenseClass("AV"));
 		wordClass = m.getOntClass(NS_SCHEMA + OWLUtil.getWordClass());
 		
-		conceptClass = m.createClass(NS_CONC + "Concept");
+		conceptClass = m_conc.createClass(NS_CONC + "Concept");
 		
 		documentClass = m.getOntClass(SOURCE_SCHEMA + "Document");
 		partitionClass = m.getOntClass(SOURCE_SCHEMA + "Partition");

@@ -81,7 +81,7 @@ public class Leveler {
 //			xParser.fill();
 //			return;
 			
-			if(EditorConf.LINK_TO_ONTOLOGY) {
+			if(EditorConf.LANGUAGE.equals("IT") && EditorConf.LINK_TO_ONTOLOGY) {
 				System.out.println("Adding ontologies classifications...");
 				xParser.classify();
 			}
