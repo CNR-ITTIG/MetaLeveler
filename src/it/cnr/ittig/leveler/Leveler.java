@@ -228,46 +228,67 @@ public class Leveler {
 		spec.setReasoner(r);
 		OntModel model = ModelFactory.createOntologyModel(spec, null);
 		
-		File file = new File(EditorConf.DATA_DIR + 
-			File.separatorChar + "individuals.owl");
-		model.read("file:////" + file.getAbsolutePath());
-		file = new File(EditorConf.DATA_DIR + 
-				File.separatorChar + "individuals-word.owl");
-		model.read("file:////" + file.getAbsolutePath());
-		file = new File(EditorConf.DATA_DIR + 
-				File.separatorChar + "types.owl");
-		model.read("file:////" + file.getAbsolutePath());
-//		file = new File(EditorConf.DATA_DIR + 
-//				File.separatorChar + "ind-to-consumer.owl");
-//		model.read("file:////" + file.getAbsolutePath());
+		File file = null;
 		
-		addImport(model, 
-				"http://localhost/runtime.owl", 
-				"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl");
-		addImport(model, 
-				"http://localhost/runtime.owl", 
-				"http://turing.ittig.cnr.it/jwn/ontologies/language-properties-full.owl");		
+		if(EditorConf.DIVIDE_TYPE.equalsIgnoreCase("lexical")) {
+			file = new File(EditorConf.DATA_DIR + 
+				File.separatorChar + "individuals.owl");
+			model.read("file:////" + file.getAbsolutePath());
+			file = new File(EditorConf.DATA_DIR + 
+					File.separatorChar + "individuals-word.owl");
+			model.read("file:////" + file.getAbsolutePath());
+			file = new File(EditorConf.DATA_DIR + 
+					File.separatorChar + "types.owl");
+			model.read("file:////" + file.getAbsolutePath());
 
+			addImport(model, 
+					"http://localhost/runtime.owl", 
+					"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl");
+			addImport(model, 
+					"http://localhost/runtime.owl", 
+					"http://turing.ittig.cnr.it/jwn/ontologies/language-properties-full.owl");
+			
+		} else if(EditorConf.DIVIDE_TYPE.equalsIgnoreCase("source")) {
+			file = new File(EditorConf.DATA_DIR + 
+					File.separatorChar + "individuals.owl");
+			model.read("file:////" + file.getAbsolutePath());
+			file = new File(EditorConf.DATA_DIR + 
+					File.separatorChar + "types.owl");
+			model.read("file:////" + file.getAbsolutePath());
+			file = new File(EditorConf.DATA_DIR + 
+					File.separatorChar + "sources.owl");
+			model.read("file:////" + file.getAbsolutePath());
+			addImport(model, 
+					"http://localhost/runtime.owl", 
+					"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl");
+			addImport(model, 
+					"http://localhost/runtime.owl", 
+					"http://turing.ittig.cnr.it/jwn/ontologies/metasources.owl");
+		} else {
+			System.err.println("Leveler - divide type not found: "
+					+ EditorConf.DIVIDE_TYPE);
+			return;
+		}
+	
 		OntDocumentManager odm = OntDocumentManager.getInstance();
 		odm.setProcessImports(true);
 		odm.loadImports(model);
-		
-//		String owlTemplateName = EditorConf.DATA_DIR + 
-//		File.separatorChar + "individuals-template.owl";
-//		
-//		OntModel template = ModelFactory.createOntologyModel(spec, null);
-//		template.read("file:////" + owlTemplateName);
-	
+
 		//Go on...
 		String baseDirName = EditorConf.DATA_DIR + File.separatorChar +
-		EditorConf.DIVIDE_DIR + File.separatorChar;
+			EditorConf.DIVIDE_DIR + "-" + EditorConf.DIVIDE_TYPE + 
+			File.separatorChar;
 	
 		Divider divider = new Divider(model);
 		divider.baseDir = new File(baseDirName); 
-		divider.prefix = "seglex-" + EditorConf.LANGUAGE;
+		divider.prefix = "seg-" + EditorConf.LANGUAGE;
 		divider.typeOfSizing = "triple";
-		divider.typeOfSegment = "heavy";
-		divider.maxSegmentSize = 64;
+		divider.typeOfSegment = EditorConf.DIVIDE_TYPE;
+		if(EditorConf.DIVIDE_TYPE.equals("lexical")) {
+			divider.maxSegmentSize = 64;			
+		} else {
+			divider.maxSegmentSize = 128;
+		}
 		divider.process();
 	}
 	

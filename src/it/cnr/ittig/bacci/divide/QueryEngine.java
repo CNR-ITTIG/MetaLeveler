@@ -1,13 +1,10 @@
 package it.cnr.ittig.bacci.divide;
 
-import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.Model;
 
 public class QueryEngine {
@@ -79,16 +76,20 @@ WHERE {
   }
 }
 
-///////////////////////////////
+
+//SOURCES:
+
+PREFIX src
+
 CONSTRUCT {
   <synset-xyz> ?p ?o .
   ?o1 ?p2 ?o2 .
   ?o4 ?p5 ?o5 .
 }
-WHERE { 
+WHERE {
   {
   <synset-xyz> ?p ?o .
-  ?o rdf:type owns:Source
+  ?o rdf:type src:Source
   } UNION {
   <synset-xyz> ?p1 ?o1 .
   ?o1 rdf:type owns:WordSense .
@@ -101,7 +102,24 @@ WHERE {
   }
 }
 
-
-
+//////////////////////
+PREFIX src
+CONSTRUCT {
+  synset src:source ?s .
+  ?s src:involvesPartition ?p .
+  ?s src:content ?cont .
+  ?p src:partitionCode ?pcode .
+  ?p src:belongsTo ?doc .
+  ?doc src:documentCode ?dcode .
+  ?doc src:link ?link .
+} WHERE {
+  synset src:source ?s .
+  ?s src:involvesPartition ?p .
+  ?s src:content ?cont .
+  ?p src:partitionCode ?pcode .
+  ?p src:belongsTo ?doc .
+  ?doc src:documentCode ?dcode .
+  ?doc src:link ?link .
+}
 	 */
 }

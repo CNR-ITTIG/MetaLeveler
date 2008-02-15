@@ -44,9 +44,7 @@ public class Divider {
 	private Map<String, String> uriToSegment;
 	
 	private RDFNode typeFilter;
-	
-	//private OntModel templateModel;
-	
+
 	private OntModel segment;
 	
 	private int segmentCode;
@@ -60,8 +58,6 @@ public class Divider {
 	private OntModelSpec spec;
 	
 	private File segmentDir;
-	
-	//private int tripleInSegment;
 	
 	private String query;
 
@@ -77,21 +73,16 @@ public class Divider {
 	public int maxSegmentSize;	
 	
 	//Constructors
-	public Divider(File owlFile) { //, OntModel template) {
+	public Divider(File owlFile) {
 		
 		//init model...
-		
-		//templateModel = template;
-		
 		initModel(owlFile);
 		initData();
 	}
 
-	public Divider(OntModel mod) { //, OntModel template) {
+	public Divider(OntModel mod) {
 		
 		model = mod;
-		//templateModel = template;
-
 		initData();
 	}
 	
@@ -115,11 +106,9 @@ public class Divider {
 
 		prefix = "";
 		
-		typeOfSegment = "light";
+		typeOfSegment = "";
 		
 		typeOfSizing = "single"; //Triples num? Memory occupation?
-		
-		//tripleInSegment = 0;
 		
 		typeFilter = null;
 		
@@ -137,17 +126,7 @@ public class Divider {
 		this.query = query;
 	}
 	
-//	private void initWeight() {
-//		
-//		if(typeOfSegment.equalsIgnoreCase("light")) weight = 0;
-//		if(typeOfSegment.equalsIgnoreCase("normal")) weight = 1;
-//		if(typeOfSegment.equalsIgnoreCase("heavy")) weight = 2;
-//		if(typeOfSegment.equalsIgnoreCase("heavier")) weight = 3;
-//	}
-
 	public void process() {
-		
-		//initWeight();
 		
 		segment = null;
 		segmentName = "-";
@@ -163,14 +142,20 @@ public class Divider {
 		int count = 0;
 
 		//ExtendedIterator iter = model.listIndividuals();
-		//System.out.println("size: " + model.size());
+		System.out.println("size: " + model.size());
 
 //		ResIterator iter = model.listSubjects();
 		OntClass synClass = model.getOntClass(
 				"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#Synset");
+		if(synClass == null) {
+			System.err.println("Divider - synclass is null!");
+			return;
+		}
 		ExtendedIterator iter = synClass.listInstances(false);
 		
 		while(iter.hasNext()) {
+			
+			//if(count > 1) break;
 			
 			OntResource res = (OntResource) iter.next();
 			//Resource res = (Resource) iter.next();
@@ -195,7 +180,7 @@ public class Divider {
 			//System.out.println(">> " + res.getLocalName() + " (" + count + ")" );
 
 			checkSegment();
-			fillSegment(res);
+			fillSegment(res);			
 		}
 		
 		try {
@@ -252,16 +237,7 @@ public class Divider {
 	
 	private boolean saveSegment() {
 		
-		RDFWriter writer = segment.getWriter("RDF/XML"); //faster than RDF/XML-ABBREV
-		
-		//set base property
-		//writer.setProperty("xmlbase", relativeOutputFileName);
-//		String relativeOutputFileName = "file://" + outputFile;
-//		if(ns == null ||ns.equals("")) {
-//			writer.setProperty("xmlbase", relativeOutputFileName);
-//		} else {
-//			writer.setProperty("xmlbase", ns);
-//		}
+		RDFWriter writer = segment.getWriter("RDF/XML");
 		
 		String outputFileName = segmentDir.getAbsolutePath() 
 				+ File.separatorChar +  segmentName;
@@ -316,32 +292,17 @@ public class Divider {
 		
 		addMapping(res);
 		
-		if(typeOfSegment.equalsIgnoreCase("light")) {
-			addLightData(res);
-			
-		}	
-		if(typeOfSegment.equalsIgnoreCase("normal")) {
-			//addNormalData(res, segment);
-			
-		}	
-		if(typeOfSegment.equalsIgnoreCase("heavy")) {
-			
-			//String resURI = res.getNameSpace() + res.getLocalName();
-			String resName = "rns:" + res.getLocalName();
-			//String resNS = res.getNameSpace();
-//			String ns = res.getNameSpace();
-//			String resName = "owns:" + res.getLocalName();
-			
-//			String query =  "PREFIX rns:   <" + res.getNameSpace() + "> " +
-//					"PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-//					"CONSTRUCT { " + resName + " " +
-//					"?p ?o .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . " +
-//					"} WHERE { " + resName + "  ?p ?o .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . } ";
+		//String resURI = res.getNameSpace() + res.getLocalName();
+		//String resNS = res.getNameSpace();
+		
+		//Per le lexical properties non ci sarebbe bisogno di individual-words...
+		String lang = EditorConf.LANGUAGE;
 
+		if(typeOfSegment.equalsIgnoreCase("lexical")) {
+
+			String resName = "rns:" + res.getLocalName();
 			
-			//Per le lexical properties non ci sarebbe bisogno di individual-words...
-			String lang = EditorConf.LANGUAGE;
-			String query =  
+			query =  
 			"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
 			"PREFIX owns: <http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
@@ -351,42 +312,45 @@ public class Divider {
 			" } UNION {  " + resName + " ?p3 ?o3 .  ?o3 ?p4 ?o4 ." +
 			"  ?o4 rdf:type owns:Word .  ?o4 ?p5 ?o5 .  } } ";			
 			
-			Model resultModel = QueryEngine.run(model, query);
-
-			if(resName.contains("synset-legislatore_comunitario-noun-1")) {
-				System.out.println("SPARQL: " + query);
-				System.out.println("Result size: " + resultModel.size());
-				System.out.println("NS+NAME: " + res.getNameSpace() + res.getLocalName());
-			}
-
-			addDataFromModel(resultModel);
+		} else if(typeOfSegment.equalsIgnoreCase("source")) {
 			
-		}	
-		if(typeOfSegment.equalsIgnoreCase("heavier")) {
+			String resName = "rns:" + res.getLocalName();
 			
+			query = 
+				"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
+				"PREFIX src: <http://turing.ittig.cnr.it/jwn/ontologies/metasources.owl#> " +
+				"CONSTRUCT { " +
+				resName + " src:source ?s . " +
+				"?s src:involvesPartition ?p . " +
+				"?s src:content ?cont . " +
+				"?p src:partitionCode ?pcode . " +
+				"?p src:belongsTo ?doc . " +
+				"?doc src:documentCode ?dcode . " +
+				"?doc src:link ?link . " +
+				"} WHERE { " +
+				resName + " src:source ?s . " +
+				"?s src:involvesPartition ?p . " +				
+				"?p src:partitionCode ?pcode . " +
+				"?p src:belongsTo ?doc . " +
+				"?doc src:documentCode ?dcode . " +
+				"OPTIONAL {" +
+				"?s src:content ?cont . " +
+				"?doc src:link ?link . } " +
+				"}";
+			
+		} else if(typeOfSegment.equalsIgnoreCase("semantic")) {
+			
+		} else {
+			System.err.println("Divider - type of segment not supported: "
+					+ typeOfSegment);
+			return;
 		}
 		
-		if(typeOfSegment.equalsIgnoreCase("query")) {
-			
-			//Customize query string...
-		}		
-			
+		Model resultModel = QueryEngine.run(model, query);	
+		//System.out.println("Result model size: " + resultModel.size());
+		addDataFromModel(resultModel);		
 	}
-	
-	private void addLightData(Resource res) {
-		
-		RDFNode obj = null;
-		
-		StmtIterator iter = 
-			model.listStatements(res, null, obj);
 
-		while(iter.hasNext()) {
-			
-			//tripleInSegment++;
-			segment.add(iter.nextStatement());
-		}
-	}
-	
 	private void addDataFromModel(Model dataModel) {
 		
 		segment.add(dataModel);
