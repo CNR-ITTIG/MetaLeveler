@@ -174,21 +174,15 @@ public class CeliOdbcImporter implements MetaImporter {
 	
 	public void addAlignment() throws IOException {
 		
-		if(EditorConf.LANGUAGE.equalsIgnoreCase("en")) {
-			processMainLanguage();
-			return;
-		}
+		addConcepts();
 		
 		Connection c = openConnection();		
 		
-//		String sql = "select * from " + interlinguisticTBL + " I join " +
-//			termsTBL + " T on (I.IL_TE_IdTerm_To = T.TE_IdTerm ) ";
-			
 		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_TE_IdTerm_From, T1.IL_LG_IdLanguage_To, T2.TE_Lemma " +
 			"FROM " + interlinguisticTBL + " T1, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + 
 			" ) AS T2 WHERE T1.IL_TE_IdTerm_To = T2.TE_IdTerm " +
 			"AND T1.IL_LG_IdLanguage_From = '" + EditorConf.LANGUAGE + "' " +
-			//"AND T1.TD_OT_IdRelType = 'mention' " +
+			//"AND T1.TD_OT_IdRelType = 'equivalent' " +
 			"";	
 
 		Vector<String[]> results = eseguiQuery(c, sql);
@@ -198,15 +192,11 @@ public class CeliOdbcImporter implements MetaImporter {
 			String[] row = i.next();
 
 			String relType = row[0].trim();
-			//String langFrom = row[2].trim();
 			String idFrom = row[1].trim();
 			String langTo = row[2].trim();
 			String protoConcept = row[3].trim();
 						
-//			if(!langFrom.equalsIgnoreCase(EditorConf.LANGUAGE)) {
-//				continue;
-//			}			
-			if(!relType.equalsIgnoreCase("equivalent")) { //COME TRATTARE LE ALTRE??
+			if(!relType.equalsIgnoreCase("equivalent")) { //Ignorare le altre?
 				continue;
 			}
 
@@ -215,7 +205,6 @@ public class CeliOdbcImporter implements MetaImporter {
 			}
 			counter++;
 
-			//System.out.print(".");
 			if(!langTo.equalsIgnoreCase("EN")) {
 				System.err.println(">> LangTo is not english! Skipping...!?");
 				continue;
@@ -231,12 +220,58 @@ public class CeliOdbcImporter implements MetaImporter {
 			Lemma lemma = new Lemma(protoConcept);
 			lemma.protoForm = protoConcept;
 			lemma.variants.add(protoConcept);
-			c1.conceptLemma = lemma;
+			c1.conceptLemma = lemma; //Sostituisce il precendente Concept
+		}
+		closeConnection(c);
+		
+		addDefinition();
+	}
+	
+	public void addDefinition() throws IOException {
+		
+		Connection c = openConnection();		
+
+		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text FROM " + termdocumentTBL + 
+			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
+			") AS T2, (SELECT CO_NationalCode, CO_Text FROM " + corpusTBL + 
+			" ) AS T3 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
+			"AND T2.DN_NationalCode = T3.CO_NationalCode " +
+			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
+			"AND T1.TD_OT_IdRelType = 'definition'" +
+			"";
+			
+		Vector<String[]> results = eseguiQuery(c, sql);
+
+		int counter = 0;
+		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
+			String[] row = i.next();
+
+			//String lang = row[0].trim();
+			String id = row[0].trim();
+			String part = row[1].trim();
+			//String code = row[2].trim();
+			String text = row[2].trim();
+
+			if(counter < 10) {
+				System.out.println("id: " + id + " part: " + part);
+			}
+			counter++;
+
+			Concetto conc = Leveler.appSynsets.get(id);
+			if(conc == null) {
+				System.out.println(">>WARNING<< NULL - " + id + " " + conc);
+				continue;
+			}
+
+			//Add definition
+			conc.setDefinizione(text);
+			System.out.println("CONCETTO: " + conc + " DEF: " + text);
 		}
 		closeConnection(c);
 	}
-	
-	private void processMainLanguage() throws IOException {
+
+	private void addConcepts() throws IOException {
+		//Aggiunge un concetto per ogni termine
 		
 		Connection c = openConnection();
 

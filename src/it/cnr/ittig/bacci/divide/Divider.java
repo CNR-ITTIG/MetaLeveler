@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.hp.hpl.jena.ontology.OntClass;
@@ -21,12 +20,8 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
-import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * Divide et impera !
@@ -298,24 +293,22 @@ public class Divider {
 		//Per le lexical properties non ci sarebbe bisogno di individual-words...
 		String lang = EditorConf.LANGUAGE;
 
+		String resName = "rns:" + res.getLocalName();
+		
 		if(typeOfSegment.equalsIgnoreCase("lexical")) {
 
-			String resName = "rns:" + res.getLocalName();
-			
 			query =  
-			"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
-			"PREFIX owns: <http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#> " +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-			"CONSTRUCT { " + resName + " ?p ?o .  ?o1 ?p2 ?o2 .  ?o4 ?p5 ?o5 . " +
-			" } WHERE { { " + resName + " ?p ?o . } UNION { " + resName + 
-			" ?p1 ?o1 .  ?o1 rdf:type owns:WordSense .  ?o1 ?p2 ?o2 .  " +
-			" } UNION {  " + resName + " ?p3 ?o3 .  ?o3 ?p4 ?o4 ." +
-			"  ?o4 rdf:type owns:Word .  ?o4 ?p5 ?o5 .  } } ";			
+				"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
+				"PREFIX owns: <http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#> " +
+				"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+				"CONSTRUCT { " + resName + " ?p ?o .  ?o1 ?p2 ?o2 .  ?o4 ?p5 ?o5 . " +
+				" } WHERE { { " + resName + " ?p ?o . } UNION { " + resName + 
+				" ?p1 ?o1 .  ?o1 rdf:type owns:WordSense .  ?o1 ?p2 ?o2 .  " +
+				" } UNION {  " + resName + " ?p3 ?o3 .  ?o3 ?p4 ?o4 ." +
+				"  ?o4 rdf:type owns:Word .  ?o4 ?p5 ?o5 .  } } ";			
 			
 		} else if(typeOfSegment.equalsIgnoreCase("source")) {
-			
-			String resName = "rns:" + res.getLocalName();
-			
+
 			query = 
 				"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
 				"PREFIX src: <http://turing.ittig.cnr.it/jwn/ontologies/metasources.owl#> " +

@@ -12,7 +12,9 @@ import it.cnr.ittig.leveler.importer.MetaImporter;
 import it.cnr.ittig.leveler.mapper.XlsMapper;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +24,7 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.Ontology;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.reasoner.Reasoner;
 import com.hp.hpl.jena.reasoner.ReasonerRegistry;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -39,6 +42,8 @@ public class Leveler {
 		initAppDataDir();
 		
 		System.out.println("DATA_DIR: " + EditorConf.DATA_DIR);
+
+		//mergeConceptFiles(); return;
 		
 		if(EditorConf.DIVIDE) {
 
@@ -283,6 +288,7 @@ public class Leveler {
 		divider.baseDir = new File(baseDirName); 
 		divider.prefix = "seg-" + EditorConf.LANGUAGE;
 		divider.typeOfSizing = "triple";
+		//divider.typeOfSizing = "single";
 		divider.typeOfSegment = EditorConf.DIVIDE_TYPE;
 		if(EditorConf.DIVIDE_TYPE.equals("lexical")) {
 			divider.maxSegmentSize = 64;			
@@ -296,6 +302,41 @@ public class Leveler {
 
 		Ontology ont = om.createOntology(source); 
 		om.add(ont, OWL.imports, om.createResource(dest));
+	}
+	
+	private void mergeConceptFiles() {
+		
+		ModelMaker maker = ModelFactory.createMemModelMaker();
+		//OntModelSpec spec =  OntModelSpec.OWL_MEM ;
+		OntModelSpec spec = new OntModelSpec( OntModelSpec.OWL_MEM );
+		spec.setImportModelMaker(maker);
+		Reasoner r = ReasonerRegistry.getOWLMicroReasoner();
+		spec.setReasoner(r);
+		OntModel model = ModelFactory.createOntologyModel(spec, null);
+		
+		File file = new File(EditorConf.DATA_DIR + 
+				File.separatorChar + "conceptsIT.owl");
+			model.read("file:////" + file.getAbsolutePath());
+
+		file = new File(EditorConf.DATA_DIR + 
+				File.separatorChar + "conceptsEN.owl");
+			model.read("file:////" + file.getAbsolutePath());
+
+		RDFWriter writer = model.getWriter("RDF/XML");
+		
+		String outputFileName = EditorConf.DATA_DIR + 
+							File.separatorChar + "concepts.owl";
+		try {
+			OutputStream out = new FileOutputStream(outputFileName);
+			//Write down the BASE model only (don't follow imports...)
+			writer.write(model.getBaseModel(), out, 
+					"file://" + outputFileName);
+			out.close();
+		} catch(Exception e) {
+			System.err.println("Exception serializing model:" + e.getMessage());
+			e.printStackTrace();
+		}
+
 	}
 
 }

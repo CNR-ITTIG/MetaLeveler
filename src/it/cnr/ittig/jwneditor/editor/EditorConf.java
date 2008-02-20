@@ -3,7 +3,7 @@ package it.cnr.ittig.jwneditor.editor;
 
 public class EditorConf {
 
-	public static boolean DIVIDE = true;
+	public static boolean DIVIDE = false;
 	public static String DIVIDE_TYPE = "lexical"; //lexical, source, semantic
 	
 	public static String DIVIDE_DIR = "segment";
@@ -15,7 +15,7 @@ public class EditorConf {
 	public final static String TYPE_INPUT = "mdb";
 	
 	public static String DB_TABLES_DIR = "dbTables";
-	public static String MDB_FILE_NAME = "DalosAlignmen-t01-02.mdb";
+	public static String MDB_FILE_NAME = "DalosAlignment14-02.mdb";
 
 	//link terms to ontology classes?
 	public final static boolean LINK_TO_ONTOLOGY = true;
