@@ -10,6 +10,9 @@ public class EditorConf {
 	
 	public static String LANGUAGE = "IT";
 	//public static String LANGUAGE = "EN";
+	
+	public final static boolean ADD_ALIGNMENT = true;
+	public static String[] languages = {"IT", "EN", "NL", "ES"};
 
 	//type of import (one of: txt, xls, mdb)
 	public final static String TYPE_INPUT = "mdb";

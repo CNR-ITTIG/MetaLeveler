@@ -5,10 +5,14 @@ import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn.Correlazione;
 import it.cnr.ittig.jwneditor.jwn.Lemma;
 import it.cnr.ittig.jwneditor.jwn.Relazione;
+import it.cnr.ittig.jwneditor.jwn2owl.OWLUtil;
+import it.cnr.ittig.jwneditor.jwn2owl.container.OntologyContainer;
 import it.cnr.ittig.leveler.Leveler;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -16,8 +20,21 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
+
+import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.OntResource;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.ModelMaker;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class CeliOdbcImporter implements MetaImporter {
 	
@@ -31,6 +48,11 @@ public class CeliOdbcImporter implements MetaImporter {
 	private String interlinguisticTBL = "TD_InterlinguisticRelations";
 	private String intralinguisticTBL = "TD_IntralinguisticRelations";
 	private String termdocumentTBL = "TD_TermDocumentRelations";
+	
+	private OntModel conceptModel;
+	private String NS_CONC = EditorConf.onto_concepts + "#";
+	private OntClass conceptClass;
+	private Map<String, OntModel> langToTypeModel; 
 	
 	public void createSynsets() throws IOException {
 		
@@ -172,16 +194,30 @@ public class CeliOdbcImporter implements MetaImporter {
 		closeConnection(c);
 	}
 	
+
 	public void addAlignment() throws IOException {
 		
-		addConcepts();
+		//addConcepts();
+
+		ModelMaker maker = ModelFactory.createMemModelMaker();
+		OntModelSpec spec = new OntModelSpec(OntModelSpec.OWL_MEM);
+		spec.setImportModelMaker(maker);
+		conceptModel = ModelFactory.createOntologyModel(spec, null);
+		conceptClass = conceptModel.createClass(NS_CONC + "Concept");
+		langToTypeModel = new HashMap<String, OntModel>();
+		for(int i = 0; i < EditorConf.languages.length; i++) {
+			String lang = EditorConf.languages[i];
+			OntModel typeModel = ModelFactory.createOntologyModel(spec, null);
+			langToTypeModel.put(lang, typeModel);
+		}				
 		
 		Connection c = openConnection();		
 		
-		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_TE_IdTerm_From, T1.IL_LG_IdLanguage_To, T2.TE_Lemma " +
+		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_LG_IdLanguage_From, T1.IL_LG_IdLanguage_To, T2.TE_Lemma, T3.TE_Lemma " +
 			"FROM " + interlinguisticTBL + " T1, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + 
-			" ) AS T2 WHERE T1.IL_TE_IdTerm_To = T2.TE_IdTerm " +
-			"AND T1.IL_LG_IdLanguage_From = '" + EditorConf.LANGUAGE + "' " +
+			" ) AS T2, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + " ) AS T3 " +
+			"WHERE T1.IL_TE_IdTerm_From = T2.TE_IdTerm " +
+			"AND T1.IL_TE_IdTerm_To = T3.TE_IdTerm " +
 			//"AND T1.TD_OT_IdRelType = 'equivalent' " +
 			"";	
 
@@ -192,40 +228,161 @@ public class CeliOdbcImporter implements MetaImporter {
 			String[] row = i.next();
 
 			String relType = row[0].trim();
-			String idFrom = row[1].trim();
+			String langFrom = row[1].trim();
 			String langTo = row[2].trim();
-			String protoConcept = row[3].trim();
+			String protoFrom = row[3].trim();
+			String protoTo = row[4].trim();
 						
 			if(!relType.equalsIgnoreCase("equivalent")) { //Ignorare le altre?
 				continue;
 			}
 
 			if(counter < 10) {
-				System.out.println("idf: " + idFrom + " proto: " + protoConcept);
+				System.out.println("proto: " + protoFrom);
 			}
 			counter++;
 
-			if(!langTo.equalsIgnoreCase("EN")) {
-				System.err.println(">> LangTo is not english! Skipping...!?");
+//			Concetto c1 = Leveler.appSynsets.get(idFrom);
+//			if(c1 == null ) {
+//				System.out.println(">>WARNING<< NULL - " + c1);
+//				continue;
+//			}
+
+			Lemma lemmaFrom = new Lemma(protoFrom);
+			lemmaFrom.protoForm = protoFrom;
+			lemmaFrom.variants.add(protoFrom);
+			Lemma lemmaTo = new Lemma(protoTo);
+			lemmaTo.protoForm = protoTo;
+			lemmaTo.variants.add(protoTo);
+			
+			OntClass ocFrom = getConceptClass(lemmaFrom);
+			OntClass ocTo = getConceptClass(lemmaTo);
+			
+			if(ocFrom == null && ocTo == null) {
+				OntClass oc = createConceptClass(lemmaTo, langTo);
+				addType(oc, lemmaFrom, langFrom);
+				continue;
+			}
+			
+			if(ocFrom != null && ocTo == null) {
+				OntClass oc = createConceptClass(lemmaFrom, langFrom);
+				addType(oc, lemmaTo, langTo);
 				continue;
 			}
 
-			Concetto c1 = Leveler.appSynsets.get(idFrom);
-			if(c1 == null ) {
-				System.out.println(">>WARNING<< NULL - " + c1);
+			if(ocFrom == null && ocTo != null) {
+				OntClass oc = createConceptClass(lemmaTo, langTo);
+				addType(oc, lemmaFrom, langFrom);
 				continue;
 			}
 
-			//Link the concept class to the synset
-			Lemma lemma = new Lemma(protoConcept);
-			lemma.protoForm = protoConcept;
-			lemma.variants.add(protoConcept);
-			c1.conceptLemma = lemma; //Sostituisce il precendente Concept
+			if(ocFrom != null && ocTo != null) {
+				//FIXME Non è molto bello aggiungerli ad entrambi i concept...
+				addType(ocFrom, lemmaTo, langTo);
+				addType(ocTo, lemmaFrom, langFrom);
+				continue;
+			}
 		}
 		closeConnection(c);
 		
+		saveModels();
+		
 		addDefinition();
+	}	
+	
+	private void saveModels() {
+		
+		serialize(conceptModel, 
+				EditorConf.DATA_DIR + File.separatorChar + "global-concepts.owl",
+				NS_CONC);
+		
+		for(int i = 0; i < EditorConf.languages.length; i++) {
+			String lang = EditorConf.languages[i];
+			OntModel typeModel = langToTypeModel.get(lang);
+			serialize(typeModel,
+					EditorConf.DATA_DIR + File.separatorChar + "types-" + lang + ".owl",
+					EditorConf.dalos_ns + lang + "/" + EditorConf.onto_types + "#");					
+		}
 	}
+	
+	private void serialize(OntModel om, String outputFile, String ns) {
+		
+		System.out.println("Serializing ontology model to " + outputFile + "...");
+
+		RDFWriter writer = om.getWriter("RDF/XML");
+		
+		String relativeOutputFileName = "file://" + outputFile;
+		if(ns == null ||ns.equals("")) {
+			writer.setProperty("xmlbase", relativeOutputFileName);
+		} else {
+			writer.setProperty("xmlbase", ns);
+		}
+		
+		try {
+			OutputStream out = new FileOutputStream(outputFile);
+			//Write down the BASE model only (don't follow imports...)
+			writer.write(om.getBaseModel(), out, relativeOutputFileName);
+			out.close();
+		} catch(Exception e) {
+			System.err.println("Exception serializing model:" + e.getMessage());
+			e.printStackTrace();
+		}
+	}	
+
+//	public void addAlignment() throws IOException {
+//		
+//		addConcepts();
+//		
+//		Connection c = openConnection();		
+//		
+//		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_TE_IdTerm_From, T1.IL_LG_IdLanguage_To, T2.TE_Lemma " +
+//			"FROM " + interlinguisticTBL + " T1, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + 
+//			" ) AS T2 WHERE T1.IL_TE_IdTerm_To = T2.TE_IdTerm " +
+//			"AND T1.IL_LG_IdLanguage_From = '" + EditorConf.LANGUAGE + "' " +
+//			//"AND T1.TD_OT_IdRelType = 'equivalent' " +
+//			"";	
+//
+//		Vector<String[]> results = eseguiQuery(c, sql);
+//
+//		int counter = 0;
+//		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
+//			String[] row = i.next();
+//
+//			String relType = row[0].trim();
+//			String idFrom = row[1].trim();
+//			String langTo = row[2].trim();
+//			String protoConcept = row[3].trim();
+//						
+//			if(!relType.equalsIgnoreCase("equivalent")) { //Ignorare le altre?
+//				continue;
+//			}
+//
+//			if(counter < 10) {
+//				System.out.println("idf: " + idFrom + " proto: " + protoConcept);
+//			}
+//			counter++;
+//
+//			if(!langTo.equalsIgnoreCase("EN")) {
+//				System.err.println(">> LangTo is not english! Skipping...!?");
+//				continue;
+//			}
+//
+//			Concetto c1 = Leveler.appSynsets.get(idFrom);
+//			if(c1 == null ) {
+//				System.out.println(">>WARNING<< NULL - " + c1);
+//				continue;
+//			}
+//
+//			//Link the concept class to the synset
+//			Lemma lemma = new Lemma(protoConcept);
+//			lemma.protoForm = protoConcept;
+//			lemma.variants.add(protoConcept);
+//			c1.conceptLemma = lemma; //Sostituisce il precendente Concept
+//		}
+//		closeConnection(c);
+//		
+//		addDefinition();
+//	}
 	
 	public void addDefinition() throws IOException {
 		
@@ -370,4 +527,53 @@ public class CeliOdbcImporter implements MetaImporter {
 		}
 	}
 	
+	private OntClass createConceptClass(Lemma proto, String lang) {
+		//GET OR CREATE
+		
+		OntClass synsetClass = getConceptClass(proto);
+		if(synsetClass != null) {
+			return synsetClass;
+		}
+
+		//Add a new concept class
+		String name = OWLUtil.getConceptClassName(proto);
+		synsetClass = conceptModel.createClass(NS_CONC + name);
+		synsetClass.addSuperClass(conceptClass);
+		
+		//Link this synset to the concept class
+		OntModel typeModel = langToTypeModel.get(lang);
+		
+		OntResource syn = createSynsetIndividual(proto, lang);
+		typeModel.add(syn, RDF.type, synsetClass);
+		
+		return synsetClass;
+	}
+	
+	private void addType(OntClass cc, Lemma proto, String lang) {
+		
+		OntModel typeModel = langToTypeModel.get(lang);		
+		OntResource syn = createSynsetIndividual(proto, lang);
+		typeModel.add(syn, RDF.type, cc);
+	}
+
+	private OntClass getConceptClass(Lemma proto) {
+		//GET
+		
+		String name = OWLUtil.getConceptClassName(proto);
+		return conceptModel.getOntClass(NS_CONC + name);
+	}
+	
+	private OntResource createSynsetIndividual(Lemma proto, String lang) {
+		//GET OR CREATE
+		
+		String name = OWLUtil.getSynsetName(proto);
+		OntModel typeModel = langToTypeModel.get(lang);
+		String uri = EditorConf.dalos_ns + lang + "/" + EditorConf.onto_ind + "#" + name;
+		OntResource res = typeModel.getOntResource(uri);
+		if(res == null) {
+			res = typeModel.createOntResource(uri);	
+		}
+		return res;
+	}
+
 }

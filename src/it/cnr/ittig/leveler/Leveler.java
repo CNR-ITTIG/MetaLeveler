@@ -80,8 +80,10 @@ public class Leveler {
 			System.out.println("Adding references...");
 			parser.addRif();
 			
-			System.out.println("Adding alignment...");
-			parser.addAlignment();
+			if(EditorConf.ADD_ALIGNMENT) {
+				System.out.println("Adding alignment...");
+				parser.addAlignment();
+			}
 
 //			xParser.fill();
 //			return;

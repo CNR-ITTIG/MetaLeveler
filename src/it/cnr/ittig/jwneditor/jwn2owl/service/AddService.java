@@ -126,6 +126,7 @@ public class AddService {
 		m_conc = initConceptModel(spec, maker);
 		m_types = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_types, false));
+		m_types = initTypeModel(spec, maker);
 		m_sources = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_sources, false));
 
@@ -176,6 +177,25 @@ public class AddService {
 			cMod.read("file:///" + EditorConf.local_onto_concepts);
 		} 
 		return cMod;
+	}
+	
+	/*
+	 * Check if a type owl file exist and use it.
+	 */
+	private OntModel initTypeModel(OntModelSpec spec, ModelMaker maker) {
+		//Serve per aggiungere i collegamenti con le classi NounSynset, etc.
+		
+		OntModel tMod = ModelFactory.createOntologyModel(spec,
+				maker.createModel(EditorConf.onto_types, false));
+		
+		File typeFile = new File(EditorConf.local_onto_types);
+		if(typeFile.exists()) {
+			//Load the pre-existent concept model
+			System.out.println("Loading pre-existent type model (" + 
+					typeFile + ")...");
+			tMod.read("file:///" + EditorConf.local_onto_types);
+		} 
+		return tMod;
 	}
 	
 	private void init() {
@@ -448,7 +468,7 @@ public class AddService {
 		int maxSources = item.riferimenti.size();
 
 		//Set a BOUND?
-		maxSources = 5;
+		maxSources = 99999;
 		if(item.riferimenti.size() < maxSources) {
 			maxSources = item.riferimenti.size();
 		}
