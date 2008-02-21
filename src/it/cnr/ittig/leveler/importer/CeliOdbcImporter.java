@@ -50,6 +50,7 @@ public class CeliOdbcImporter implements MetaImporter {
 	private String termdocumentTBL = "TD_TermDocumentRelations";
 	
 	private OntModel conceptModel;
+	private OntModel indModel;
 	private String NS_CONC = EditorConf.onto_concepts + "#";
 	private OntClass conceptClass;
 	private Map<String, OntModel> langToTypeModel; 
@@ -204,6 +205,7 @@ public class CeliOdbcImporter implements MetaImporter {
 		spec.setImportModelMaker(maker);
 		conceptModel = ModelFactory.createOntologyModel(spec, null);
 		conceptClass = conceptModel.createClass(NS_CONC + "Concept");
+		indModel = ModelFactory.createOntologyModel(spec, null);
 		langToTypeModel = new HashMap<String, OntModel>();
 		for(int i = 0; i < EditorConf.languages.length; i++) {
 			String lang = EditorConf.languages[i];
@@ -567,11 +569,11 @@ public class CeliOdbcImporter implements MetaImporter {
 		//GET OR CREATE
 		
 		String name = OWLUtil.getSynsetName(proto);
-		OntModel typeModel = langToTypeModel.get(lang);
-		String uri = EditorConf.dalos_ns + lang + "/" + EditorConf.onto_ind + "#" + name;
-		OntResource res = typeModel.getOntResource(uri);
+		String uri = EditorConf.dalos_ns + lang + "/" + 
+			EditorConf.onto_ind + "#" + name;
+		OntResource res = indModel.getOntResource(uri);
 		if(res == null) {
-			res = typeModel.createOntResource(uri);	
+			res = indModel.createOntResource(uri);	
 		}
 		return res;
 	}
