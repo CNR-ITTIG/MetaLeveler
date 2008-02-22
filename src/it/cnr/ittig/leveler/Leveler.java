@@ -18,16 +18,24 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntDocumentManager;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Ontology;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.reasoner.Reasoner;
 import com.hp.hpl.jena.reasoner.ReasonerRegistry;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class Leveler {
 	
@@ -44,6 +52,8 @@ public class Leveler {
 		System.out.println("DATA_DIR: " + EditorConf.DATA_DIR);
 
 		//mergeConceptFiles(); return;
+		
+		//adjustTypes(); if(true) return;
 		
 		if(EditorConf.DIVIDE) {
 
@@ -306,7 +316,7 @@ public class Leveler {
 		om.add(ont, OWL.imports, om.createResource(dest));
 	}
 	
-	private void mergeConceptFiles() {
+	private static void mergeConceptFiles() {
 		
 		ModelMaker maker = ModelFactory.createMemModelMaker();
 		//OntModelSpec spec =  OntModelSpec.OWL_MEM ;
@@ -338,7 +348,63 @@ public class Leveler {
 			System.err.println("Exception serializing model:" + e.getMessage());
 			e.printStackTrace();
 		}
-
 	}
 
+	private static void adjustTypes() {
+		
+		ModelMaker maker = ModelFactory.createMemModelMaker();
+		//OntModelSpec spec =  OntModelSpec.OWL_MEM ;
+		OntModelSpec spec = new OntModelSpec( OntModelSpec.OWL_MEM );
+		spec.setImportModelMaker(maker);
+		Reasoner r = ReasonerRegistry.getOWLMicroReasoner();
+		spec.setReasoner(r);
+		OntModel model = ModelFactory.createOntologyModel(spec, null);
+		OntModel indModel = ModelFactory.createOntologyModel(spec, null);
+		OntModel modelOk = ModelFactory.createOntologyModel(spec, null);
+		
+		File file = new File(EditorConf.DATA_DIR + 
+				File.separatorChar + "types.owl");
+		model.read("file:////" + file.getAbsolutePath());
+		modelOk.read("file:////" + file.getAbsolutePath());
+		
+		file = new File(EditorConf.DATA_DIR + 
+				File.separatorChar + "owns.owl");	
+		indModel.read("file:////" + file.getAbsolutePath());
+
+		OntClass synClass = indModel.getOntClass(
+				"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#NounSynset");
+		
+		if(synClass == null) {
+			System.err.println("synClass is null!");
+			return;
+		}
+
+		for(StmtIterator si = model.listStatements(
+				(Resource) null, RDF.type, (RDFNode) null); si.hasNext();) {
+			Statement stmt = si.nextStatement();
+			Resource subj = stmt.getSubject();
+			Resource obj = (Resource) stmt.getObject();
+			if(obj.isAnon() || subj.isAnon()) {
+				continue;
+			}
+			if(obj.getNameSpace().equalsIgnoreCase(EditorConf.onto_concepts + "#")) {
+				modelOk.add(subj, RDF.type, synClass);
+			}
+		}
+		
+		RDFWriter writer = model.getWriter("RDF/XML");
+		
+		String outputFileName = EditorConf.DATA_DIR + 
+							File.separatorChar + "types-ok.owl";
+		try {
+			OutputStream out = new FileOutputStream(outputFileName);
+			//Write down the BASE model only (don't follow imports...)
+			writer.write(modelOk.getBaseModel(), out, 
+					"file://" + outputFileName);
+			out.close();
+		} catch(Exception e) {
+			System.err.println("Exception serializing model:" + e.getMessage());
+			e.printStackTrace();
+		}
+	}
 }

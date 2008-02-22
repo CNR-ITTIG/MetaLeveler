@@ -86,6 +86,8 @@ public class CeliOdbcImporter implements MetaImporter {
 			lemma.variants.add(lexical);
 		}		
 		closeConnection(c);
+		
+		addDefinition();
 	}
 
 	public void addIpo() throws IOException {
@@ -287,9 +289,7 @@ public class CeliOdbcImporter implements MetaImporter {
 		}
 		closeConnection(c);
 		
-		saveModels();
-		
-		addDefinition();
+		saveModels();		
 	}	
 	
 	private void saveModels() {
@@ -569,8 +569,7 @@ public class CeliOdbcImporter implements MetaImporter {
 		//GET OR CREATE
 		
 		String name = OWLUtil.getSynsetName(proto);
-		String uri = EditorConf.dalos_ns + lang + "/" + 
-			EditorConf.onto_ind + "#" + name;
+		String uri = EditorConf.dalos_ns + lang + "/individuals.owl#" + name;
 		OntResource res = indModel.getOntResource(uri);
 		if(res == null) {
 			res = indModel.createOntResource(uri);	

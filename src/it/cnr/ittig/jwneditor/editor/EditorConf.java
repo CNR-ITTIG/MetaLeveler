@@ -10,6 +10,8 @@ public class EditorConf {
 	
 	public static String LANGUAGE = "IT";
 	//public static String LANGUAGE = "EN";
+	//public static String LANGUAGE = "ES";
+	//public static String LANGUAGE = "NL";
 	
 	public final static boolean ADD_ALIGNMENT = true;
 	public static String[] languages = {"IT", "EN", "NL", "ES"};
