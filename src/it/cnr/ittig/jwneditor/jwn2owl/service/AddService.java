@@ -422,7 +422,9 @@ public class AddService {
 		//crea la classe corrispondente
 		OntClass synsetClass = createConceptClass(item, synset);
 		
-		if(synsetClass == null) {
+		if(synsetClass == null && item.ontoclassi.size() > 0) {
+			System.err.println(">>> WARNING: no concept for classified term:" 
+					+ item + "! Skipping...");
 			return;
 		}
 		
@@ -433,26 +435,9 @@ public class AddService {
 			String ocname = data[1];
 			OntClass upper = getUpperClass(ocname, namespace);
 			if(upper != null) {
-				addUpperSubClass(synsetClass, upper);							}			
-			}
-		
-		//Links to some domain ontology...
-//		for(int k = 0; k < item.ontoclassi.size(); k++) {
-//
-//			String ontoclasse = item.ontoclassi.get(k);
-////			System.out.println("ontoclasse: " + ontoclasse);
-////			if(ontoclasse.trim().length() < 1 ||
-////					ontoclasse.equalsIgnoreCase("no")) {
-////				continue;
-////			}
-//			String[] data = ontoclasse.split("#");
-//			String namespace = data[0] + "#";
-//			String ocname = data[1];
-//			OntClass upper = getUpperClass(ocname, namespace);
-//			if(upper != null) {
-//				addUpperTypes(synset, upper);				
-//			}
-//		}
+				addUpperSubClass(synsetClass, upper);							
+			}			
+		}
 	}
 		
 	private void processSources(Concetto item) {
