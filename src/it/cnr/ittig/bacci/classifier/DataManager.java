@@ -40,6 +40,7 @@ public class DataManager {
 	private Map<String,ConceptClass> uriToConcept;
 	
 	//OntModels
+	private OntModel fullModel;
 	private OntModel conceptModel;
 	private OntModel typeModel;
 	
@@ -85,17 +86,13 @@ public class DataManager {
 	
 	public Collection<OntologicalClass> getClasses(BasicResource br) {
 		
-		Collection<ConceptClass> ccs = br.getConcepts();
+		ConceptClass cc = br.getConcept();
 		Set<OntologicalClass> data = new TreeSet<OntologicalClass>();
-		if(ccs.size() < 1) {
+		if(cc == null) {
 			System.err.println("Concept class not found! br:" + br);
 			return data;
-		}
-		
-		for(Iterator<ConceptClass> ci = ccs.iterator(); ci.hasNext(); ) {
-			ConceptClass cc = ci.next();
-			data.addAll(cc.getClasses());
-		}
+		}		
+		data.addAll(cc.getClasses());
 		return data;
 	}
 	
@@ -108,15 +105,10 @@ public class DataManager {
 		Set<BasicResource> data = new TreeSet<BasicResource>();		
 		for(Iterator<BasicResource> i = resources.iterator(); i.hasNext(); ) {
 			BasicResource br = i.next();
-			Collection<ConceptClass> ccs = br.getConcepts();
-			if(ccs.size() > 0) {
-				for(Iterator<ConceptClass> ci = ccs.iterator(); ci.hasNext(); ) {
-					ConceptClass cc = ci.next();
-					if(cc.getClasses().size() > 0) {
-						data.add(br);
-						break;
-					}
-				}
+			ConceptClass cc = br.getConcept();
+			if(cc != null && cc.getClasses().size() > 0) {
+				data.add(br);
+				break;
 			}
 		}
 		return data;
@@ -127,18 +119,9 @@ public class DataManager {
 		Set<BasicResource> data = new TreeSet<BasicResource>();		
 		for(Iterator<BasicResource> i = resources.iterator(); i.hasNext(); ) {
 			BasicResource br = i.next();
-			Collection<ConceptClass> ccs = br.getConcepts();
-			if(ccs.size() == 0) {
+			ConceptClass cc = br.getConcept();
+			if(cc == null || cc.getClasses().size() == 0) {
 				data.add(br);
-			}
-			if(ccs.size() > 0) {
-				for(Iterator<ConceptClass> ci = ccs.iterator(); ci.hasNext(); ) {
-					ConceptClass cc = ci.next();
-					if(cc.getClasses().size() == 0) {
-						data.add(br);
-						break;
-					}
-				}
 			}
 		}
 		return data;
@@ -147,15 +130,12 @@ public class DataManager {
 	public boolean addClass(BasicResource br, OntologicalClass oc) {
 		
 		System.out.println("++++ br:" + br + " oc:" + oc);
-		Collection<ConceptClass> ccs = br.getConcepts();
-		if(ccs.size() > 0) {
-			for(Iterator<ConceptClass> ci = ccs.iterator(); ci.hasNext(); ) {
-				ConceptClass cc = ci.next();
-				cc.addClass(oc);
-			}					} else {
-			System.err.println("Concept class not found! br:" + br);
-			return false;
-		}		
+		ConceptClass cc = br.getConcept();
+		if(cc == null) {
+			//Add artificial concept
+			addArtificialConceptClass(br);
+		}		cc.addClass(oc);
+		
 		if(!oc.addResource(br)) {
 			return false;
 		}
@@ -166,14 +146,12 @@ public class DataManager {
 	public boolean removeClass(BasicResource br, OntologicalClass oc) {
 		
 		System.out.println("---- br:" + br + " oc:" + oc);
-		Collection<ConceptClass> ccs = br.getConcepts();
-		if(ccs.size() > 0) {
-			for(Iterator<ConceptClass> ci = ccs.iterator(); ci.hasNext(); ) {
-				ConceptClass cc = ci.next();
-				cc.removeClass(oc);
-			}			
+		ConceptClass cc = br.getConcept();
+		if(cc != null) {
+			cc.removeClass(oc);
 		} else {
-			System.err.println("Concept class not found! br:" + br);
+			System.err.println("REMOVE ERROR! Concept class not found! br:" 
+					+ br);
 			return false;
 		}
 
@@ -205,29 +183,26 @@ public class DataManager {
 		for(Iterator<BasicResource> i = resources.iterator(); i.hasNext(); ) {
 			BasicResource br = i.next();
 			OntResource brRes = typeModel.createOntResource(br.getURI());
-			Collection<ConceptClass> ccs = br.getConcepts();
-			for(Iterator<ConceptClass> ci = ccs.iterator(); ci.hasNext(); ) {
-				ConceptClass cc = ci.next();
-				if(cc == null) {
-					System.err.println("null cc for br: " + br );
+			ConceptClass cc = br.getConcept();
+			if(cc == null) {
+				System.err.println("null cc for br: " + br );
+				continue;
+			}
+			if(isEmptyArtificial(cc)) {
+				continue;
+			}
+			OntClass ccClass = conceptModel.createClass(cc.getURI());
+			typeModel.add(brRes, RDF.type, ccClass);			
+			conceptModel.add(ccClass, RDFS.subClassOf, conceptClass);
+			for(Iterator<OntologicalClass> k = cc.getClasses().iterator();
+					k.hasNext(); ) {
+				OntologicalClass oc = k.next();
+				OntClass domainClass = conceptModel.getOntClass(oc.getURI());
+				if(domainClass == null) {
+					System.err.println("Domain class is null! dc:" + domainClass);
 					continue;
 				}
-				if(isEmptyArtificial(cc)) {
-					continue;
-				}
-				OntClass ccClass = conceptModel.createClass(cc.getURI());
-				typeModel.add(brRes, RDF.type, ccClass);			
-				conceptModel.add(ccClass, RDFS.subClassOf, conceptClass);
-				for(Iterator<OntologicalClass> k = cc.getClasses().iterator();
-						k.hasNext(); ) {
-					OntologicalClass oc = k.next();
-					OntClass domainClass = conceptModel.getOntClass(oc.getURI());
-					if(domainClass == null) {
-						System.err.println("Domain class is null! dc:" + domainClass);
-						continue;
-					}
-					conceptModel.add(ccClass, RDFS.subClassOf, domainClass);
-				}
+				conceptModel.add(ccClass, RDFS.subClassOf, domainClass);
 			}
 		}		
 	}
@@ -287,10 +262,10 @@ public class DataManager {
 		lexModel = null;
 		
 		//Senza reasoner
-		OntModel model = KbModelFactory.getModel("dalos.full", "");
+		fullModel = KbModelFactory.getModel("dalos.full", "");
 		
 		//List Ontology classes
-		for(ExtendedIterator ci = model.listClasses(); ci.hasNext();) {
+		for(ExtendedIterator ci = fullModel.listClasses(); ci.hasNext();) {
 			OntClass item = (OntClass) ci.next();
 			if(item.isAnon()) {
 				continue;
@@ -303,7 +278,7 @@ public class DataManager {
 			getOntologicalClass(ns, name);			
 		}
 		
-		OntClass conceptClass = model.getOntClass(Conf.conceptClassName);
+		OntClass conceptClass = fullModel.getOntClass(Conf.conceptClassName);
 		if(conceptClass == null) {
 			System.err.println("Concept class is null!");
 			return;
@@ -332,16 +307,14 @@ public class DataManager {
 				String resName = res.getLocalName();
 				
 				BasicResource br = getBasicResource(resNs, resName);
-//				ConceptClass previousCc = br.getConcept();
-//				if(previousCc != null && previousCc != cc) {
-//					System.err.println("Two concept class error! " +
-//							"res:" + res + " cc:"  + cc +
-//							" prevCc:" + previousCc);
-//					cc.setDeathFlag(true);
-//					continue;
-//				}
-//				br.setConcept(cc);
-				br.addConcept(cc);
+				ConceptClass previousCc = br.getConcept();
+				if(previousCc != null && previousCc != cc) {
+					System.err.println("Two concept class error! " +
+							"res:" + res + " cc:"  + cc +
+							" prevCc:" + previousCc);
+					continue;
+				}
+				br.setConcept(cc);
 			}
 			
 			//For each concept class, get ontological super classes
@@ -361,33 +334,18 @@ public class DataManager {
 			}
 		}
 		
-		//Add artificial concept classes
-		for(Iterator<BasicResource> i = resources.iterator(); 
-					i.hasNext();) {
-			BasicResource br = i.next();
-			if(br.getConcepts().size() == 0) {
-				addArtificialConceptClass(model, br);
-			}
-		}		
-		
 		//Set basic resources in ontological class
 		for(Iterator<BasicResource> i = resources.iterator(); 
 			i.hasNext();) {
 			BasicResource br = i.next();
-			Collection<ConceptClass> ccs = br.getConcepts();
-			for(Iterator<ConceptClass> ci = ccs.iterator(); ci.hasNext(); ) {
-				ConceptClass cc = ci.next();
-				if(cc == null) {
-					System.err.println("Resource without concept class!" +
-							" br:" + br);
-					//Meglio creare prima tutte le concept class...
-					continue;
-				}
-				for(Iterator<OntologicalClass> k = cc.getClasses().iterator();
-						k.hasNext(); ) {
-					OntologicalClass oc = k.next();
-					oc.addResource(br);
-				}
+			ConceptClass cc = br.getConcept();
+			if(cc == null) {
+				continue;
+			}
+			for(Iterator<OntologicalClass> k = cc.getClasses().iterator();
+					k.hasNext(); ) {
+				OntologicalClass oc = k.next();
+				oc.addResource(br);
 			}
 		}		
 	}
@@ -437,18 +395,18 @@ public class DataManager {
 		return br;
 	}
 	
-	private void addArtificialConceptClass(OntModel om, BasicResource br) {
+	private void addArtificialConceptClass(BasicResource br) {
 		
 		String name = getNextArtificialName();
 		String uri = Conf.DALOS_CONCEPTS_NS + name;
-		OntClass artClass = om.getOntClass(uri);
+		OntClass artClass = fullModel.getOntClass(uri);
 		if(artClass != null) {
 			System.err.println("artClass already exist! uri: " + uri);
 			return;
 		}
 		
 		ConceptClass cc = getConceptClass(Conf.DALOS_CONCEPTS_NS, name);
-		br.addConcept(cc);
+		br.setConcept(cc);
 	}
 	
 	private String getNextArtificialName() {

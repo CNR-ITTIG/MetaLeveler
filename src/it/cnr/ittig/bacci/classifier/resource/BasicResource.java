@@ -1,31 +1,24 @@
 package it.cnr.ittig.bacci.classifier.resource;
 
-import java.util.Collection;
-import java.util.HashSet;
 
 
 public class BasicResource extends WebResource {
 
-	private Collection<ConceptClass> concepts;
+	private ConceptClass concept;
 
 	public BasicResource() {
 		super();
 
-		concepts = new HashSet<ConceptClass>();
+		concept = null;
 	}
 
-	public Collection<ConceptClass> getConcepts() {
+	public ConceptClass getConcept() {
 		
-		return concepts;
+		return concept;
 	}
 
-	public boolean addConcept(ConceptClass cc) {
+	public void setConcept(ConceptClass cc) {
 		
-		return concepts.add(cc);
-	}
-	
-	public boolean removeConcept(ConceptClass cc) {
-		
-		return concepts.remove(cc);
-	}
+		concept = cc;
+	}	
 }
