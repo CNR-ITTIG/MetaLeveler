@@ -4,7 +4,11 @@ package it.cnr.ittig.jwneditor.editor;
 public class EditorConf {
 
 	public static boolean DIVIDE = false;
-	public static String DIVIDE_TYPE = "lexical"; //lexical, source, semantic
+	//public static boolean DIVIDE = true;
+	
+	public static String DIVIDE_TYPE = "lexical";
+	//public static String DIVIDE_TYPE = "source";
+	//public static String DIVIDE_TYPE = "semantic";
 	
 	public static String DIVIDE_DIR = "segment";
 	
@@ -13,7 +17,10 @@ public class EditorConf {
 	//public static String LANGUAGE = "ES";
 	//public static String LANGUAGE = "NL";
 	
-	public final static boolean ADD_ALIGNMENT = true;
+	 //Serve a produrre il global-concept.owl e i vari file types.owl
+	public final static boolean ADD_ALIGNMENT = true; 
+	
+	//Lingue da importare
 	public static String[] languages = {"IT", "EN", "NL", "ES"};
 
 	//type of import (one of: txt, xls, mdb)
