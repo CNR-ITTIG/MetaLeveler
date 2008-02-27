@@ -59,9 +59,9 @@ public class CeliOdbcImporter implements MetaImporter {
 		
 		Connection c = openConnection();		
 		
-		String sql = "select * from " + termsTBL;		
+		String sql = "select * from " + termsTBL;
 		Vector<String[]> results = eseguiQuery(c, sql);
-
+		
 		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
 			String[] row = i.next();
 			
@@ -211,8 +211,8 @@ public class CeliOdbcImporter implements MetaImporter {
 		langToTypeModel = new HashMap<String, OntModel>();
 		for(int i = 0; i < EditorConf.languages.length; i++) {
 			String lang = EditorConf.languages[i];
-			OntModel typeModel = ModelFactory.createOntologyModel(spec, null);
-			langToTypeModel.put(lang, typeModel);
+			langToTypeModel.put(lang, 
+					ModelFactory.createOntologyModel(spec, null));			
 		}				
 		
 		Connection c = openConnection();		
@@ -303,7 +303,7 @@ public class CeliOdbcImporter implements MetaImporter {
 			OntModel typeModel = langToTypeModel.get(lang);
 			serialize(typeModel,
 					EditorConf.DATA_DIR + File.separatorChar + "types-" + lang + ".owl",
-					EditorConf.dalos_ns + lang + "/" + EditorConf.onto_types + "#");					
+					EditorConf.dalos_ns + lang + "/types.owl#");					
 		}
 	}
 	
@@ -504,16 +504,12 @@ public class CeliOdbcImporter implements MetaImporter {
 			Driver d = (Driver)Class.forName("sun.jdbc.odbc.JdbcOdbcDriver").newInstance();
 			c = DriverManager.getConnection(strConn);
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return c;
@@ -524,7 +520,6 @@ public class CeliOdbcImporter implements MetaImporter {
 		try {
 			c.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -543,10 +538,7 @@ public class CeliOdbcImporter implements MetaImporter {
 		synsetClass.addSuperClass(conceptClass);
 		
 		//Link this synset to the concept class
-		OntModel typeModel = langToTypeModel.get(lang);
-		
-		OntResource syn = createSynsetIndividual(proto, lang);
-		typeModel.add(syn, RDF.type, synsetClass);
+		addType(synsetClass, proto, lang);
 		
 		return synsetClass;
 	}
