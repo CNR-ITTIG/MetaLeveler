@@ -57,10 +57,8 @@ public class XlsMapper {
 			Workbook tmpwb = Workbook.getWorkbook(new File(mappings));
 			mapSheet = tmpwb.getSheet(0);
 		} catch (BiffException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -199,10 +197,8 @@ public class XlsMapper {
 		try {
 			wb = Workbook.getWorkbook(new File(definitions));
 		} catch (BiffException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -249,7 +245,6 @@ public class XlsMapper {
 		try {
 			wb = Workbook.createWorkbook(new File(classification));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -269,10 +264,9 @@ public class XlsMapper {
 			label = new Label(5, 0, "ONTOCLASSE");
 			sheet.addCell(label);
 		} catch (RowsExceededException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (WriteException e1) {
-			// TODO Auto-generated catch block
+			
 			e1.printStackTrace();
 		}
 		
@@ -291,11 +285,9 @@ public class XlsMapper {
 				label = new Label(1, row, c.lemmi.get(0).getLexicalForm());
 				sheet.addCell(label);
 				row++;
-			} catch (RowsExceededException e) {
-				// TODO Auto-generated catch block
+			} catch (RowsExceededException e) {				
 				e.printStackTrace();
-			} catch (WriteException e) {
-				// TODO Auto-generated catch block
+			} catch (WriteException e) {				
 				e.printStackTrace();
 			}
 		}
@@ -303,11 +295,9 @@ public class XlsMapper {
 		try {
 			wb.write();
 			wb.close();
-		} catch (WriteException e) {
-			// TODO Auto-generated catch block
+		} catch (WriteException e) {			
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {			
 			e.printStackTrace();
 		}
 	}
@@ -316,8 +306,7 @@ public class XlsMapper {
 		
 		try {
 			wb = Workbook.createWorkbook(new File(mappings));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {			
 			e.printStackTrace();
 		}
 		
@@ -333,10 +322,10 @@ public class XlsMapper {
 			label = new Label(3, 0, "URL");
 			sheet.addCell(label);
 		} catch (RowsExceededException e1) {
-			// TODO Auto-generated catch block
+			
 			e1.printStackTrace();
 		} catch (WriteException e1) {
-			// TODO Auto-generated catch block
+			
 			e1.printStackTrace();
 		}
 		row = 1;
@@ -373,11 +362,9 @@ public class XlsMapper {
 		try {
 			wb.write();
 			wb.close();
-		} catch (WriteException e) {
-			// TODO Auto-generated catch block
+		} catch (WriteException e) {			
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {			
 			e.printStackTrace();
 		}
 		
@@ -401,29 +388,6 @@ public class XlsMapper {
 		}
 	}
 
-	
-//	private void expand(OntClass oc) {
-//	
-//		System.out.println("Expanding " + oc.getNameSpace() + oc.getLocalName());
-//		for(Iterator i = oc.listSuperClasses(true); i.hasNext();) {
-//			OntClass c = (OntClass) i.next();
-//			if(c.isAnon()) {
-//				continue;
-//			}
-////			if(c.getLocalName().equalsIgnoreCase("thing") ||
-////					c.getLocalName().equalsIgnoreCase("resource")) {
-////				continue;
-////			}
-//			if(!c.getNameSpace().equalsIgnoreCase(EditorConf.clawModel + "#")) {
-//				continue;
-//			}
-//			if(!classes.contains(c)) {
-//				classes.add(c);
-//			}
-//			expand(c);
-//		}
-//	}
-	
 	//private void addMapping(OntClass oc) {
 	private void addMapping() {
 		
@@ -441,11 +405,9 @@ public class XlsMapper {
 				sheet.addCell(label);
 				label = new Label(3, row, space);
 				sheet.addCell(label);
-			} catch (RowsExceededException e) {
-				// TODO Auto-generated catch block
+			} catch (RowsExceededException e) {				
 				e.printStackTrace();
 			} catch (WriteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			row++;
