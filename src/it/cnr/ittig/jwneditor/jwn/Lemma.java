@@ -2,7 +2,7 @@ package it.cnr.ittig.jwneditor.jwn;
 
 import java.util.Vector;
 
-public class Lemma {
+public class Lemma implements Comparable {
 
 	private String lexicalForm;
 	private String partOfSpeech;
@@ -21,6 +21,8 @@ public class Lemma {
 	public Vector<String> variants;
 	
 	private String protoForm;
+	
+	private String lemmaLang;
 
 	public Lemma(String l) {
 		this(l, DEFAULT_POS);
@@ -44,7 +46,9 @@ public class Lemma {
 		ordine = "";
 		id = null;
 		
-		synset = null;		
+		synset = null;
+		
+		lemmaLang = null;
 	}
 	
 	public void setID(String newId) { id = newId; }
@@ -118,5 +122,27 @@ public class Lemma {
 
 	public void setProtoForm(String protoForm) {
 		this.protoForm = protoForm;
+	}
+
+	public String getLemmaLang() {
+		return lemmaLang;
+	}
+
+	public void setLemmaLang(String lemmaLang) {
+		this.lemmaLang = lemmaLang;
+	}
+
+	@Override
+	public int compareTo(Object obj) 
+		throws ClassCastException {
+
+		if(!(obj instanceof Lemma)) {
+			throw new ClassCastException(
+					"Object is not a valid Lemma! obj:" 
+					+ obj.getClass());			
+		}
+		
+		String objStr = ((Lemma) obj).toString();
+		return this.toString().compareToIgnoreCase(objStr);
 	}
 }

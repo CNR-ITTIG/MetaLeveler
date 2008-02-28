@@ -49,6 +49,7 @@ public class DataManager {
 	private OntProperty containsProperty;
 	private OntProperty wordProperty;
 	private OntProperty lexicalProperty;
+	private OntProperty protoProperty;
 	
 	//Artificial concept class counter
 	private static int artificialCounter = 0;
@@ -82,10 +83,6 @@ public class DataManager {
 		return classes;
 	}
 
-//	public Collection<ConceptClass> getConcepts() {
-//		return concepts;
-//	}
-
 	public Collection<BasicResource> getResources() {
 		return resources;
 	}
@@ -94,11 +91,9 @@ public class DataManager {
 		
 		ConceptClass cc = br.getConcept();
 		Set<OntologicalClass> data = new TreeSet<OntologicalClass>();
-		if(cc == null) {
-			System.err.println("Concept class not found! br:" + br);
-			return data;
+		if(cc != null) {
+			data.addAll(cc.getClasses());
 		}		
-		data.addAll(cc.getClasses());
 		return data;
 	}
 	
@@ -114,7 +109,6 @@ public class DataManager {
 			ConceptClass cc = br.getConcept();
 			if(cc != null && cc.getClasses().size() > 0) {
 				data.add(br);
-				break;
 			}
 		}
 		return data;
@@ -139,7 +133,7 @@ public class DataManager {
 		ConceptClass cc = br.getConcept();
 		if(cc == null) {
 			//Add artificial concept
-			addArtificialConceptClass(br);
+			cc = addArtificialConceptClass(br);
 		}		cc.addClass(oc);
 		
 		if(!oc.addResource(br)) {
@@ -191,7 +185,6 @@ public class DataManager {
 			OntResource brRes = typeModel.createOntResource(br.getURI());
 			ConceptClass cc = br.getConcept();
 			if(cc == null) {
-				System.err.println("null cc for br: " + br );
 				continue;
 			}
 			if(isEmptyArtificial(cc)) {
@@ -252,7 +245,8 @@ public class DataManager {
 				Conf.METALEVEL_ONTO_NS + "word");
 		lexicalProperty = lexModel.getOntProperty(
 				Conf.METALEVEL_ONTO_NS + "lexicalForm");
-
+		protoProperty = lexModel.getOntProperty(
+				Conf.METALEVEL_ONTO_NS + "protoForm");
 		
 		OntClass synsetClass = lexModel.getOntClass(Conf.synsetClassName);
 		if(synsetClass == null) {
@@ -271,6 +265,8 @@ public class DataManager {
 			
 			BasicResource br = getBasicResource(resNs, resName);
 			addVariants(res, br);
+			//Add now - sorting depends on variants
+			resources.add(br);
 		}
 		System.out.println("Added resources: " + resources.size());
 
@@ -340,8 +336,8 @@ public class DataManager {
 				if(previousCc != null && previousCc != cc) {
 					System.err.println("Two concept class error! " +
 							"res:" + res + " cc:"  + cc +
-							" prevCc:" + previousCc + "! Merging...");
-					mergeConcept(br, res);
+							" prevCc:" + previousCc + "!");
+					//mergeConcept(br, res);
 					continue;
 				}
 				br.setConcept(cc);
@@ -377,7 +373,13 @@ public class DataManager {
 				OntologicalClass oc = k.next();
 				oc.addResource(br);
 			}
-		}		
+		}
+		
+		//Look for external mapping?
+		if(Conf.EXTERNAL_MAPPING) {
+			System.out.println("Processing external mapping...");
+			XlsMappingImporter.classify(this);
+		}
 	}
 	
 	private OntologicalClass getOntologicalClass(String ns, String name) {
@@ -419,7 +421,6 @@ public class DataManager {
 			br.setURI(uri);
 			br.setLexicalForm(name);
 			uriToResource.put(uri, br);
-			resources.add(br);
 		}
 
 		return br;
@@ -427,11 +428,18 @@ public class DataManager {
 	
 	private void addVariants(OntResource ores, BasicResource br) {
 		
-		for(Iterator k = ores.listPropertyValues(containsProperty); 
+		for(ExtendedIterator k = ores.listPropertyValues(containsProperty); 
 				k.hasNext();) {
 			OntResource ws = (OntResource) k.next();
 			OntResource w = (OntResource) ws.getPropertyValue(wordProperty);
-			for(Iterator l = w.listPropertyValues(lexicalProperty); l.hasNext(); ) {
+			RDFNode protoNode = w.getPropertyValue(protoProperty);
+			if(protoNode != null) {
+				br.setLexicalForm(((Literal) protoNode).getString());
+			} else {
+				System.err.println(">> synset without proto form! ores:" + ores);
+			}
+			for(ExtendedIterator l = w.listPropertyValues(lexicalProperty);
+					l.hasNext(); ) {
 				RDFNode lexNode = (RDFNode) l.next();
 				String lexForm = ((Literal) lexNode).getString();
 				br.addVariant(lexForm);
@@ -439,57 +447,58 @@ public class DataManager {
 		}
 	}
 	
-	private void mergeConcept(BasicResource br, OntResource res) {
-		
-		ConceptClass mainCc = br.getConcept();
-		
-		//Iterate over concept classes of this resource
-		for(ExtendedIterator k = res.listRDFTypes(true);
-			k.hasNext(); ) {
-			Resource ccRes = (Resource) k.next();
-			if(!ccRes.getNameSpace().equalsIgnoreCase(Conf.DALOS_CONCEPTS_NS)) {
-				continue;
-			}
-			String ccUri = ccRes.getNameSpace() + ccRes.getLocalName();
-			ConceptClass cc = uriToConcept.get(ccUri);
-			if(cc == null) {
-				System.err.println("megeConcept() - null cc for uri: " + ccUri);
-				continue;
-			}
-			//Skip the main concept class
-			if(cc.equals(mainCc)) {
-				continue;
-			}
-			Collection<BasicResource> resources = uriToResource.values();
-			for(Iterator<BasicResource> i = resources.iterator(); i.hasNext();) {
-				BasicResource item = i.next();
-				ConceptClass itemClass = item.getConcept();
-				if(itemClass != null && itemClass.equals(cc)) {
-					br.setConcept(mainCc);
-					for(Iterator<OntologicalClass> oci = itemClass.getClasses().iterator();
-						oci.hasNext(); ) {
-						OntologicalClass oc = oci.next();
-						mainCc.addClass(oc);
-					}
-				}				
-			}
-			//Remove cc
-			uriToConcept.remove(ccUri);
-		}
-	}
+//	private void mergeConcept(BasicResource br, OntResource res) {
+//		
+//		ConceptClass mainCc = br.getConcept();
+//		
+//		//Iterate over concept classes of this resource
+//		for(ExtendedIterator k = res.listRDFTypes(true);
+//			k.hasNext(); ) {
+//			Resource ccRes = (Resource) k.next();
+//			if(!ccRes.getNameSpace().equalsIgnoreCase(Conf.DALOS_CONCEPTS_NS)) {
+//				continue;
+//			}
+//			String ccUri = ccRes.getNameSpace() + ccRes.getLocalName();
+//			ConceptClass cc = uriToConcept.get(ccUri);
+//			if(cc == null) {
+//				System.err.println("megeConcept() - null cc for uri: " + ccUri);
+//				continue;
+//			}
+//			//Skip the main concept class
+//			if(cc.equals(mainCc)) {
+//				continue;
+//			}
+//			Collection<BasicResource> resources = uriToResource.values();
+//			for(Iterator<BasicResource> i = resources.iterator(); i.hasNext();) {
+//				BasicResource item = i.next();
+//				ConceptClass itemClass = item.getConcept();
+//				if(itemClass != null && itemClass.equals(cc)) {
+//					br.setConcept(mainCc);
+//					for(Iterator<OntologicalClass> oci = itemClass.getClasses().iterator();
+//						oci.hasNext(); ) {
+//						OntologicalClass oc = oci.next();
+//						mainCc.addClass(oc);
+//					}
+//				}				
+//			}
+//			//Remove cc
+//			uriToConcept.remove(ccUri);
+//		}
+//	}
 	
-	private void addArtificialConceptClass(BasicResource br) {
+	ConceptClass addArtificialConceptClass(BasicResource br) {
 		
 		String name = getNextArtificialName();
 		String uri = Conf.DALOS_CONCEPTS_NS + name;
 		OntClass artClass = fullModel.getOntClass(uri);
 		if(artClass != null) {
 			System.err.println("artClass already exist! uri: " + uri);
-			return;
+			return null;
 		}
 		
 		ConceptClass cc = getConceptClass(Conf.DALOS_CONCEPTS_NS, name);
 		br.setConcept(cc);
+		return cc;
 	}
 	
 	private String getNextArtificialName() {

@@ -2,7 +2,6 @@ package it.cnr.ittig.bacci.classifier.resource;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Vector;
 
 
@@ -37,9 +36,6 @@ public class BasicResource extends WebResource {
 	
 	public boolean addVariant(String variant) {
 		
-		if(variants.size() == 0) {
-			setLexicalForm(variant);
-		}
 		return variants.add(variant);
 	}
 	
@@ -47,25 +43,4 @@ public class BasicResource extends WebResource {
 		
 		return variants.remove(variant);
 	}
-	
-//	private String getPrimario() {
-//		
-//		for(Iterator<String> i = variants.iterator();
-//				i.hasNext(); ) {
-//			return i.next();
-//		}
-//		
-//		return null;
-//	}
-//	
-//	
-//	public String toString() {
-//		
-//		if(variants.size() > 0) {
-//			return getPrimario();
-//		}
-//		
-//		return super.toString();
-//	}
-//	
 }

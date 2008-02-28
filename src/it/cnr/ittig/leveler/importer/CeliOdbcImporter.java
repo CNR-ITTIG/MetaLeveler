@@ -1,5 +1,6 @@
 package it.cnr.ittig.leveler.importer;
 
+import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn.Correlazione;
@@ -85,6 +86,7 @@ public class CeliOdbcImporter implements MetaImporter {
 			Concetto conc = new Concetto();
 			conc.setID(id);
 			Lemma lemma = new Lemma(proto);
+			lemma.setLemmaLang(EditorConf.LANGUAGE);
 			conc.add(lemma);
 			Leveler.appSynsets.put(id, conc);
 			
@@ -283,6 +285,7 @@ public class CeliOdbcImporter implements MetaImporter {
 		if(lemma == null) {
 			lemma = new Lemma(proto);
 			protoLangToLemma.put(key, lemma);
+			lemma.setLemmaLang(lang);
 		}
 		return lemma;
 	}	
@@ -331,13 +334,25 @@ public class CeliOdbcImporter implements MetaImporter {
 	}
 	
 	private Lemma getMainConcept(Collection<Lemma> concepts) {
+		//Search main concept depending on language (en, it, ...)
 		
-		Lemma mainConcept = null;
 		for(Iterator<Lemma> i = concepts.iterator(); i.hasNext();) {
-			mainConcept = i.next();
-			break;
+			Lemma item = i.next();
+			if(item.getLemmaLang().equalsIgnoreCase("en")) {
+				return item;
+			}
 		}
-		return mainConcept;
+		for(Iterator<Lemma> i = concepts.iterator(); i.hasNext();) {
+			Lemma item = i.next();
+			if(item.getLemmaLang().equalsIgnoreCase("it")) {
+				return item;
+			}
+		}
+		for(Iterator<Lemma> i = concepts.iterator(); i.hasNext();) {
+			//This must be a sorted collection to get always the same result!
+			return i.next();
+		}
+		return null;
 	}
 	
 	private void addLemmaConcept(Lemma lemmaA, Lemma lemmaB) {
@@ -345,15 +360,13 @@ public class CeliOdbcImporter implements MetaImporter {
 		Collection<Lemma> conceptsA = lemmaToLemmi.get(lemmaA);
 		Collection<Lemma> conceptsB = lemmaToLemmi.get(lemmaB);
 		
-		//FIXME Usando hashset la mainconcept è casuale, usando
-		//treeset no, ma si deve implementare comparable...
 		if(conceptsA == null) {
-			conceptsA = new HashSet<Lemma>();
+			conceptsA = new TreeSet<Lemma>();
 			conceptsA.add(lemmaA);
 			lemmaToLemmi.put(lemmaA, conceptsA);
 		}
 		if(conceptsB == null) {
-			conceptsB = new HashSet<Lemma>();
+			conceptsB = new TreeSet<Lemma>();
 			conceptsB.add(lemmaB);
 			lemmaToLemmi.put(lemmaB, conceptsB);
 		}

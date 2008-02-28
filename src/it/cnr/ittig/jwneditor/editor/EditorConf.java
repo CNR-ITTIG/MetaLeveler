@@ -30,7 +30,7 @@ public class EditorConf {
 	public static String MDB_FILE_NAME = "DalosAlignment14-02.mdb";
 
 	//link terms to ontology classes?
-	public final static boolean LINK_TO_ONTOLOGY = true;
+	public final static boolean LINK_TO_ONTOLOGY = false;
 	public final static String CLASSIFICATION = "classification-15-07.xls"; 
 	public final static String MAPPING = "mappings-15-07-mod.xls"; 
 	
