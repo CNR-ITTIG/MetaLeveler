@@ -70,7 +70,8 @@ public abstract class WebResource implements Comparable {
 	public int compareTo(Object obj) throws ClassCastException {
 		
 		if(!(obj instanceof WebResource)) {
-			throw new ClassCastException("Object is not a valid web resource!");
+			throw new ClassCastException(
+					"Object is not a valid web resource!");
 		}
 		
 		String objForm = ((WebResource) obj).toString();

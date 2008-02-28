@@ -1,10 +1,9 @@
 package it.cnr.ittig.bacci.classifier;
 
 import it.cnr.ittig.bacci.classifier.resource.BasicResource;
+import it.cnr.ittig.bacci.classifier.resource.ConceptClass;
+import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
 import it.cnr.ittig.jwneditor.editor.EditorConf;
-import it.cnr.ittig.jwneditor.jwn.Concetto;
-import it.cnr.ittig.jwneditor.jwn.Lemma;
-import it.cnr.ittig.leveler.Leveler;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,9 +65,9 @@ public class XlsMappingImporter {
 			String oc3 = sheet.getCell(4, row).getContents().trim();
 			String oc4 = sheet.getCell(5, row).getContents().trim();
 			if(oc1.length() > 0) {
-				Concetto c = getSynsetByLemma(lemma);
-				if(c != null) {
-					System.out.println("classify() - synset identified: " + c);
+				BasicResource br = getSynsetByLemma(lemma);
+				if(br != null) {
+					System.out.println("classify() - synset identified: " + br);
 				} else {
 					if(oc1.trim().length() > 0 && !oc1.trim().equalsIgnoreCase("no")) {
 						System.err.println(
@@ -84,14 +83,27 @@ public class XlsMappingImporter {
 //					Leveler.appSynsets.values().remove(c);
 					continue;
 				}
-				
-				c.ontoclassi.add(resolve(oc1));
+
+				ConceptClass c = br.getConcept();
+				OntologicalClass oc = checkOntologicalClass(oc1);
+				if(oc != null) {
+					c.addClass(oc);					
+				}
 				if(oc2.trim().length() > 0) {
-					c.ontoclassi.add(resolve(oc2));
+					oc = checkOntologicalClass(oc2);
+					if(oc != null) {
+						c.addClass(oc);					
+					}
 					if(oc3.trim().length() > 0) {
-						c.ontoclassi.add(resolve(oc3));
+						oc = checkOntologicalClass(oc3);
+						if(oc != null) {
+							c.addClass(oc);					
+						}
 						if(oc4.trim().length() > 0) {
-							c.ontoclassi.add(resolve(oc4));
+							oc = checkOntologicalClass(oc4);
+							if(oc != null) {
+								c.addClass(oc);					
+							}
 						}
 					}
 				}
@@ -99,25 +111,23 @@ public class XlsMappingImporter {
 		}		
 	}
 	
-	private static Concetto getSynsetByLemma(String lemma) {
+	private static BasicResource getSynsetByLemma(String lemma) {
 		
-		Concetto c = null;
+		BasicResource br = null;
 		Collection<BasicResource> synsets = dm.getResources();
-		for(Iterator<Concetto> iter = synsets.iterator(); iter.hasNext(); ) {
-			Concetto item = iter.next();
-			for(int i = 0; i < item.lemmi.size(); i++) {
-				Lemma thisLemma = item.lemmi.get(i);
-				for(int v = 0; v < thisLemma.variants.size(); v++) {
-					String variant = thisLemma.variants.get(v);
-					if(matchLemma(lemma, variant)) {
-						c = item;
-						//System.out.println("LEMMA OK a: " + lemma + " b:" + variant);
-						break;
-					}					
-				}
+		for(Iterator<BasicResource> iter = synsets.iterator(); iter.hasNext(); ) {
+			BasicResource item = iter.next();
+			Collection<String> variants = item.getVariants();
+			for(Iterator<String> v = variants.iterator(); v.hasNext(); ) {
+				String variant = v.next();
+				if(matchLemma(lemma, variant)) {
+					br = item;
+					//System.out.println("LEMMA OK a: " + lemma + " b:" + variant);
+					break;
+				}					
 			}
 		}		
-		return c;
+		return br;
 	}
 	
 	private static boolean matchLemma(String lemma1, String lemma2) {
@@ -136,6 +146,11 @@ public class XlsMappingImporter {
 			return true;
 		}
 		return false;
+	}
+	
+	private static OntologicalClass checkOntologicalClass(String name) {
+		
+		return null;
 	}
 	
 	private static String resolve(String oc) {

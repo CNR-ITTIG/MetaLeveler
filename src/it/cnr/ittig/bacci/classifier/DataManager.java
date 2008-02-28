@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +18,10 @@ import java.util.TreeSet;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
@@ -43,6 +45,10 @@ public class DataManager {
 	private OntModel fullModel;
 	private OntModel conceptModel;
 	private OntModel typeModel;
+	
+	private OntProperty containsProperty;
+	private OntProperty wordProperty;
+	private OntProperty lexicalProperty;
 	
 	//Artificial concept class counter
 	private static int artificialCounter = 0;
@@ -232,12 +238,21 @@ public class DataManager {
 		KbModelFactory.addDocument(Conf.CONCEPTS, workDir + Conf.CONCEPTS);
 		KbModelFactory.addDocument(Conf.TYPES, workDir + Conf.TYPES);
 		KbModelFactory.addDocument(Conf.IND, workDir + Conf.IND);
+		KbModelFactory.addDocument(Conf.INDW, workDir + Conf.INDW);
 	}
 	
 	private void initData() {
 		
 		//Con reasoner
-		OntModel lexModel = KbModelFactory.getModel("dalos.lexicon", "micro");
+		OntModel lexModel = KbModelFactory.getModel(
+				"dalos.lexicon", "micro");
+		containsProperty = lexModel.getOntProperty(
+				Conf.METALEVEL_ONTO_NS + "containsWordSense");
+		wordProperty = lexModel.getOntProperty(
+				Conf.METALEVEL_ONTO_NS + "word");
+		lexicalProperty = lexModel.getOntProperty(
+				Conf.METALEVEL_ONTO_NS + "lexicalForm");
+
 		
 		OntClass synsetClass = lexModel.getOntClass(Conf.synsetClassName);
 		if(synsetClass == null) {
@@ -412,6 +427,16 @@ public class DataManager {
 	
 	private void addVariants(OntResource ores, BasicResource br) {
 		
+		for(Iterator k = ores.listPropertyValues(containsProperty); 
+				k.hasNext();) {
+			OntResource ws = (OntResource) k.next();
+			OntResource w = (OntResource) ws.getPropertyValue(wordProperty);
+			for(Iterator l = w.listPropertyValues(lexicalProperty); l.hasNext(); ) {
+				RDFNode lexNode = (RDFNode) l.next();
+				String lexForm = ((Literal) lexNode).getString();
+				br.addVariant(lexForm);
+			}
+		}
 	}
 	
 	private void mergeConcept(BasicResource br, OntResource res) {
