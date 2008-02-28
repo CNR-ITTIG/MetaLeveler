@@ -99,6 +99,12 @@ public class KbModelFactory {
 		if(type.equalsIgnoreCase("dalos.lexicon")) {
 			readSchema(om, Conf.METALEVEL_ONTO);
 			readLocalDocument(om, lang, Conf.IND);
+			readLocalDocument(om, lang, Conf.INDW);
+			readLocalDocument(om, lang, Conf.TYPES);
+		}		
+		if(type.equalsIgnoreCase("dalos.lexicon.light")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readLocalDocument(om, lang, Conf.IND);
 			readLocalDocument(om, lang, Conf.TYPES);
 		}		
 		if(type.equalsIgnoreCase("dalos.ontology")) {
@@ -127,10 +133,8 @@ public class KbModelFactory {
 				System.out.println("URL: " + u.toString());
 				om.read(u.openStream(), null);
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				System.out.println("#### URL unreachable! Trying to load local data...");
 				String localFile = odm.doAltURLMapping(url);
 				System.out.println("localFile: " + localFile);

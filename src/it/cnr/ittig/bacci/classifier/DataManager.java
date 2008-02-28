@@ -246,16 +246,16 @@ public class DataManager {
 		}
 		
 		//List synset individuals
-		for(ExtendedIterator i = synsetClass.listInstances(false);
-				i.hasNext(); ) {
-			Resource res = (Resource) i.next();
+		for(ExtendedIterator i = synsetClass.listInstances(false); i.hasNext(); ) {
+			OntResource res = (OntResource) i.next();
 			if(res.isAnon()) {
 				continue;
 			}
 			String resNs = res.getNameSpace();
 			String resName = res.getLocalName();
 			
-			getBasicResource(resNs, resName);			
+			BasicResource br = getBasicResource(resNs, resName);
+			addVariants(res, br);
 		}
 		System.out.println("Added resources: " + resources.size());
 
@@ -408,6 +408,10 @@ public class DataManager {
 		}
 
 		return br;
+	}
+	
+	private void addVariants(OntResource ores, BasicResource br) {
+		
 	}
 	
 	private void mergeConcept(BasicResource br, OntResource res) {
