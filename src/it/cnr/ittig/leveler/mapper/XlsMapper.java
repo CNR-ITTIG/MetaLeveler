@@ -83,14 +83,19 @@ public class XlsMapper {
 				Concetto c = null;
 				if(matchString) {
 					c = getSynsetByLemma(lemma);
+					if(c != null) {
+						System.out.println("classify() - synset identified: " + c);
+					}
 				} else {
 					c = Leveler.appSynsets.get(kwid);
 				}
 				if(c == null) {
-					System.err.println(
-							">> WARNING! classify() - c is null, " +
-							"matching lemma not found or invalid kwid! (kwid:" 
-							+ kwid + ", lemma:" + lemma + ")");
+					if(oc1.trim().length() > 0 && !oc1.trim().equalsIgnoreCase("no")) {
+						System.err.println(
+								">> WARNING! classify() - c is null, " +
+								"matching lemma not found or invalid kwid! kwid:" 
+								+ kwid + ", lemma:" + lemma);
+					}
 					continue;
 				}
 				if(oc1.equalsIgnoreCase("no")) {

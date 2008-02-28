@@ -59,12 +59,10 @@ public class CeliTablesImporter implements MetaImporter {
 			Concetto conc = new Concetto();
 			conc.setID(id);
 			Lemma lemma = new Lemma(proto);
-			lemma.protoForm = proto;
 			conc.add(lemma);
 			Leveler.appSynsets.put(id, conc);
 			
 			//aggiungi le varianti dalla tabella AL LEMMA !! 
-			lemma.variants.add(proto);
 			lemma.variants.add(lexical);
 		}
 		
@@ -280,8 +278,6 @@ public class CeliTablesImporter implements MetaImporter {
 
 			//Link the concept class to the synset
 			Lemma lemma = new Lemma(protoConcept);
-			lemma.protoForm = protoConcept;
-			lemma.variants.add(protoConcept);
 			c1.conceptLemma = lemma;
 		}
 		wb.close();

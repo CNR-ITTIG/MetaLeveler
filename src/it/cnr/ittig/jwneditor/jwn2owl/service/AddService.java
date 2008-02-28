@@ -358,9 +358,8 @@ public class AddService {
 			}
 
 			//proto form and lexical forms
-			if(lemma.protoForm.length() > 0) {
-				//System.out.println("Adding protoform " + lemma.protoForm + " to " + word);
-				Literal lit = m_indw.createTypedLiteral(lemma.protoForm);
+			if(lemma.getProtoForm().length() > 0) {
+				Literal lit = m_indw.createTypedLiteral(lemma.getProtoForm());
 				word.addProperty(protoProperty, lit);
 			}
 

@@ -20,10 +20,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import com.hp.hpl.jena.ontology.OntClass;
@@ -55,6 +58,11 @@ public class CeliOdbcImporter implements MetaImporter {
 	private OntClass conceptClass;
 	private Map<String, OntModel> langToTypeModel; 
 	
+	private Map<String, Lemma> protoLangToLemma;
+	private Map<Lemma, Collection<Lemma>> lemmaToLemmi;
+	private Map<Lemma, Lemma> lemmaToConcept;
+	private Map<Lemma, String> lemmaToLang;
+	
 	public void createSynsets() throws IOException {
 		
 		Connection c = openConnection();		
@@ -77,12 +85,10 @@ public class CeliOdbcImporter implements MetaImporter {
 			Concetto conc = new Concetto();
 			conc.setID(id);
 			Lemma lemma = new Lemma(proto);
-			lemma.protoForm = proto;
 			conc.add(lemma);
 			Leveler.appSynsets.put(id, conc);
 			
 			//aggiungi le varianti dalla tabella AL LEMMA !! 
-			lemma.variants.add(proto);
 			lemma.variants.add(lexical);
 		}		
 		closeConnection(c);
@@ -200,7 +206,10 @@ public class CeliOdbcImporter implements MetaImporter {
 
 	public void addAlignment() throws IOException {
 		
-		//addConcepts();
+		protoLangToLemma = new HashMap<String, Lemma>();
+		lemmaToLemmi = new HashMap<Lemma, Collection<Lemma>>();
+		lemmaToConcept = new HashMap<Lemma, Lemma>();
+		lemmaToLang = new HashMap<Lemma, String>();
 
 		ModelMaker maker = ModelFactory.createMemModelMaker();
 		OntModelSpec spec = new OntModelSpec(OntModelSpec.OWL_MEM);
@@ -252,45 +261,106 @@ public class CeliOdbcImporter implements MetaImporter {
 //				continue;
 //			}
 
-			Lemma lemmaFrom = new Lemma(protoFrom);
-			lemmaFrom.protoForm = protoFrom;
-			lemmaFrom.variants.add(protoFrom);
-			Lemma lemmaTo = new Lemma(protoTo);
-			lemmaTo.protoForm = protoTo;
-			lemmaTo.variants.add(protoTo);
+			Lemma lemmaFrom = getLemma(protoFrom, langFrom);
+			Lemma lemmaTo = getLemma(protoTo, langTo);
 			
-			OntClass ocFrom = getConceptClass(lemmaFrom);
-			OntClass ocTo = getConceptClass(lemmaTo);
+			lemmaToLang.put(lemmaFrom, langFrom);
+			lemmaToLang.put(lemmaTo, langTo);
 			
-			if(ocFrom == null && ocTo == null) {
-				OntClass oc = createConceptClass(lemmaTo, langTo);
-				addType(oc, lemmaFrom, langFrom);
-				continue;
-			}
-			
-			if(ocFrom != null && ocTo == null) {
-				OntClass oc = createConceptClass(lemmaFrom, langFrom);
-				addType(oc, lemmaTo, langTo);
-				continue;
-			}
-
-			if(ocFrom == null && ocTo != null) {
-				OntClass oc = createConceptClass(lemmaTo, langTo);
-				addType(oc, lemmaFrom, langFrom);
-				continue;
-			}
-
-			if(ocFrom != null && ocTo != null) {
-				//FIXME Non è molto bello aggiungerli ad entrambi i concept...
-				addType(ocFrom, lemmaTo, langTo);
-				addType(ocTo, lemmaFrom, langFrom);
-				continue;
-			}
-		}
+			addLemmaConcept(lemmaFrom, lemmaTo);
+		}				
 		closeConnection(c);
 		
+		prepareConcepts();
+		
 		saveModels();		
+	}
+	
+	private Lemma getLemma(String proto, String lang) {
+		
+		String key = proto + lang;
+		Lemma lemma = protoLangToLemma.get(key);
+		if(lemma == null) {
+			lemma = new Lemma(proto);
+			protoLangToLemma.put(key, lemma);
+		}
+		return lemma;
 	}	
+	
+	private void prepareConcepts() {
+				
+		Collection<Lemma> finalConcepts = new HashSet<Lemma>();
+		Collection<Lemma> lemmas = lemmaToLemmi.keySet();
+		System.out.println("Preparing... lsize: " + lemmas.size());
+		for(Iterator<Lemma> i = lemmas.iterator(); i.hasNext(); ) {
+			Lemma lemma = i.next();						
+			Collection<Lemma> concepts = lemmaToLemmi.get(lemma);
+			if(concepts.isEmpty()) {
+				System.err.println("ERROR! empty concepts for lemma: " + lemma);
+				continue;
+			} 
+			Lemma mainConcept = getMainConcept(concepts);
+			finalConcepts.add(mainConcept);
+			lemmaToConcept.put(lemma, mainConcept);
+		}
+		
+		//Add final concepts to concept model
+		System.out.println("fcsize: " + finalConcepts.size());
+		for(Iterator<Lemma> i = finalConcepts.iterator(); i.hasNext(); ) {
+			Lemma concept = i.next();
+			createConceptClass(concept);
+		}
+		
+		//Add types triples
+		for(Iterator<Lemma> i = lemmas.iterator(); i.hasNext(); ) {
+			Lemma lemma = i.next();
+			Lemma concept = lemmaToConcept.get(lemma);
+			String lang = lemmaToLang.get(lemma);
+			OntClass oc = getConceptClass(concept);
+			addType(oc, lemma, lang);			
+		}
+		
+		//Set concept lemma in Concetto object
+		Collection<Concetto> concetti = Leveler.appSynsets.values();
+		for(Iterator<Concetto> i = concetti.iterator(); i.hasNext();) {
+			Concetto item = i.next();
+			Lemma lemma = item.getPrimario();
+			Lemma concept = lemmaToConcept.get(lemma);
+			item.conceptLemma = concept;
+		}
+	}
+	
+	private Lemma getMainConcept(Collection<Lemma> concepts) {
+		
+		Lemma mainConcept = null;
+		for(Iterator<Lemma> i = concepts.iterator(); i.hasNext();) {
+			mainConcept = i.next();
+			break;
+		}
+		return mainConcept;
+	}
+	
+	private void addLemmaConcept(Lemma lemmaA, Lemma lemmaB) {
+		
+		Collection<Lemma> conceptsA = lemmaToLemmi.get(lemmaA);
+		Collection<Lemma> conceptsB = lemmaToLemmi.get(lemmaB);
+		
+		//FIXME Usando hashset la mainconcept è casuale, usando
+		//treeset no, ma si deve implementare comparable...
+		if(conceptsA == null) {
+			conceptsA = new HashSet<Lemma>();
+			conceptsA.add(lemmaA);
+			lemmaToLemmi.put(lemmaA, conceptsA);
+		}
+		if(conceptsB == null) {
+			conceptsB = new HashSet<Lemma>();
+			conceptsB.add(lemmaB);
+			lemmaToLemmi.put(lemmaB, conceptsB);
+		}
+		//Merge concepts collection
+		conceptsA.addAll(conceptsB);
+		conceptsB = conceptsA;
+	}
 	
 	private void saveModels() {
 		
@@ -331,61 +401,6 @@ public class CeliOdbcImporter implements MetaImporter {
 		}
 	}	
 
-//	public void addAlignment() throws IOException {
-//		
-//		addConcepts();
-//		
-//		Connection c = openConnection();		
-//		
-//		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_TE_IdTerm_From, T1.IL_LG_IdLanguage_To, T2.TE_Lemma " +
-//			"FROM " + interlinguisticTBL + " T1, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + 
-//			" ) AS T2 WHERE T1.IL_TE_IdTerm_To = T2.TE_IdTerm " +
-//			"AND T1.IL_LG_IdLanguage_From = '" + EditorConf.LANGUAGE + "' " +
-//			//"AND T1.TD_OT_IdRelType = 'equivalent' " +
-//			"";	
-//
-//		Vector<String[]> results = eseguiQuery(c, sql);
-//
-//		int counter = 0;
-//		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
-//			String[] row = i.next();
-//
-//			String relType = row[0].trim();
-//			String idFrom = row[1].trim();
-//			String langTo = row[2].trim();
-//			String protoConcept = row[3].trim();
-//						
-//			if(!relType.equalsIgnoreCase("equivalent")) { //Ignorare le altre?
-//				continue;
-//			}
-//
-//			if(counter < 10) {
-//				System.out.println("idf: " + idFrom + " proto: " + protoConcept);
-//			}
-//			counter++;
-//
-//			if(!langTo.equalsIgnoreCase("EN")) {
-//				System.err.println(">> LangTo is not english! Skipping...!?");
-//				continue;
-//			}
-//
-//			Concetto c1 = Leveler.appSynsets.get(idFrom);
-//			if(c1 == null ) {
-//				System.out.println(">>WARNING<< NULL - " + c1);
-//				continue;
-//			}
-//
-//			//Link the concept class to the synset
-//			Lemma lemma = new Lemma(protoConcept);
-//			lemma.protoForm = protoConcept;
-//			lemma.variants.add(protoConcept);
-//			c1.conceptLemma = lemma; //Sostituisce il precendente Concept
-//		}
-//		closeConnection(c);
-//		
-//		addDefinition();
-//	}
-	
 	public void addDefinition() throws IOException {
 		
 		Connection c = openConnection();		
@@ -425,43 +440,6 @@ public class CeliOdbcImporter implements MetaImporter {
 			//Add definition
 			conc.setDefinizione(text);
 			System.out.println("CONCETTO: " + conc + " DEF: " + text);
-		}
-		closeConnection(c);
-	}
-
-	private void addConcepts() throws IOException {
-		//Aggiunge un concetto per ogni termine
-		
-		Connection c = openConnection();
-
-		String sql = "select * from " + termsTBL + 
-			" where TE_LG_IdLanguage = '" + EditorConf.LANGUAGE + "'";
-		
-		Vector<String[]> results = eseguiQuery(c, sql);
-
-		int counter = 0;
-		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
-			String[] row = i.next();
-
-			String id = row[1].trim();
-			String protoConcept = row[3].trim();
-						
-			if(counter < 10) {
-				System.out.println("idf: " + id + " proto: " + protoConcept);
-			}
-			counter++;
-
-			Concetto c1 = Leveler.appSynsets.get(id);
-			if(c1 == null ) {
-				System.out.println(">>WARNING<< NULL - " + c1);
-				continue;
-			}
-
-			//Link the concept class to the synset
-			Lemma lemma = new Lemma(protoConcept);
-			lemma.protoForm = protoConcept;
-			lemma.variants.add(protoConcept);
-			c1.conceptLemma = lemma;
 		}
 		closeConnection(c);
 	}
@@ -524,7 +502,7 @@ public class CeliOdbcImporter implements MetaImporter {
 		}
 	}
 	
-	private OntClass createConceptClass(Lemma proto, String lang) {
+	private OntClass createConceptClass(Lemma proto) {
 		//GET OR CREATE
 		
 		OntClass synsetClass = getConceptClass(proto);
@@ -538,7 +516,7 @@ public class CeliOdbcImporter implements MetaImporter {
 		synsetClass.addSuperClass(conceptClass);
 		
 		//Link this synset to the concept class
-		addType(synsetClass, proto, lang);
+		//addType(synsetClass, proto, lang);
 		
 		return synsetClass;
 	}

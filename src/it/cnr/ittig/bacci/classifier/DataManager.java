@@ -32,7 +32,7 @@ public class DataManager {
 	private Collection<BasicResource> resources;	
 	private Collection<OntologicalClass> classes;
 	
-	private Collection<ConceptClass> concepts;
+	//private Collection<ConceptClass> concepts;
 	
 	//Maps
 	private Map<String,BasicResource> uriToResource;
@@ -53,7 +53,7 @@ public class DataManager {
 		resources = new TreeSet<BasicResource>();		
 		classes = new TreeSet<OntologicalClass>();
 		
-		concepts = new HashSet<ConceptClass>();
+		//concepts = new HashSet<ConceptClass>();
 		
 		uriToResource = new HashMap<String, BasicResource>(1024, 0.70f);
 		uriToClass = new HashMap<String, OntologicalClass>(128, 0.70f);
@@ -63,7 +63,7 @@ public class DataManager {
 		
 		initData();
 		System.out.println("Data initialized! r:" + resources.size() +
-				" cc:" + concepts.size() + " oc:" + classes.size());
+				" cc:" /* + concepts.size()*/ + " oc:" + classes.size());
 		
 		conceptModel = KbModelFactory.getModel();
 		KbModelFactory.addImport(conceptModel,
@@ -76,9 +76,9 @@ public class DataManager {
 		return classes;
 	}
 
-	public Collection<ConceptClass> getConcepts() {
-		return concepts;
-	}
+//	public Collection<ConceptClass> getConcepts() {
+//		return concepts;
+//	}
 
 	public Collection<BasicResource> getResources() {
 		return resources;
@@ -284,7 +284,7 @@ public class DataManager {
 			return;
 		}
 		
-		//List concept classes
+		//List and create concept classes
 		for(ExtendedIterator i = conceptClass.listSubClasses(true);
 				i.hasNext();) {
 			OntClass item = (OntClass) i.next();
@@ -294,12 +294,26 @@ public class DataManager {
 			String ccNs = item.getNameSpace();
 			String ccName = item.getLocalName();
 			checkArtificialName(ccName);
-			ConceptClass cc = getConceptClass(ccNs, ccName);
-			
+			getConceptClass(ccNs, ccName);
+		}
+		
+		//Set concept classes in basic resources
+		for(ExtendedIterator i = conceptClass.listSubClasses(true);
+				i.hasNext();) {
+			OntClass item = (OntClass) i.next();
+			if(item.isAnon()) {
+				continue;
+			}
+			String uri = item.getNameSpace() + item.getLocalName();
+			ConceptClass cc = uriToConcept.get(uri);
+			if(cc == null) {
+				System.err.println("## ERROR ## null cc for: " + uri);
+				continue;
+			}
 			//For each concept class, get concept instances
 			for(ExtendedIterator k = item.listInstances(true);
 					k.hasNext(); ) {
-				Resource res = (Resource) k.next();
+				OntResource res = (OntResource) k.next();
 				if(res.isAnon()) {
 					continue;
 				}
@@ -311,7 +325,8 @@ public class DataManager {
 				if(previousCc != null && previousCc != cc) {
 					System.err.println("Two concept class error! " +
 							"res:" + res + " cc:"  + cc +
-							" prevCc:" + previousCc);
+							" prevCc:" + previousCc + "! Merging...");
+					mergeConcept(br, res);
 					continue;
 				}
 				br.setConcept(cc);
@@ -374,7 +389,7 @@ public class DataManager {
 			cc.setURI(uri);
 			cc.setLexicalForm(name);
 			uriToConcept.put(uri, cc);
-			concepts.add(cc);
+//			concepts.add(cc);
 		}
 
 		return cc;
@@ -393,6 +408,45 @@ public class DataManager {
 		}
 
 		return br;
+	}
+	
+	private void mergeConcept(BasicResource br, OntResource res) {
+		
+		ConceptClass mainCc = br.getConcept();
+		
+		//Iterate over concept classes of this resource
+		for(ExtendedIterator k = res.listRDFTypes(true);
+			k.hasNext(); ) {
+			Resource ccRes = (Resource) k.next();
+			if(!ccRes.getNameSpace().equalsIgnoreCase(Conf.DALOS_CONCEPTS_NS)) {
+				continue;
+			}
+			String ccUri = ccRes.getNameSpace() + ccRes.getLocalName();
+			ConceptClass cc = uriToConcept.get(ccUri);
+			if(cc == null) {
+				System.err.println("megeConcept() - null cc for uri: " + ccUri);
+				continue;
+			}
+			//Skip the main concept class
+			if(cc.equals(mainCc)) {
+				continue;
+			}
+			Collection<BasicResource> resources = uriToResource.values();
+			for(Iterator<BasicResource> i = resources.iterator(); i.hasNext();) {
+				BasicResource item = i.next();
+				ConceptClass itemClass = item.getConcept();
+				if(itemClass != null && itemClass.equals(cc)) {
+					br.setConcept(mainCc);
+					for(Iterator<OntologicalClass> oci = itemClass.getClasses().iterator();
+						oci.hasNext(); ) {
+						OntologicalClass oc = oci.next();
+						mainCc.addClass(oc);
+					}
+				}				
+			}
+			//Remove cc
+			uriToConcept.remove(ccUri);
+		}
 	}
 	
 	private void addArtificialConceptClass(BasicResource br) {

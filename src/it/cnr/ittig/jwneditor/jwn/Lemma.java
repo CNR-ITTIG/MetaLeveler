@@ -20,7 +20,7 @@ public class Lemma {
 	
 	public Vector<String> variants;
 	
-	public String protoForm;
+	private String protoForm;
 
 	public Lemma(String l) {
 		this(l, DEFAULT_POS);
@@ -31,19 +31,20 @@ public class Lemma {
 	}
 	
 	public Lemma(String l, String pos, String s) {
+				
+		variants = new Vector<String>();
+		
+		l = checkPipe(l);
 		
 		lexicalForm = l;
-		partOfSpeech = pos;		//puo' essere null ! (visualizzazione concetti in elenco concetti)
+		partOfSpeech = pos;
 		sense = s;
+		protoForm = l;
 		
 		ordine = "";
 		id = null;
 		
-		synset = null;
-		
-		variants = new Vector<String>();
-		
-		protoForm = "";
+		synset = null;		
 	}
 	
 	public void setID(String newId) { id = newId; }
@@ -89,5 +90,33 @@ public class Lemma {
 		}
 		
 		return false;
+	}
+	
+	private String checkPipe(String l) {
+		
+		String form = l;
+		String[] forms = l.split("[|]");
+		//System.out.println("checkPipe() l:" + l + " fsize:" + forms.length);
+		if(forms.length > 1) {
+			for(int i = 0; i < forms.length; i++) {
+				String item = forms[i];
+				variants.add(item);
+				if(i == 0) {
+					form = item;
+				}				
+			}			
+		} else {
+			variants.add(form);
+		}
+		
+		return form;
+	}
+
+	public String getProtoForm() {
+		return protoForm;
+	}
+
+	public void setProtoForm(String protoForm) {
+		this.protoForm = protoForm;
 	}
 }

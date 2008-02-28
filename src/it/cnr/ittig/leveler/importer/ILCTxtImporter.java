@@ -48,12 +48,10 @@ public class ILCTxtImporter implements MetaImporter {
 				Concetto conc = new Concetto();
 				conc.setID(data[0]);
 				Lemma lemma = new Lemma(proto);
-				lemma.protoForm = proto;
 				conc.add(lemma);
 				Leveler.appSynsets.put(data[0], conc);
 				
-				//aggiungi le varianti dalla tabella AL LEMMA !! 
-				lemma.variants.add(proto);
+				//aggiungi le varianti dalla tabella AL LEMMA !! 				lemma.variants.add(proto);
 				lemma.variants.add(str);
 								
 			}

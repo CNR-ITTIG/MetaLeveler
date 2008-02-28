@@ -103,8 +103,6 @@ public class Leveler {
 				xParser.classify();
 			}
 
-			//xParser.addDefinitions(); //Le def. vengono aggiunte in un secondo momento!
-			
 			//xParser.createMappingClass();
 			//return;
 
