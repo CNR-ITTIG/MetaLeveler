@@ -3,10 +3,9 @@ package it.cnr.ittig.bacci.util;
 public class Conf {
 
 	public static String DATA_DIRECTORY = "input";
-	public static String OUTPUT_DIRECTORY = "output";
 	
-	public static boolean EXTERNAL_MAPPING = true;
-	//public static boolean EXTERNAL_MAPPING = false;
+	//public static boolean EXTERNAL_MAPPING = true;
+	public static boolean EXTERNAL_MAPPING = false;
 	public final static String CLASSIFICATION = "classification-15-07.xls"; 
 	public final static String MAPPING = "mappings-15-07-mod.xls"; 
 

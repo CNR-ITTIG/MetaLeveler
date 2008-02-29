@@ -23,7 +23,6 @@ import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
-import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -166,10 +165,10 @@ public class DataManager {
 
 		fill();
 		
-		String fileName = Conf.OUTPUT_DIRECTORY + File.separatorChar + Conf.CONCEPTS;
+		String fileName = Conf.DATA_DIRECTORY + File.separatorChar + Conf.CONCEPTS;
 		serialize(conceptModel, fileName);
 		
-		fileName = Conf.OUTPUT_DIRECTORY + File.separatorChar + Conf.TYPES;
+		fileName = Conf.DATA_DIRECTORY + File.separatorChar + Conf.TYPES;
 		serialize(typeModel, fileName);
 	}
 	
@@ -446,46 +445,7 @@ public class DataManager {
 			}
 		}
 	}
-	
-//	private void mergeConcept(BasicResource br, OntResource res) {
-//		
-//		ConceptClass mainCc = br.getConcept();
-//		
-//		//Iterate over concept classes of this resource
-//		for(ExtendedIterator k = res.listRDFTypes(true);
-//			k.hasNext(); ) {
-//			Resource ccRes = (Resource) k.next();
-//			if(!ccRes.getNameSpace().equalsIgnoreCase(Conf.DALOS_CONCEPTS_NS)) {
-//				continue;
-//			}
-//			String ccUri = ccRes.getNameSpace() + ccRes.getLocalName();
-//			ConceptClass cc = uriToConcept.get(ccUri);
-//			if(cc == null) {
-//				System.err.println("megeConcept() - null cc for uri: " + ccUri);
-//				continue;
-//			}
-//			//Skip the main concept class
-//			if(cc.equals(mainCc)) {
-//				continue;
-//			}
-//			Collection<BasicResource> resources = uriToResource.values();
-//			for(Iterator<BasicResource> i = resources.iterator(); i.hasNext();) {
-//				BasicResource item = i.next();
-//				ConceptClass itemClass = item.getConcept();
-//				if(itemClass != null && itemClass.equals(cc)) {
-//					br.setConcept(mainCc);
-//					for(Iterator<OntologicalClass> oci = itemClass.getClasses().iterator();
-//						oci.hasNext(); ) {
-//						OntologicalClass oc = oci.next();
-//						mainCc.addClass(oc);
-//					}
-//				}				
-//			}
-//			//Remove cc
-//			uriToConcept.remove(ccUri);
-//		}
-//	}
-	
+
 	ConceptClass addArtificialConceptClass(BasicResource br) {
 		
 		String name = getNextArtificialName();

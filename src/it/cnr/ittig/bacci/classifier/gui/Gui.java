@@ -7,17 +7,19 @@ import it.cnr.ittig.bacci.util.Conf;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -25,7 +27,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -40,6 +41,11 @@ public class Gui extends JFrame
 	private JButton removeButton;
 	private JButton cancelButton;
 	private JButton okButton;
+	
+	private JLabel resourceLabel;
+	private JLabel classLabel;
+	private JLabel resourcePrevLabel;
+	private JLabel classPrevLabel;
 	
 	private JRadioButton allRB;
 	private JRadioButton linkedRB;
@@ -62,8 +68,8 @@ public class Gui extends JFrame
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLocation(50,50);
 	    
-	    getContentPane().add(createLabelPanel(), 
-	    		BorderLayout.NORTH);
+//	    getContentPane().add(createLabelPanel(), 
+//	    		BorderLayout.NORTH);
 	    
 	    JPanel centralPanel = new JPanel(new BorderLayout());
 	    getContentPane().add(centralPanel, BorderLayout.CENTER);
@@ -96,7 +102,7 @@ public class Gui extends JFrame
 	    removeButton.addActionListener(this);
 	    panel.add(removeButton);
 	    
-	    okButton = new JButton("Ok");
+	    okButton = new JButton("Save");
 	    okButton.addActionListener(this);
 	    panel.add(okButton);
 	    
@@ -118,10 +124,14 @@ public class Gui extends JFrame
 		JPanel labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		labPanel.add(new JLabel("Resources"));
 		panel.add(labPanel);
+		resourceLabel = new JLabel("");		
+		panel.add(resourceLabel);
 		
 		labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		labPanel.add(new JLabel("Classes"));
 		panel.add(labPanel);
+		classLabel = new JLabel("");		
+		panel.add(classLabel);
 		
 		labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		labPanel.add(new JLabel("Previews"));
@@ -144,6 +154,13 @@ public class Gui extends JFrame
 	private Component createResourcePanel() {
 		
 		JPanel panel = new JPanel(new BorderLayout());
+		
+		JPanel labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		labPanel.add(new JLabel("Resources"));
+		resourceLabel = new JLabel("");		
+		labPanel.add(resourceLabel);
+		panel.add(labPanel);
+		panel.add(labPanel, BorderLayout.NORTH);
 		
 	    resourceList = new JList();
 	    resourceList.addListSelectionListener(this);
@@ -185,6 +202,13 @@ public class Gui extends JFrame
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		
+		JPanel labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		labPanel.add(new JLabel("Classes"));
+		classLabel = new JLabel("");		
+		labPanel.add(classLabel);
+		panel.add(labPanel);
+		panel.add(labPanel, BorderLayout.NORTH);
+
 	    classList = new JList();
 	    classList.addListSelectionListener(this);
 	    JScrollPane scroll = new JScrollPane(classList);
@@ -207,40 +231,68 @@ public class Gui extends JFrame
 	}
 	
 	private Component createLinkedPanel() {
+	
+		JPanel panel = new JPanel(new BorderLayout());
 		
-		JPanel panel = new JPanel(new GridLayout(2, 1, 5, 5));
-		
-		panel.add(createLinkedClassPanel());
-		panel.add(createLinkedResourcePanel());
+		JPanel labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		labPanel.add(new JLabel("Previews"));
+		panel.add(labPanel);
+		panel.add(labPanel, BorderLayout.NORTH);
+
+		JPanel gridPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+		gridPanel.add(createLinkedClassPanel());
+		gridPanel.add(createLinkedResourcePanel());
+		panel.add(gridPanel, BorderLayout.CENTER);
 		
 	    return panel;
 	}
 	
 	private Component createLinkedClassPanel() {
 		
+		JPanel panel = new JPanel(new BorderLayout());
+		
+		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		labelPanel.add(new JLabel("Linked classes"));
+		classPrevLabel = new JLabel("");
+		labelPanel.add(classPrevLabel);
+		panel.add(labelPanel, BorderLayout.NORTH);
+		
 	    linkedClassList = new JList();
 	    linkedClassList.addListSelectionListener(this);
-	    JScrollPane scroll = new JScrollPane(linkedClassList);	    
+	    JScrollPane scroll = new JScrollPane(linkedClassList);
+	    panel.add(scroll, BorderLayout.CENTER);
 	    
-	    return scroll;
+	    return panel;
 	}
 	
 	private Component createLinkedResourcePanel() {
 		
+		JPanel panel = new JPanel(new BorderLayout());
+		
+		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		labelPanel.add(new JLabel("Linked resources"));
+		resourcePrevLabel = new JLabel("");
+		labelPanel.add(resourcePrevLabel);
+		panel.add(labelPanel, BorderLayout.NORTH);
+		
 	    linkedResourceList = new JList();
 	    linkedResourceList.addListSelectionListener(this);
 	    JScrollPane scroll = new JScrollPane(linkedResourceList);	    
+	    panel.add(scroll, BorderLayout.CENTER);
 	    
-	    return scroll;
+	    return panel;
 	}
 	
 	public void actionPerformed(ActionEvent e) {
 
-		if(e.getSource() == setupButton) {			
-			//TODO Setup data directory
-			
-			dm = new DataManager();
-			refresh();
+		if(e.getSource() == setupButton) {
+			//Setup data directory and init data
+			if(setup()) {
+				waitingState();
+				dm = new DataManager();
+				refresh();
+				activeState();
+			}
 		}
 
 		if(e.getSource() == addButton) {
@@ -252,7 +304,9 @@ public class Gui extends JFrame
 		}
 
 		if(e.getSource() == okButton) {
+			waitingState();
 			dm.save();
+			activeState();
 			System.exit(0);
 		}
 		
@@ -291,6 +345,16 @@ public class Gui extends JFrame
 		if(linkedResourceData != null) {			
 			linkedResourceList.setListData(linkedResourceData.toArray());
 		}
+		
+		refreshLabels();
+	}
+	
+	private void refreshLabels() {
+		
+		resourceLabel.setText(" (" + resourceList.getModel().getSize() + ")");
+		classLabel.setText(" (" + classList.getModel().getSize() + ")");
+		resourcePrevLabel.setText(" (" + linkedResourceList.getModel().getSize() + ")");
+		classPrevLabel.setText(" (" + linkedClassList.getModel().getSize() + ")");
 	}
 
 	public void valueChanged(ListSelectionEvent e) {
@@ -319,13 +383,7 @@ public class Gui extends JFrame
 		if(values.length == 1) {
 			BasicResource br = (BasicResource) values[0];
 			Collection<OntologicalClass> data = dm.getClasses(br);
-			if(data.size() > 0) {
-				refresh(null, null, data, null);
-			} else {
-				Vector<String> noData = new Vector<String>();
-				noData.add("(No linked classes!)");
-				refresh(null, null, noData, null);
-			}
+			refresh(null, null, data, null);
 		}
 		
 		if(values.length > 1) {
@@ -338,13 +396,7 @@ public class Gui extends JFrame
 		if(values.length == 1) {
 			OntologicalClass oc = (OntologicalClass) values[0];
 			Collection<BasicResource> data = dm.getResources(oc);
-			if(data.size() > 0) {
-				refresh(null, null, null, data);
-			} else {
-				Vector<String> noData = new Vector<String>();
-				noData.add("(No linked resources!)");
-				refresh(null, null, null, noData);
-			}
+			refresh(null, null, null, data);
 		}
 		if(values.length > 1) {
 			refresh(null, null, null, new Vector());
@@ -417,4 +469,30 @@ public class Gui extends JFrame
 			refresh(dm.getUnlinkedResources(), null, null, null);
 		}
 	}
+	
+	private boolean setup() {
+		
+		//Select a directory with a JFileChooser
+		//(http://www.rgagnon.com/javadetails/java-0370.html)
+		JFileChooser chooser = new JFileChooser(); 
+	    chooser.setCurrentDirectory(new java.io.File("."));
+	    chooser.setDialogTitle("Input Directory");
+	    chooser.setAcceptAllFileFilterUsed(false);
+	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+	    	File selectedDir = chooser.getSelectedFile();
+	    	Conf.DATA_DIRECTORY = selectedDir.getAbsolutePath();
+	    	return true;
+	    }
+	    return false;
+	}
+	
+	private void waitingState() {
+		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+	}
+	
+	private void activeState() {
+		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+	}
+	
 }
