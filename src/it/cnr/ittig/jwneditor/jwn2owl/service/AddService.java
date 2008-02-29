@@ -609,7 +609,7 @@ public class AddService {
 		String name = OWLUtil.getSynsetName(c.getPrimario());
 		OntResource res = m_ind.createOntResource(NS_IND + name);
 		OntClass posClass = getPosSynsetClass(c.getPartOfSpeech());
-		m_types.add(res, RDF.type, posClass);
+		m_ind.add(res, RDF.type, posClass);
 		return res;
 	}
 
