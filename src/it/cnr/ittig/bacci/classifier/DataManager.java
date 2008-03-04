@@ -8,6 +8,7 @@ import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.KbModelFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -67,6 +68,10 @@ public class DataManager {
 		uriToClass = new HashMap<String, OntologicalClass>(128, 0.70f);
 		uriToConcept = new HashMap<String, ConceptClass>(1024, 0.70f);
 		
+	}
+	
+	public boolean init() {
+		
 		initDocuments();
 		
 		initData();
@@ -81,6 +86,8 @@ public class DataManager {
 //				"http://localhost/runtime.owl", 
 //				Conf.DOMAIN_ONTO);
 		typeModel = KbModelFactory.getModel();
+		
+		return true;
 	}
 	
 	public Collection<OntologicalClass> getClasses() {

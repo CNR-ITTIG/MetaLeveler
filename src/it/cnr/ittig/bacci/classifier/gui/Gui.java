@@ -15,7 +15,12 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -65,10 +70,21 @@ public class Gui extends JFrame
 	//Selection list reference
 	private JList selectedResourceList;
 	private JList selectedClassList;
+	
+	private Properties appProperties;
 
 	public Gui() {
 		
 		super("Meta Classifier");
+		
+		try {
+			initProperties();
+		} catch (FileNotFoundException e) {
+			System.err.println(
+					"Application properties file has to be initialized...");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	    //Create and set up the window.
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -127,28 +143,28 @@ public class Gui extends JFrame
 	    setVisible(true);    
 	}
 	
-	private Component createLabelPanel() {
-		
-		JPanel panel = new JPanel(new GridLayout(1, 3, 10, 10));
-		
-		JPanel labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		labPanel.add(new JLabel("Resources"));
-		panel.add(labPanel);
-		resourceLabel = new JLabel("");		
-		panel.add(resourceLabel);
-		
-		labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		labPanel.add(new JLabel("Classes"));
-		panel.add(labPanel);
-		classLabel = new JLabel("");		
-		panel.add(classLabel);
-		
-		labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		labPanel.add(new JLabel("Previews"));
-		panel.add(labPanel);
-		
-		return panel;
-	}
+//	private Component createLabelPanel() {
+//		
+//		JPanel panel = new JPanel(new GridLayout(1, 3, 10, 10));
+//		
+//		JPanel labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//		labPanel.add(new JLabel("Resources"));
+//		panel.add(labPanel);
+//		resourceLabel = new JLabel("");		
+//		panel.add(resourceLabel);
+//		
+//		labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//		labPanel.add(new JLabel("Classes"));
+//		panel.add(labPanel);
+//		classLabel = new JLabel("");		
+//		panel.add(classLabel);
+//		
+//		labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//		labPanel.add(new JLabel("Previews"));
+//		panel.add(labPanel);
+//		
+//		return panel;
+//	}
 	
 	private Component createInfoPanel() {
 		
@@ -235,8 +251,8 @@ public class Gui extends JFrame
 		panel.add(new JLabel("Selected Ontology:"));
 		ontoText = new JTextField();
 		//TODO preferences?
-		ontoText.setText(
-				"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl");
+		String ontoStr = appProperties.getProperty("ontoText");		
+		ontoText.setText(ontoStr);
 		panel.add(ontoText);
 		
 		return panel;
@@ -303,7 +319,10 @@ public class Gui extends JFrame
 				waitingState();
 				Conf.DOMAIN_ONTO = ontoText.getText();
 				Conf.DOMAIN_ONTO_NS = ontoText.getText() + "#";
+				appProperties.setProperty("ontoText", ontoText.getText());
 				dm = new DataManager();
+				if(!dm.init()) {					
+				}
 				refresh();
 				activeState();
 			}
@@ -331,6 +350,11 @@ public class Gui extends JFrame
 			dm.save();
 			activeState();
 			showDoneMsg("Save");
+			try {
+				saveProperties();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			System.exit(0);
 		}
 		
@@ -544,10 +568,32 @@ public class Gui extends JFrame
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 	
-	public void connectionFailedMsg() {
+	private void connectionFailedMsg() {
 		JOptionPane.showMessageDialog(this, 
 				"Database not found", "DB Connection",
 				JOptionPane.WARNING_MESSAGE);
 	}
-
+	
+	private void initProperties() throws FileNotFoundException, IOException {
+		
+		//set up default properties
+		Properties defProperties = new Properties();
+		defProperties.setProperty("ontoText", 
+			"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl");
+		
+		//set up real properties
+		appProperties = new Properties(defProperties);
+		FileInputStream appStream = new FileInputStream("appProperties");
+		appProperties.load(appStream);
+		appStream.close();
+		
+	}
+	
+	private void saveProperties() throws IOException {
+		
+		FileOutputStream fos = new FileOutputStream("appProperties");
+		appProperties.store(fos, "---No Comment---");
+		fos.close();
+	}
+	
 }
