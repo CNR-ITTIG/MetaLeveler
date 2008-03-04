@@ -3,6 +3,8 @@ package it.cnr.ittig.bacci.classifier.gui;
 import it.cnr.ittig.bacci.classifier.DataManager;
 import it.cnr.ittig.bacci.classifier.resource.BasicResource;
 import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
+import it.cnr.ittig.bacci.database.DatabaseManager;
+import it.cnr.ittig.bacci.database.query.ClassifierQuery;
 import it.cnr.ittig.bacci.util.Conf;
 
 import java.awt.BorderLayout;
@@ -23,6 +25,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -41,6 +44,7 @@ public class Gui extends JFrame
 	private JButton removeButton;
 	private JButton cancelButton;
 	private JButton okButton;
+	private JButton importButton;
 	
 	private JLabel resourceLabel;
 	private JLabel classLabel;
@@ -50,6 +54,8 @@ public class Gui extends JFrame
 	private JRadioButton allRB;
 	private JRadioButton linkedRB;
 	private JRadioButton unlinkedRB;
+	
+	private JTextField ontoText;
 	
 	private JList resourceList;
 	private JList classList;
@@ -93,6 +99,10 @@ public class Gui extends JFrame
 	    setupButton = new JButton("Setup");
 	    setupButton.addActionListener(this);
 	    panel.add(setupButton);
+
+	    importButton = new JButton("Import DB");
+	    importButton.addActionListener(this);
+	    panel.add(importButton);
 
 	    addButton = new JButton("Add");
 	    addButton.addActionListener(this);
@@ -223,8 +233,10 @@ public class Gui extends JFrame
 		JPanel panel = new JPanel(new FlowLayout());
 				
 		panel.add(new JLabel("Selected Ontology:"));
-		JTextField ontoText = new JTextField();
-		ontoText.setText(Conf.DOMAIN_ONTO);
+		ontoText = new JTextField();
+		//TODO preferences?
+		ontoText.setText(
+				"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl");
 		panel.add(ontoText);
 		
 		return panel;
@@ -289,12 +301,23 @@ public class Gui extends JFrame
 			//Setup data directory and init data
 			if(setup()) {
 				waitingState();
+				Conf.DOMAIN_ONTO = ontoText.getText();
+				Conf.DOMAIN_ONTO_NS = ontoText.getText() + "#";
 				dm = new DataManager();
 				refresh();
 				activeState();
 			}
 		}
 
+		if(e.getSource() == importButton) {
+			if(!importFromDb()) {
+				connectionFailedMsg();
+			} else {
+				showDoneMsg("Import from Db");
+				System.exit(0);
+			}
+		}
+		
 		if(e.getSource() == addButton) {
 			add();
 		}
@@ -307,6 +330,7 @@ public class Gui extends JFrame
 			waitingState();
 			dm.save();
 			activeState();
+			showDoneMsg("Save");
 			System.exit(0);
 		}
 		
@@ -487,6 +511,25 @@ public class Gui extends JFrame
 	    return false;
 	}
 	
+	private boolean importFromDb() {
+		
+		DatabaseManager dbm = new DatabaseManager();
+		dbm.addQueryResolver(new ClassifierQuery());
+		String[] params = new String[]{
+				Conf.dbUser,
+				Conf.dbPass,
+				Conf.dbName,
+				Conf.dbAddress,
+				Conf.dbType
+		};
+		if(dbm.initDatabase(params)) {
+			dm.processDb(dbm);
+			return true;
+		}
+		
+		return false;
+	}
+	
 	private void waitingState() {
 		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 	}
@@ -495,4 +538,16 @@ public class Gui extends JFrame
 		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 	}
 	
+	private void showDoneMsg(String title) {
+		
+		JOptionPane.showMessageDialog(this, "Done.", title,
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public void connectionFailedMsg() {
+		JOptionPane.showMessageDialog(this, 
+				"Database not found", "DB Connection",
+				JOptionPane.WARNING_MESSAGE);
+	}
+
 }

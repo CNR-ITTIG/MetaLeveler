@@ -3,6 +3,7 @@ package it.cnr.ittig.bacci.classifier;
 import it.cnr.ittig.bacci.classifier.resource.BasicResource;
 import it.cnr.ittig.bacci.classifier.resource.ConceptClass;
 import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
+import it.cnr.ittig.bacci.database.DatabaseManager;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.KbModelFactory;
 
@@ -257,10 +258,22 @@ public class DataManager {
 	
 		String workDir = Conf.DATA_DIRECTORY + File.separatorChar;
 		
-		KbModelFactory.addDocument(Conf.CONCEPTS, workDir + Conf.CONCEPTS);
-		KbModelFactory.addDocument(Conf.TYPES, workDir + Conf.TYPES);
-		KbModelFactory.addDocument(Conf.IND, workDir + Conf.IND);
-		KbModelFactory.addDocument(Conf.INDW, workDir + Conf.INDW);
+		File file = new File(workDir + Conf.CONCEPTS);
+		if(file.exists()) {
+			KbModelFactory.addDocument(Conf.CONCEPTS, workDir + Conf.CONCEPTS);
+		}
+		file = new File(workDir + Conf.TYPES);
+		if(file.exists()) {
+			KbModelFactory.addDocument(Conf.TYPES, workDir + Conf.TYPES);
+		}
+		file = new File(workDir + Conf.IND);
+		if(file.exists()) {
+			KbModelFactory.addDocument(Conf.IND, workDir + Conf.IND);
+		}
+		file = new File(workDir + Conf.INDW);
+		if(file.exists()) {
+			KbModelFactory.addDocument(Conf.INDW, workDir + Conf.INDW);
+		}
 	}
 	
 	private void initData() {
@@ -524,5 +537,11 @@ public class DataManager {
 			return true;
 		}
 		return false;
+	}
+	
+	public void processDb(DatabaseManager dbm) {
+		//Crea gli oggetti importando i dati del database;
+		//Salvali in RDF: si devono salvare soltanto i file 
+		//individuals e individuals-word !
 	}
 }
