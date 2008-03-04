@@ -12,13 +12,14 @@ public class EditorConf {
 	
 	public static String DIVIDE_DIR = "segment";
 	
-	//public static String LANGUAGE = "IT";
+	public static String LANGUAGE = "IT";
 	//public static String LANGUAGE = "EN";
-	public static String LANGUAGE = "ES";
+	//public static String LANGUAGE = "ES";
 	//public static String LANGUAGE = "NL";
 	
 	 //Serve a produrre il global-concept.owl e i vari file types.owl
-	public final static boolean ADD_ALIGNMENT = false; 
+	public final static boolean ADD_ALIGNMENT = true; 
+	//public final static boolean ADD_ALIGNMENT = false;
 	
 	//Lingue da importare
 	public static String[] languages = {"IT", "EN", "NL", "ES"};

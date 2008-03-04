@@ -95,6 +95,10 @@ public class Leveler {
 				parser.addAlignment();
 			}
 
+			if(EditorConf.ADD_ALIGNMENT) {
+				return;
+			}
+			
 //			xParser.fill();
 //			return;
 			

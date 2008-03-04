@@ -124,7 +124,7 @@ public class KbModelFactory {
 		readSchema(om, url, false);
 	}
 			
-	private static void readSchema(OntModel om, String url, boolean useRemote) {
+	public static void readSchema(OntModel om, String url, boolean useRemote) {
 		
 		if(useRemote) {
 			URL u = null;

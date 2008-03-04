@@ -44,6 +44,7 @@ public class DataManager {
 	private OntModel fullModel;
 	private OntModel conceptModel;
 	private OntModel typeModel;
+	private OntModel ontologyModel;
 	
 	private OntProperty containsProperty;
 	private OntProperty wordProperty;
@@ -72,9 +73,12 @@ public class DataManager {
 				" cc:" /* + concepts.size()*/ + " oc:" + classes.size());
 		
 		conceptModel = KbModelFactory.getModel();
-		KbModelFactory.addImport(conceptModel,
-				"http://localhost/runtime.owl", 
-				Conf.DOMAIN_ONTO);
+		ontologyModel = KbModelFactory.getModel();
+		KbModelFactory.readSchema(ontologyModel, Conf.DOMAIN_ONTO, true);
+		
+//		KbModelFactory.addImport(conceptModel,
+//				"http://localhost/runtime.owl", 
+//				Conf.DOMAIN_ONTO);
 		typeModel = KbModelFactory.getModel();
 	}
 	
@@ -179,6 +183,8 @@ public class DataManager {
 		OntClass conceptClass = conceptModel.getOntClass(Conf.conceptClassName);
 		
 		//Create a class for each ConceptClass object
+		
+		//Link resources to concept class
 		for(Iterator<BasicResource> i = resources.iterator(); i.hasNext(); ) {
 			BasicResource br = i.next();
 			OntResource brRes = typeModel.createOntResource(br.getURI());
@@ -190,17 +196,41 @@ public class DataManager {
 				continue;
 			}
 			OntClass ccClass = conceptModel.createClass(cc.getURI());
+
 			typeModel.add(brRes, RDF.type, ccClass);			
 			conceptModel.add(ccClass, RDFS.subClassOf, conceptClass);
 			for(Iterator<OntologicalClass> k = cc.getClasses().iterator();
 					k.hasNext(); ) {
 				OntologicalClass oc = k.next();
-				OntClass domainClass = conceptModel.getOntClass(oc.getURI());
+				OntClass domainClass = ontologyModel.getOntClass(oc.getURI()); //TODO DA CONCEPTMODEL DEVE PRENDERE LA DOMAIN CLASS ????
 				if(domainClass == null) {
 					System.err.println("Domain class is null! dc:" + domainClass);
 					continue;
 				}
 				conceptModel.add(ccClass, RDFS.subClassOf, domainClass);
+			}
+		}		
+		//Add empty (but not artificial!) concept classes
+		Collection<ConceptClass> concepts = uriToConcept.values();
+		for(Iterator<ConceptClass> i = concepts.iterator(); i.hasNext(); ) {
+			ConceptClass cc = i.next();
+			if(isEmptyArtificial(cc)) {
+				continue;
+			}
+			OntClass ccClass = conceptModel.getOntClass(cc.getURI());
+			if(ccClass == null) {
+				ccClass = conceptModel.createClass(cc.getURI());
+				conceptModel.add(ccClass, RDFS.subClassOf, conceptClass);
+				for(Iterator<OntologicalClass> k = cc.getClasses().iterator();
+						k.hasNext(); ) {
+					OntologicalClass oc = k.next();
+					OntClass domainClass = conceptModel.getOntClass(oc.getURI());
+					if(domainClass == null) {
+						System.err.println("Domain class is null! dc:" + domainClass);
+						continue;
+					}
+					conceptModel.add(ccClass, RDFS.subClassOf, domainClass);
+				}
 			}
 		}		
 	}
@@ -405,7 +435,6 @@ public class DataManager {
 			cc.setURI(uri);
 			cc.setLexicalForm(name);
 			uriToConcept.put(uri, cc);
-//			concepts.add(cc);
 		}
 
 		return cc;

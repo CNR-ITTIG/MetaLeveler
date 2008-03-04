@@ -106,7 +106,7 @@ public class Gui extends JFrame
 	    okButton.addActionListener(this);
 	    panel.add(okButton);
 	    
-	    cancelButton = new JButton("Cancel");
+	    cancelButton = new JButton("Close");
 	    cancelButton.addActionListener(this);
 	    panel.add(cancelButton);
 	    
