@@ -316,10 +316,10 @@ public class Gui extends JFrame
 		if(e.getSource() == setupButton) {
 			//Setup data directory and init data
 			if(setup()) {
-				waitingState();
 				Conf.DOMAIN_ONTO = ontoText.getText();
 				Conf.DOMAIN_ONTO_NS = ontoText.getText() + "#";
 				appProperties.setProperty("ontoText", ontoText.getText());
+				waitingState();
 				dm = new DataManager();
 				if(!dm.init()) {					
 				}

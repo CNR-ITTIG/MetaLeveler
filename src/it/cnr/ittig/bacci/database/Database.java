@@ -37,10 +37,11 @@ public class Database {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			if (!nomeDB.equals("")) {
-				db = (Connection) DriverManager.getConnection("jdbc:mysql://" + address + "/" + nomeDB +
-													"?user=" + username + "&password=" + strpass);
-			}
+			//if (!nomeDB.equals("")) {
+				String strConn = "jdbc:mysql://" + address + "/" + nomeDB +
+						"?user=" + username + "&password=" + strpass;
+				db = (Connection) DriverManager.getConnection(strConn);
+			//}
 			connesso = true;
 		} catch (Exception e) { 
 			errore = e.getMessage();
