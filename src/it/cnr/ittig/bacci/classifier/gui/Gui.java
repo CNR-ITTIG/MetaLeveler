@@ -59,6 +59,7 @@ public class Gui extends JFrame
 	private JRadioButton allRB;
 	private JRadioButton linkedRB;
 	private JRadioButton unlinkedRB;
+	private JRadioButton candidateRB;
 	
 	private JTextField ontoText;
 	
@@ -219,16 +220,20 @@ public class Gui extends JFrame
 		unlinkedRB = new JRadioButton("Unlinked");
 		unlinkedRB.setActionCommand("Unlinked");
 		unlinkedRB.addActionListener(this);
+		candidateRB = new JRadioButton("Candidate");
+		candidateRB.setActionCommand("Candidate");
+		candidateRB.addActionListener(this);
 		
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(allRB);
 		bg.add(linkedRB);
 		bg.add(unlinkedRB);
+		bg.add(candidateRB);
 		
 		panel.add(allRB);
 		panel.add(linkedRB);
 		panel.add(unlinkedRB);
-		
+		panel.add(candidateRB);		
 		
 		return panel;
 	}
@@ -325,6 +330,7 @@ public class Gui extends JFrame
 		if(e.getSource() == setupButton) {
 			//Setup data directory and init data
 			if(setup()) {
+				dm = new DataManager();
 				Conf.DOMAIN_ONTO = ontoText.getText();
 				Conf.DOMAIN_ONTO_NS = ontoText.getText() + "#";
 				appProperties.setProperty("ontoText", 
@@ -335,7 +341,6 @@ public class Gui extends JFrame
 		
 		if(e.getSource() == loadButton) {			
 			waitingState();
-			dm = new DataManager();
 			if(!dm.init()) {					
 			} else {
 				refresh();
@@ -349,8 +354,8 @@ public class Gui extends JFrame
 				connectionFailedMsg();
 			} else {
 				showDoneMsg("Import from Db");
-				System.exit(0);
 			}
+			System.exit(0);
 		}
 		
 		if(e.getSource() == addButton) {
@@ -381,6 +386,7 @@ public class Gui extends JFrame
 		
 		if(e.getSource() == allRB || 
 				e.getSource() == linkedRB ||
+				e.getSource() == candidateRB ||
 				e.getSource() == unlinkedRB ) {
 			filter(e.getActionCommand());
 		}
@@ -544,6 +550,9 @@ public class Gui extends JFrame
 		}
 		if(type.equals("Unlinked")) {
 			refresh(dm.getUnlinkedResources(), null, null, null);
+		}
+		if(type.equals("Candidate")) {
+			refresh(dm.getCandidateResources(), null, null, null);
 		}
 	}
 	

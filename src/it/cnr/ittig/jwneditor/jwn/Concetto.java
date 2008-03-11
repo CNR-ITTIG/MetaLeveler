@@ -13,6 +13,8 @@ public class Concetto implements Comparable {
 	private String datamod;
 	private String timemod;
 	
+	private boolean candidate;
+	
 	public Vector<Lemma> lemmi;
 	public Vector<Correlazione> correlazioni;	//l'ordine conta per la visualizzazione! (Vector, non HashSet)
 	public Vector<Fonte> fonti;				//l'ordine conta per la visualizzazione! (Vector, non HashSet)
@@ -38,6 +40,8 @@ public class Concetto implements Comparable {
 		
 		id = "";
 		tmpId = "";
+		
+		candidate = false;
 		
 		lemmi = new Vector<Lemma>(); 
 		correlazioni = new Vector<Correlazione>();
@@ -366,6 +370,14 @@ public class Concetto implements Comparable {
 			return 0;
 		}
 		return fonti.size();
+	}
+
+	public boolean isCandidate() {
+		return candidate;
+	}
+
+	public void setCandidate(boolean candidate) {
+		this.candidate = candidate;
 	}
 	
 }

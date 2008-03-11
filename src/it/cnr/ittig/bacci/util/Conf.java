@@ -9,6 +9,8 @@ public class Conf {
 	public final static String CLASSIFICATION = "classification-070308.xls"; 
 	public final static String MAPPING = "mappings-070308.xls"; 
 	
+	public static boolean WORDNET_DATA = true;
+	
 	public static String DOMAIN_ONTO = 
 		"";
 	public static String METALEVEL_ONTO =
@@ -49,9 +51,9 @@ public class Conf {
 	public static String synsetClassName = METALEVEL_ONTO_NS + "Synset";
 	
 	//DATABASE
-	public static String dbUser = "";
-	public static String dbPass = "";
-	public static String dbName = "";
-	public static String dbAddress = "jdbc:mysql://172.16.0.12/";
+	public static String dbUser = "juris";
+	public static String dbPass = "juris.";
+	public static String dbName = "cnipa";
+	public static String dbAddress = "172.16.0.12";
 	public static String dbType = "MySQL";
 }

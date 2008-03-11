@@ -2,80 +2,39 @@ package it.cnr.ittig.bacci.database.query;
 
 public class ClassifierQuery implements QueryResolver {
 	
-	private static String table1 = "";
-	private static String table2 = "";
-	private static String table3 = "";
-	private static String table4 = "";
+	private static String t1 = "tblGlossario";
+	private static String t2 = "tblRelations";
+	private static String t3 = "tblDocumenti";
+	private static String t4 = "tblFrequenze";
+	
 
 	public String getQueryString(String type, String[] data) {
 		
-		if(type.equals("classifier.relations.count")) {
+		if(type.equals("classifier.glossario.count")) {
 			
-			return "select count(*) from tblRelations";
+			return "select count(*) from " + t1;
 		}
 
-		if(type.equals("classifier.lemmi.count")) {
+		if(type.equals("classifier.glossario")) {
 			
-			return "select count(*) from tblLemmi";
+			return "select * from " + t1;
 		}
 
-		if(type.equals("classifier.varianti.count")) {
+		if(type.equals("classifier.relazioni")) {
 			
-			return "select count(*) from tblVarianti";
+			return "select * from " + t2;
 		}
 
-		if(type.equals("classifier.related.count")) {
+		if(type.equals("classifier.documenti")) {
 			
-			return "select count(*) from tblRelatedTerms";
+			return "select * from " + t3;
 		}
 
-		if(type.equals("classifier.lemmi")) {
+		if(type.equals("classifier.frequenze")) {
 			
-			//
-			if(data != null && data[0] != null) {
-				System.err.println("getQueryString(), classifier.lemmi - WRONG DATA LENGTH ! (" +
-									data.length + ")");
-				return "";
-			}
-
-			return "select IdLemma, Lemma from tblLemmi";
+			return "select * from " + t4;
 		}
 
-		if(type.equals("classifier.relations")) {
-			
-			//
-			if(data != null && data[0] != null) {
-				System.err.println("getQueryString(), classifier.relations - WRONG DATA LENGTH ! (" +
-									data.length + ")");
-				return "";
-			}
-
-			return "select IdRelation, IdLemmaX, Relation, IdLemmaY from tblRelations";
-		}
-
-		if(type.equals("classifier.varianti")) {
-			
-			//
-			if(data != null && data[0] != null) {
-				System.err.println("getQueryString(), classifier.varianti - WRONG DATA LENGTH ! (" +
-									data.length + ")");
-				return "";
-			}
-
-			return "select IdVariante, IdLemma, Variante from tblVarianti";
-		}
-
-		if(type.equals("classifier.related")) {
-			
-			//
-			if(data != null && data[0] != null) {
-				System.err.println("getQueryString(), classifier.related - WRONG DATA LENGTH ! (" +
-									data.length + ")");
-				return "";
-			}
-
-			return "select IdRelatedTerm, IdLemmaVariante, RelatedTerm, Paragraph, Tipo from tblRelatedTerms";
-		}
 
 		return "";
 	}

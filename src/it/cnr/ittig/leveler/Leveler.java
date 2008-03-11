@@ -8,6 +8,7 @@ import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
 import it.cnr.ittig.leveler.importer.CeliOdbcImporter;
 import it.cnr.ittig.leveler.importer.CeliTablesImporter;
 import it.cnr.ittig.leveler.importer.ILCTxtImporter;
+import it.cnr.ittig.leveler.importer.IttigDatabaseImporter;
 import it.cnr.ittig.leveler.importer.MetaImporter;
 import it.cnr.ittig.leveler.mapper.XlsMapper;
 
@@ -22,7 +23,6 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntDocumentManager;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Ontology;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
@@ -33,7 +33,6 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.reasoner.Reasoner;
 import com.hp.hpl.jena.reasoner.ReasonerRegistry;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -51,10 +50,6 @@ public class Leveler {
 		
 		System.out.println("DATA_DIR: " + EditorConf.DATA_DIR);
 
-		//mergeConceptFiles(); return;
-		
-		//adjustTypes(); if(true) return;
-		
 		if(EditorConf.DIVIDE) {
 
 			segmentData();
@@ -69,6 +64,8 @@ public class Leveler {
 			parser = new CeliTablesImporter();
 		} else if(EditorConf.TYPE_INPUT.equalsIgnoreCase("mdb")) {
 			parser = new CeliOdbcImporter();
+		} else if(EditorConf.TYPE_INPUT.equalsIgnoreCase("ittig")) {
+			parser = new IttigDatabaseImporter();
 		} else {
 			System.err.println("Unknown input type.");
 			return;
@@ -99,16 +96,10 @@ public class Leveler {
 				return;
 			}
 			
-//			xParser.fill();
-//			return;
-			
 			if(EditorConf.LANGUAGE.equals("IT") && EditorConf.LINK_TO_ONTOLOGY) {
 				System.out.println("Adding ontologies classifications...");
 				xParser.classify();
 			}
-
-			//xParser.createMappingClass();
-			//return;
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -130,11 +121,11 @@ public class Leveler {
 		long t3 = (t2 - t1) / 1000;
 		System.out.println("OWL processing done in " + t3 + "s.");
 	}
-		
+
 	private static void owlProcessing(String function) {
 		
 		if(function.equals("create")) {
-			manager.addModel(EditorConf.MODEL_URI, true);
+			manager.addModel(EditorConf.MODEL_URI, EditorConf.USE_JENA_DB);
 		}
 		
 		if(function.equals("reset")) {
@@ -146,13 +137,12 @@ public class Leveler {
 		}
 
 		if(function.equals("write")) {			
-			manager.addModel(EditorConf.onto_ind, true);
-			manager.addModel(EditorConf.onto_indw, true);
-//			manager.addModel(EditorConf.onto_ind_clo, true);
-			manager.addModel(EditorConf.onto_ind_claw, true);
-			manager.addModel(EditorConf.onto_concepts, true);
-			manager.addModel(EditorConf.onto_types, true);
-			manager.addModel(EditorConf.onto_sources, true);
+			manager.addModel(EditorConf.onto_ind, EditorConf.USE_JENA_DB);
+			manager.addModel(EditorConf.onto_indw, EditorConf.USE_JENA_DB);
+			manager.addModel(EditorConf.onto_ind_claw, EditorConf.USE_JENA_DB);
+			manager.addModel(EditorConf.onto_concepts, EditorConf.USE_JENA_DB);
+			manager.addModel(EditorConf.onto_types, EditorConf.USE_JENA_DB);
+			manager.addModel(EditorConf.onto_sources, EditorConf.USE_JENA_DB);
 			
 			manager.writeModel(EditorConf.onto_ind,
 					EditorConf.local_onto_ind, EditorConf.onto_ind);
@@ -217,7 +207,9 @@ public class Leveler {
 		}
 		
 		//Aggiorna il valore della directory in EditorConf
-		EditorConf.DATA_DIR = dataDir.getPath();
+		if(EditorConf.DATA_DIR.equals("")) {
+			EditorConf.DATA_DIR = dataDir.getPath();			
+		}
 		EditorConf.MODEL_URI = EditorConf.onto_work;
 		
 		EditorConf.local_onto_ind = EditorConf.DATA_DIR 

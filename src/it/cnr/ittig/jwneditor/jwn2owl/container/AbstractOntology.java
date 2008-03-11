@@ -18,11 +18,8 @@ public abstract class AbstractOntology implements OntologyContainer {
 	 * 
 	 */
 	abstract protected void loadSchema();
-
-	/*
-	 * 
-	 */
-	abstract protected ModelMaker getModelMaker();
+	
+	abstract public ModelMaker getModelMaker();
 	
 	/*
 	 * 
@@ -55,8 +52,8 @@ public abstract class AbstractOntology implements OntologyContainer {
 		
 		Model base = maker.openModel(modelName, true);
 	
-		return ModelFactory.createOntologyModel(getModelSpec(maker, 
-				withReasoner), base);
+		return ModelFactory.createOntologyModel(
+				getModelSpec(maker, withReasoner), base);
 	}	
 
 }	

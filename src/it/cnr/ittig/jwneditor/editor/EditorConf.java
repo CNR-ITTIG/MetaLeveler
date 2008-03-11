@@ -1,5 +1,7 @@
 package it.cnr.ittig.jwneditor.editor;
 
+import it.cnr.ittig.bacci.database.DatabaseManager;
+
 
 public class EditorConf {
 
@@ -18,25 +20,29 @@ public class EditorConf {
 	//public static String LANGUAGE = "NL";
 	
 	 //Serve a produrre il global-concept.owl e i vari file types.owl
-	public final static boolean ADD_ALIGNMENT = true; 
+	public static boolean ADD_ALIGNMENT = true; 
 	//public final static boolean ADD_ALIGNMENT = false;
 	
 	//Lingue da importare
 	public static String[] languages = {"IT", "EN", "NL", "ES"};
 
 	//type of import (one of: txt, xls, mdb)
-	public final static String TYPE_INPUT = "mdb";
+	public static String TYPE_INPUT = "mdb";
 	
 	public static String DB_TABLES_DIR = "dbTables";
 	public static String MDB_FILE_NAME = "DalosAlignment14-02.mdb";
 
 	//link terms to ontology classes?
-	public final static boolean LINK_TO_ONTOLOGY = false;
+	public static boolean LINK_TO_ONTOLOGY = false;
 	public final static String CLASSIFICATION = "classification-15-07.xls"; 
 	public final static String MAPPING = "mappings-15-07-mod.xls"; 
 	
 	//output level
 	public final static int DEBUG_LEVEL = 2; //0 error msg, 1 info msg, 2 debug msg
+	
+	public static DatabaseManager DBM = null;
+	
+	public static boolean USE_JENA_DB = true;
 	
 	//DATABASE RDF:
 //	public final static String OWL_ADDRESS = "jdbc:mysql://172.16.0.12/jena";  //eulero
@@ -54,7 +60,7 @@ public class EditorConf {
 	public static String HOME_DIR = System.getProperty("user.home");
 
 //	//Da configurare a runtime:
-	public static String DATA_DIR;
+	public static String DATA_DIR = "";
 	public static String PREFS_FILE;
 	public static String OWL_FILE;
 	public static String MODEL_URI;

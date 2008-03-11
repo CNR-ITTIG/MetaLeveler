@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hp.hpl.jena.ontology.OntModel;
+
 /*
  * Classe di interfaccia con il resto dell'applicazione.
  * Costruisce e mantiene l'oggetto container.
@@ -36,10 +38,30 @@ public class OWLManager {
 	
 	private void startServices() {
 		
-		adder = new AddService();
+		adder = new AddService(this);
 		validator = new ValidateService();
 		writer = new SerializeService();
 //		checker = new CheckerService();
+	}
+	
+	public Map<String,OntologyContainer> getContainers() {
+		
+		return containers;
+	}
+	
+	public boolean setModel(String modelName, OntModel om) {
+		
+		OntologyContainer cont = containers.get(modelName);
+		if(cont == null) {
+			return false;
+		}
+		
+		if(!(cont instanceof InMemoryOntology)) {
+			return false;
+		}
+		
+		((InMemoryOntology) cont).setOntModel(om);
+		return true;
 	}
 	
 	/*
@@ -59,6 +81,11 @@ public class OWLManager {
 	 * connection parameters to OWLManager.
 	 */
 	public boolean addModel(String modelName, boolean persistent) {
+		
+		if(containers.containsKey(modelName)) {
+			System.err.println("Container key exist! name: " + modelName);
+			return false;
+		}
 		
 		if(persistent) {
 			containers.put(modelName, new PersistentOntology(modelName));

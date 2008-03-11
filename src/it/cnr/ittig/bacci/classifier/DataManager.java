@@ -7,9 +7,10 @@ import it.cnr.ittig.bacci.classifier.resource.Synset;
 import it.cnr.ittig.bacci.database.DatabaseManager;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.KbModelFactory;
+import it.cnr.ittig.jwneditor.editor.EditorConf;
+import it.cnr.ittig.leveler.Leveler;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -21,10 +22,7 @@ import java.util.TreeSet;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -48,11 +46,6 @@ public class DataManager {
 	private OntModel conceptModel;
 	private OntModel typeModel;
 	private OntModel ontologyModel;
-	
-	private OntProperty containsProperty;
-	private OntProperty wordProperty;
-	private OntProperty lexicalProperty;
-	private OntProperty protoProperty;
 	
 	//Artificial concept class counter
 	private static int artificialCounter = 0;
@@ -134,6 +127,21 @@ public class DataManager {
 			ConceptClass cc = br.getConcept();
 			if(cc == null || cc.getClasses().size() == 0) {
 				data.add(br);
+			}
+		}
+		return data;
+	}
+	
+	public Collection<BasicResource> getCandidateResources() {
+		
+		Set<BasicResource> data = new TreeSet<BasicResource>();		
+		if(Conf.WORDNET_DATA) {
+			for(Iterator<BasicResource> i = resources.iterator(); 
+					i.hasNext(); ) {
+				BasicResource br = i.next();
+				if(SynsetUtil.isCandidateResource(br)) {
+					data.add(br);
+				}
 			}
 		}
 		return data;
@@ -289,18 +297,10 @@ public class DataManager {
 		//Con reasoner
 		OntModel lexModel = KbModelFactory.getModel(
 				"dalos.lexicon", "micro");
-		containsProperty = lexModel.getOntProperty(
-				Conf.METALEVEL_ONTO_NS + "containsWordSense");
-		wordProperty = lexModel.getOntProperty(
-				Conf.METALEVEL_ONTO_NS + "word");
-		lexicalProperty = lexModel.getOntProperty(
-				Conf.METALEVEL_ONTO_NS + "lexicalForm");
-		if(lexicalProperty == null) {
-			System.err.println("Lexical Prop is null!!");
+		if(Conf.WORDNET_DATA) {
+			SynsetUtil.setModel(lexModel);
 		}
-		protoProperty = lexModel.getOntProperty(
-				Conf.METALEVEL_ONTO_NS + "protoForm");
-		
+
 		OntClass synsetClass = lexModel.getOntClass(Conf.synsetClassName);
 		if(synsetClass == null) {
 			System.err.println("Synset class is null!");
@@ -317,8 +317,9 @@ public class DataManager {
 			String resName = res.getLocalName();
 			
 			BasicResource br = getBasicResource(resNs, resName);
-			addVariants(res, (Synset) br);
-			//Add now - sorting depends on variants
+			if(Conf.WORDNET_DATA) {
+				SynsetUtil.addVariants(res, br);				
+			}
 			resources.add(br);
 		}
 		System.out.println("Added resources: " + resources.size());
@@ -469,8 +470,11 @@ public class DataManager {
 		String uri = ns + name;
 		BasicResource br = uriToResource.get(uri);
 		if(br == null) {
-			//br = new BasicResource();
-			br = new Synset();
+			if(Conf.WORDNET_DATA) {
+				br = new Synset();				
+			} else {
+				br = new BasicResource();
+			}
 			br.setURI(uri);
 			br.setLexicalForm(name);
 			uriToResource.put(uri, br);
@@ -479,32 +483,6 @@ public class DataManager {
 		return br;
 	}
 	
-	private void addVariants(OntResource ores, Synset syn) {
-
-		for(ExtendedIterator k = ores.listPropertyValues(containsProperty); 
-				k.hasNext();) {
-			OntResource ws = (OntResource) k.next();
-			OntResource w = (OntResource) ws.getPropertyValue(wordProperty);
-			RDFNode protoNode = w.getPropertyValue(protoProperty);
-			if(protoNode != null) {
-				syn.setLexicalForm(((Literal) protoNode).getString());
-			} else {
-				System.err.println(">> synset without proto form! ores:" + ores);
-			}
-			int lcount = 0;
-			for(ExtendedIterator l = w.listPropertyValues(lexicalProperty);
-					l.hasNext(); ) {
-				RDFNode lexNode = (RDFNode) l.next();
-				String lexForm = ((Literal) lexNode).getString();
-				syn.addVariant(lexForm);
-				lcount++;
-			}
-			if(lcount == 0) {
-				System.err.println("Synset with 0 lexical form!!");
-			}
-		}
-	}
-
 	ConceptClass addArtificialConceptClass(BasicResource br) {
 		
 		String name = getNextArtificialName();
@@ -560,5 +538,16 @@ public class DataManager {
 		//Crea gli oggetti importando i dati del database;
 		//Salvali in RDF: si devono salvare soltanto i file 
 		//individuals e individuals-word !
+		
+		EditorConf.DIVIDE = false;
+		EditorConf.ADD_ALIGNMENT = false;
+		EditorConf.LINK_TO_ONTOLOGY = false;
+		EditorConf.USE_JENA_DB = false;
+		EditorConf.DATA_DIR = Conf.DATA_DIRECTORY;
+		EditorConf.LANGUAGE = "IT";
+		EditorConf.TYPE_INPUT = "ittig";
+		EditorConf.DBM = dbm;
+		
+		Leveler.main(null);
 	}
 }

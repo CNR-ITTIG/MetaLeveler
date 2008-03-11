@@ -9,6 +9,16 @@ public class Synset extends BasicResource {
 	
 	private Collection<String> variants;
 	
+	private boolean candidate = false;
+	
+	public boolean isCandidate() {
+		return candidate;
+	}
+
+	public void setCandidate(boolean candidate) {
+		this.candidate = candidate;
+	}
+
 	public Synset() {
 		super();
 

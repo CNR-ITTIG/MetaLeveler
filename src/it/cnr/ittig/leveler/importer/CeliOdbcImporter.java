@@ -1,13 +1,9 @@
 package it.cnr.ittig.leveler.importer;
 
-import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
-import it.cnr.ittig.jwneditor.jwn.Correlazione;
 import it.cnr.ittig.jwneditor.jwn.Lemma;
-import it.cnr.ittig.jwneditor.jwn.Relazione;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLUtil;
-import it.cnr.ittig.jwneditor.jwn2owl.container.OntologyContainer;
 import it.cnr.ittig.leveler.Leveler;
 
 import java.io.File;
@@ -26,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -36,18 +31,18 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class CeliOdbcImporter implements MetaImporter {
+public class CeliOdbcImporter  extends ImporterUtil
+	implements MetaImporter {
 	
 	private String mdbFileName = EditorConf.DATA_DIR + File.separatorChar 
 		+ EditorConf.MDB_FILE_NAME;
 
 	private String termsTBL = "TD_Terms";
 	private String corpusTBL = "TD_Corpus";
-	private String internationalTBL = "TD_DocumentsInternational";
+	//private String internationalTBL = "TD_DocumentsInternational";
 	private String nationalTBL = "TD_DocumentsNational";
 	private String interlinguisticTBL = "TD_InterlinguisticRelations";
 	private String intralinguisticTBL = "TD_IntralinguisticRelations";
@@ -130,34 +125,6 @@ public class CeliOdbcImporter implements MetaImporter {
 			}
 		}
 		closeConnection(c);
-	}
-	
-	private boolean addSingleRelation(Concetto c1, Concetto c2, String relName) {
-
-		Relazione ipo = new Relazione(EditorConf.iponimia);
-		Relazione iper = new Relazione(EditorConf.iperonimia);
-		Relazione fuzzy = new Relazione(EditorConf.related);
-		Relazione thisRel = null;
-		Relazione invRel = null;
-
-		if(relName.equalsIgnoreCase("has_hyponym")) {
-			thisRel = ipo;
-			invRel = iper;
-		} else if(relName.equalsIgnoreCase("has_hyperonym")) {
-			thisRel = iper;
-			invRel = ipo;
-		} else if(relName.equalsIgnoreCase("fuzzynym")) {
-			thisRel = fuzzy;
-			invRel = fuzzy;
-		} else {			
-			return false;
-		}
-		
-		Correlazione cor = new Correlazione(c2, thisRel);
-		c1.add(cor);
-		cor = new Correlazione(c1, invRel);
-		c2.add(cor);
-		return true;
 	}
 	
 	public void addRelated() throws IOException {	

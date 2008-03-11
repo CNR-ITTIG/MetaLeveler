@@ -1,20 +1,20 @@
 package it.cnr.ittig.jwneditor.jwn2owl.service;
 
 import it.cnr.ittig.jwneditor.editor.EditorConf;
-import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn.Lemma;
 import it.cnr.ittig.jwneditor.jwn.Relazione;
+import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLUtil;
+import it.cnr.ittig.jwneditor.jwn2owl.container.AbstractOntology;
 import it.cnr.ittig.jwneditor.jwn2owl.container.OntologyContainer;
-import it.cnr.ittig.jwneditor.jwn2owl.container.PersistentOntology;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
@@ -24,26 +24,20 @@ import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
-import com.hp.hpl.jena.ontology.Ontology;
-import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class AddService {
 
+	private OWLManager owlManager = null;
+	
 	OntModel m; //OntModel m_work;		
 	OntModel m_ind;
 	OntModel m_indw;
-	OntModel m_ind_claw;
 	OntModel m_conc;
 	OntModel m_types;
 	OntModel m_sources;
@@ -110,25 +104,40 @@ public class AddService {
 	
 	boolean logging = false;
 	
+	public AddService(OWLManager owlManager) {
+		
+		this.owlManager = owlManager;
+	}
+	
 	private void initModels() {
 		
 		OntModelSpec spec = new OntModelSpec( OntModelSpec.OWL_MEM );
 		spec.setImportModelMaker(maker);
-
+		
 		m_ind = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_ind, false));
 		m_indw = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_indw, false));
-//		m_ind_clo = ModelFactory.createOntologyModel(spec,
-//				maker.createModel(EditorConf.onto_ind_clo, false));
-		m_ind_claw = ModelFactory.createOntologyModel(spec,
-				maker.createModel(EditorConf.onto_ind_claw, false));
 		m_conc = initConceptModel(spec, maker);
 		m_types = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_types, false));
 		m_types = initTypeModel(spec, maker);
 		m_sources = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_sources, false));
+
+		if(!EditorConf.USE_JENA_DB) {
+			owlManager.addModel(EditorConf.onto_ind, false);
+			owlManager.addModel(EditorConf.onto_indw, false);
+			owlManager.addModel(EditorConf.onto_types, false);
+			owlManager.addModel(EditorConf.onto_concepts, false);
+			owlManager.addModel(EditorConf.onto_sources, false);
+			
+			owlManager.setModel(EditorConf.onto_ind, m_ind);
+			owlManager.setModel(EditorConf.onto_indw, m_indw);
+			owlManager.setModel(EditorConf.onto_types, m_types);
+			owlManager.setModel(EditorConf.onto_concepts, m_conc);
+			owlManager.setModel(EditorConf.onto_sources, m_sources);
+		}
 
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_ind);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_indw);
@@ -146,7 +155,6 @@ public class AddService {
 		setPrefixes(m);
 		setPrefixes(m_ind);
 		setPrefixes(m_indw);
-		setPrefixes(m_ind_claw);
 		setPrefixes(m_conc);
 		setPrefixes(m_types);
 		setPrefixes(m_sources);
@@ -281,12 +289,6 @@ public class AddService {
 		validClasses.add(oc);
 		
 		return oc;
-	}
-	
-	private void addUpperTypes(OntResource res, OntClass upper) { //, boolean first) {
-
-		m_ind_claw.add(res, RDF.type, upper); //oppure si linka la classe di concepts.owl ???
-
 	}
 	
 	private void addUpperSubClass(OntClass synClass, OntClass upper) {
@@ -504,7 +506,7 @@ public class AddService {
 		NS_CURRENT = container.getNameSpace();
 		SOURCE_SCHEMA = EditorConf.sourceSchema + "#";
 
-		maker = ((PersistentOntology) container).getModelMaker();
+		maker = ((AbstractOntology) container).getModelMaker();
 		
 		init();
 		

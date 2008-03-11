@@ -40,8 +40,20 @@ public class DatabaseManager {
 			classDatabase.disconnetti();
 			return true;
 		} else {
+			System.err.println("Database last error msg: " +
+					classDatabase.getErrore());
 			return false;
 		}
+	}
+	
+	public boolean runUpdate(String queryType) {
+		
+		return runUpdate(queryType, null);
+	}
+	
+	public Vector<String[]> runQuery(String queryType) {
+		
+		return runQuery(queryType, null);
 	}
 	
 	/**

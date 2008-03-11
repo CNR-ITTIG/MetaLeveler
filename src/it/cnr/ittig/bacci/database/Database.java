@@ -34,16 +34,19 @@ public class Database {
 	 */
 	public boolean connetti() {
 		connesso = false;
+		String strConn = "";
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
 			//if (!nomeDB.equals("")) {
-				String strConn = "jdbc:mysql://" + address + "/" + nomeDB +
+				strConn = "jdbc:mysql://" + address + "/" + nomeDB +
 						"?user=" + username + "&password=" + strpass;
 				db = (Connection) DriverManager.getConnection(strConn);
 			//}
 			connesso = true;
-		} catch (Exception e) { 
+		} catch (Exception e) {
+			System.err.println("connect() error! connection string: " +
+					strConn);
 			errore = e.getMessage();
 		}
 		return connesso;
