@@ -19,6 +19,7 @@ public class SynsetUtil {
 	private static OntProperty wordProperty = null;
 	private static OntProperty lexicalProperty = null;
 	private static OntProperty protoProperty = null;
+	private static OntProperty candidateProperty = null;
 
 	public static void setModel(OntModel model) {
 		
@@ -51,11 +52,21 @@ public class SynsetUtil {
 		if(protoProperty == null) {
 			System.err.println("Proto Prop is null!!");
 		}
+		
+		candidateProperty = om.createOntProperty(
+				Conf.METALEVEL_ONTO_NS + "candidate");
 	}
-	
+
 	public static boolean addVariants(OntResource ores, BasicResource br) {
 
 		Synset syn = (Synset) br;
+		//Candidate
+		if(candidateProperty != null) {
+			if(ores.hasProperty(candidateProperty)) {
+				syn.setCandidate(true);
+			}
+		}
+		//Variants
 		for(ExtendedIterator k = ores.listPropertyValues(containsProperty); 
 				k.hasNext();) {
 			OntResource ws = (OntResource) k.next();

@@ -28,13 +28,13 @@ public class IttigDatabaseImporter extends ImporterUtil
 		for(Iterator<String[]> i = results.iterator(); 
 				i.hasNext();) {
 			String[] record = i.next();
-			String id = record[0];
-			String proto = record[1]; //lexical?
-			String tot = record[2];
-			String lexical = record[3]; //proto?
-			String stop = record[4];
-			String onto = record[5];
-			String ittig = record[6];
+			String id = record[0].trim();
+			String proto = record[1].trim(); //lexical?
+			String tot = record[2].trim();
+			String lexical = record[3].trim(); //proto?
+			String stop = record[4].trim();
+			String onto = record[5].trim();
+			String ittig = record[6].trim();
 			
 			Concetto conc = new Concetto();
 			conc.setID(id);
@@ -66,10 +66,10 @@ public class IttigDatabaseImporter extends ImporterUtil
 		for(Iterator<String[]> i = results.iterator(); 
 				i.hasNext();) {
 			String[] record = i.next();
-			String idRel = record[0];
-			String idFrom = record[1];
-			String relName = record[2];
-			String idTo = record[3];
+			String idRel = record[0].trim();
+			String idFrom = record[1].trim();
+			String relName = record[2].trim();
+			String idTo = record[3].trim();
 			
 			Concetto c1 = Leveler.appSynsets.get(idFrom);
 			Concetto c2 = Leveler.appSynsets.get(idTo);

@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import com.hp.hpl.jena.ontology.Individual;
@@ -53,6 +52,7 @@ public class AddService {
 	OntProperty lexicalProperty;
 //	OntProperty tagProperty;
 	OntProperty protoProperty;
+	OntProperty candidateProperty;
 	
 	OntProperty sourceProp;
 	OntProperty involvesSynset;
@@ -612,7 +612,25 @@ public class AddService {
 		OntResource res = m_ind.createOntResource(NS_IND + name);
 		OntClass posClass = getPosSynsetClass(c.getPartOfSpeech());
 		m_ind.add(res, RDF.type, posClass);
+		
+		//Candidate term?
+		if(c.isCandidate()) {
+			OntProperty candProp = getCandidateProperty();
+			m_ind.add(res, candProp, "true");
+		}
 		return res;
+	}
+	
+	private OntProperty getCandidateProperty() {
+		
+		candidateProperty = m_ind.getOntProperty(
+				NS_SCHEMA + "candidate");
+		if(candidateProperty == null) {
+			candidateProperty = m_ind.createOntProperty(
+					NS_SCHEMA + "candidate");
+		}
+
+		return candidateProperty;
 	}
 
 	private OntResource createWordSenseIndividual(Lemma l) {

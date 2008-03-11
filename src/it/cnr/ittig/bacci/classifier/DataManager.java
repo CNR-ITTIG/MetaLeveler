@@ -307,7 +307,7 @@ public class DataManager {
 			return;
 		}
 		
-		//List synset individuals
+		//List individuals
 		for(ExtendedIterator i = synsetClass.listInstances(false); i.hasNext(); ) {
 			OntResource res = (OntResource) i.next();
 			if(res.isAnon()) {

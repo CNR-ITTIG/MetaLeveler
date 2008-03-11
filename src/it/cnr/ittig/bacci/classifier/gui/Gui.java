@@ -350,11 +350,19 @@ public class Gui extends JFrame
 		}
 
 		if(e.getSource() == importButton) {
+			if(!askConfirmation(
+					"This will overwrite local data.\nContinue?",
+					"Import from Db")) {
+				return;
+			}
+			waitingState();
 			if(!importFromDb()) {
+				activeState();
 				connectionFailedMsg();
 			} else {
+				activeState();
 				showDoneMsg("Import from Db");
-			}
+			}			
 			System.exit(0);
 		}
 		
@@ -610,6 +618,21 @@ public class Gui extends JFrame
 		JOptionPane.showMessageDialog(this, 
 				"Database not found", "DB Connection",
 				JOptionPane.WARNING_MESSAGE);
+	}
+	
+	private boolean askConfirmation(String msg, String title) {
+	
+		Object returnVal = JOptionPane.showConfirmDialog(this, msg, title, 
+				JOptionPane.YES_NO_OPTION, 
+				JOptionPane.WARNING_MESSAGE);
+		if(returnVal == null || ( returnVal instanceof Integer ) == false) {
+			return false;
+		}
+		
+		if( (Integer) returnVal == JOptionPane.OK_OPTION) {
+			return true;
+		}
+		return false;
 	}
 	
 	private void initProperties() throws FileNotFoundException, IOException {
