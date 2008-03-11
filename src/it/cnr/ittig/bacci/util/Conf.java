@@ -6,8 +6,8 @@ public class Conf {
 	
 	//public static boolean EXTERNAL_MAPPING = true;
 	public static boolean EXTERNAL_MAPPING = false;	
-	public final static String CLASSIFICATION = "classification-15-07.xls"; 
-	public final static String MAPPING = "mappings-15-07-mod.xls"; 
+	public final static String CLASSIFICATION = "classification-070308.xls"; 
+	public final static String MAPPING = "mappings-070308.xls"; 
 	
 	public static String DOMAIN_ONTO = 
 		"";

@@ -4,7 +4,7 @@ public abstract class WebResource implements Comparable {
 	
 	private String URI;
 	
-	private String lexicalForm;
+	protected String lexicalForm;
 
 	public WebResource() {
 
@@ -62,7 +62,7 @@ public abstract class WebResource implements Comparable {
 	public String toString() {
 
 		if(lexicalForm.trim().length() < 1) {
-			return "(empty) " + URI;
+			return "(WebRes: " + URI + ")";
 		}
 		return lexicalForm;
 	}

@@ -44,12 +44,12 @@ public class Gui extends JFrame
 	private DataManager dm;
 	
 	private JButton setupButton;
-
+	private JButton loadButton;
+	private JButton importButton;
 	private JButton addButton;
 	private JButton removeButton;
 	private JButton cancelButton;
 	private JButton okButton;
-	private JButton importButton;
 	
 	private JLabel resourceLabel;
 	private JLabel classLabel;
@@ -116,20 +116,29 @@ public class Gui extends JFrame
 	    setupButton.addActionListener(this);
 	    panel.add(setupButton);
 
+	    loadButton = new JButton("Load");
+	    loadButton.addActionListener(this);
+	    loadButton.setEnabled(false);
+	    panel.add(loadButton);
+
 	    importButton = new JButton("Import DB");
 	    importButton.addActionListener(this);
+	    importButton.setEnabled(false);
 	    panel.add(importButton);
 
 	    addButton = new JButton("Add");
 	    addButton.addActionListener(this);
+	    addButton.setEnabled(false);
 	    panel.add(addButton);
 
 	    removeButton = new JButton("Remove");
 	    removeButton.addActionListener(this);
+	    removeButton.setEnabled(false);
 	    panel.add(removeButton);
 	    
 	    okButton = new JButton("Save");
 	    okButton.addActionListener(this);
+	    okButton.setEnabled(false);
 	    panel.add(okButton);
 	    
 	    cancelButton = new JButton("Close");
@@ -318,14 +327,21 @@ public class Gui extends JFrame
 			if(setup()) {
 				Conf.DOMAIN_ONTO = ontoText.getText();
 				Conf.DOMAIN_ONTO_NS = ontoText.getText() + "#";
-				appProperties.setProperty("ontoText", ontoText.getText());
-				waitingState();
-				dm = new DataManager();
-				if(!dm.init()) {					
-				}
-				refresh();
-				activeState();
+				appProperties.setProperty("ontoText", 
+						ontoText.getText());
+				activateMainButtons();
 			}
+		}
+		
+		if(e.getSource() == loadButton) {			
+			waitingState();
+			dm = new DataManager();
+			if(!dm.init()) {					
+			} else {
+				refresh();
+				activateEditButtons();
+			}
+			activeState();
 		}
 
 		if(e.getSource() == importButton) {
@@ -368,6 +384,19 @@ public class Gui extends JFrame
 				e.getSource() == unlinkedRB ) {
 			filter(e.getActionCommand());
 		}
+	}
+	
+	private void activateMainButtons() {
+	
+		loadButton.setEnabled(true);
+		importButton.setEnabled(true);
+		okButton.setEnabled(true);
+	}
+	
+	private void activateEditButtons() {
+		
+		addButton.setEnabled(true);
+		removeButton.setEnabled(true);
 	}
 	
 	private void refresh() {

@@ -19,7 +19,8 @@ import com.hp.hpl.jena.vocabulary.OWL;
 
 public class KbModelFactory {
 	
-	private static OntDocumentManager odm = OntDocumentManager.getInstance(); //null;
+	private static OntDocumentManager odm = 
+		OntDocumentManager.getInstance();
 
 	private static Map<String,String> localDocuments = 
 		new HashMap<String,String>();	
@@ -29,6 +30,12 @@ public class KbModelFactory {
 		String key = fileCode;
 		System.out.println("@@ addDocument(): " + key + " -> " + fileName);
 		localDocuments.put(key, fileName);
+	}
+	
+	public static void addAltDoc(String origFileName, 
+			String localFileName) {
+		
+		odm.addAltEntry(origFileName, localFileName);
 	}
 
 	public static OntModel getModel() {

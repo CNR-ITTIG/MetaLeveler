@@ -3,6 +3,7 @@ package it.cnr.ittig.bacci.classifier;
 import it.cnr.ittig.bacci.classifier.resource.BasicResource;
 import it.cnr.ittig.bacci.classifier.resource.ConceptClass;
 import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
+import it.cnr.ittig.bacci.classifier.resource.Synset;
 import it.cnr.ittig.bacci.database.DatabaseManager;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.KbModelFactory;
@@ -294,6 +295,9 @@ public class DataManager {
 				Conf.METALEVEL_ONTO_NS + "word");
 		lexicalProperty = lexModel.getOntProperty(
 				Conf.METALEVEL_ONTO_NS + "lexicalForm");
+		if(lexicalProperty == null) {
+			System.err.println("Lexical Prop is null!!");
+		}
 		protoProperty = lexModel.getOntProperty(
 				Conf.METALEVEL_ONTO_NS + "protoForm");
 		
@@ -313,7 +317,7 @@ public class DataManager {
 			String resName = res.getLocalName();
 			
 			BasicResource br = getBasicResource(resNs, resName);
-			addVariants(res, br);
+			addVariants(res, (Synset) br);
 			//Add now - sorting depends on variants
 			resources.add(br);
 		}
@@ -465,7 +469,8 @@ public class DataManager {
 		String uri = ns + name;
 		BasicResource br = uriToResource.get(uri);
 		if(br == null) {
-			br = new BasicResource();
+			//br = new BasicResource();
+			br = new Synset();
 			br.setURI(uri);
 			br.setLexicalForm(name);
 			uriToResource.put(uri, br);
@@ -474,23 +479,28 @@ public class DataManager {
 		return br;
 	}
 	
-	private void addVariants(OntResource ores, BasicResource br) {
-		
+	private void addVariants(OntResource ores, Synset syn) {
+
 		for(ExtendedIterator k = ores.listPropertyValues(containsProperty); 
 				k.hasNext();) {
 			OntResource ws = (OntResource) k.next();
 			OntResource w = (OntResource) ws.getPropertyValue(wordProperty);
 			RDFNode protoNode = w.getPropertyValue(protoProperty);
 			if(protoNode != null) {
-				br.setLexicalForm(((Literal) protoNode).getString());
+				syn.setLexicalForm(((Literal) protoNode).getString());
 			} else {
 				System.err.println(">> synset without proto form! ores:" + ores);
 			}
+			int lcount = 0;
 			for(ExtendedIterator l = w.listPropertyValues(lexicalProperty);
 					l.hasNext(); ) {
 				RDFNode lexNode = (RDFNode) l.next();
 				String lexForm = ((Literal) lexNode).getString();
-				br.addVariant(lexForm);
+				syn.addVariant(lexForm);
+				lcount++;
+			}
+			if(lcount == 0) {
+				System.err.println("Synset with 0 lexical form!!");
 			}
 		}
 	}

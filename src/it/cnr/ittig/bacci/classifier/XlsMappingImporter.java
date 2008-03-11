@@ -3,6 +3,7 @@ package it.cnr.ittig.bacci.classifier;
 import it.cnr.ittig.bacci.classifier.resource.BasicResource;
 import it.cnr.ittig.bacci.classifier.resource.ConceptClass;
 import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
+import it.cnr.ittig.bacci.classifier.resource.Synset;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 
@@ -23,6 +24,8 @@ import jxl.write.WritableWorkbook;
 import com.hp.hpl.jena.ontology.OntClass;
 
 public class XlsMappingImporter {
+	
+	private static int THRESHOLD = 5;
 	
 	private static String classification = Conf.DATA_DIRECTORY + File.separatorChar 
 		+ Conf.CLASSIFICATION;
@@ -64,12 +67,16 @@ public class XlsMappingImporter {
 		sheet = wb.getSheet(0);
 		int rows = sheet.getRows();
 		for(row = 1; row < rows; row++) {			
-			String kwid = sheet.getCell(0, row).getContents().trim();
 			String lemma = sheet.getCell(1, row).getContents().trim();
 			String oc1 = sheet.getCell(2, row).getContents().trim();
 			String oc2 = sheet.getCell(3, row).getContents().trim();
 			String oc3 = sheet.getCell(4, row).getContents().trim();
 			String oc4 = sheet.getCell(5, row).getContents().trim();
+			
+			if(lemma.length() < 1) {
+				continue;
+			}
+			
 			if(oc1.length() > 0 && !oc1.equalsIgnoreCase("no")) {
 				BasicResource br = getSynsetByLemma(lemma);
 				if(br != null) {
@@ -82,9 +89,6 @@ public class XlsMappingImporter {
 					continue;
 				}
 				if(oc1.equalsIgnoreCase("no")) {
-					//Rimuovere il synset dal lessico ?
-//					Leveler.appSynsets.keySet().remove(kwid);
-//					Leveler.appSynsets.values().remove(c);
 					continue;
 				}
 
@@ -92,8 +96,8 @@ public class XlsMappingImporter {
 				analyzeClassField(br, oc2);
 				analyzeClassField(br, oc3);
 				analyzeClassField(br, oc4);
-			}			
-		}		
+			}
+		}
 	}
 	
 	private static void analyzeClassField(BasicResource br, String name) {
@@ -107,7 +111,7 @@ public class XlsMappingImporter {
 			if(c == null) {
 				c = dm.addArtificialConceptClass(br);
 			}
-			c.addClass(oc);					
+			c.addClass(oc);
 		}
 	}
 	
@@ -116,7 +120,7 @@ public class XlsMappingImporter {
 		Collection<BasicResource> synsets = dm.getResources();
 		for(Iterator<BasicResource> iter = synsets.iterator(); iter.hasNext(); ) {
 			BasicResource item = iter.next();
-			Collection<String> variants = item.getVariants();
+			Collection<String> variants = ((Synset) item).getVariants();
 			for(Iterator<String> v = variants.iterator(); v.hasNext(); ) {
 				String variant = v.next();
 				if(matchLemma(lemma, variant)) {
@@ -135,21 +139,41 @@ public class XlsMappingImporter {
 	
 	private static boolean matchLemma(String lemma1, String lemma2) {
 		
-		String a = lemma1.trim();
-		String b = lemma2.trim();
+		String a = lemma1.trim().toLowerCase();
+		String b = lemma2.trim().toLowerCase();
 		if(a.equalsIgnoreCase(b)) {
 			return true;
 		}
-		a = smoothString(a);
-		b = smoothString(b);
-		if(a.equalsIgnoreCase(b)) {
-			System.out.println("matchLemma(): (1) " + a + " <-> " + b);
+
+//		if(a.toLowerCase().indexOf("contrat") < 0
+//				|| a.toLowerCase().indexOf("credit") < 0
+//				|| b.toLowerCase().indexOf("contrat") < 0
+//				|| b.toLowerCase().indexOf("credit") < 0
+//				) {
+//			return false;
+//		}
+//		System.out.println(
+//				":::::::::Smoothing " + a + " and " + b + "...");
+		
+		String sa = smooth(strongSmooth(a));
+		String sb = smooth(strongSmooth(b));
+//		System.out.println("Smoothed -  a:" + sa + " b:" + sb);
+		if(sa.length() > THRESHOLD && sa.equalsIgnoreCase(sb)) {
+			System.out.println("matchLemma(): (1) " + sa + " <-> " + sb);
+			return true;
+		}
+		
+		sa = singleSmooth(a);
+		sb = singleSmooth(b);
+//		System.out.println("singleSmoothed -  a:" + sa + " b:" + sb);
+		if(sa.length() > THRESHOLD && sa.equalsIgnoreCase(sb)) {
+			System.out.println("matchLemma(): (2) " + sa + " <-> " + sb);
 			return true;
 		}
 		return false;
 	}
 	
-	private static String smoothString(String str) {
+	private static String smooth(String str) {
 		
 		String empty = "";
 		str = str.replaceAll(" ", empty);
@@ -158,9 +182,83 @@ public class XlsMappingImporter {
 		str = str.replaceAll("'", empty);
 		str = str.replaceAll("`", empty);
 		str = str.replaceAll("°", empty);
+		
+		str = str.replaceAll("à", "a");
+		str = str.replaceAll("è", "e");
+		str = str.replaceAll("é", "e");
+		str = str.replaceAll("ì", "i");
+		str = str.replaceAll("ò", "o");
+		str = str.replaceAll("ù", "u");
+		
 		return str;
 	}
 	
+	private static String strongSmooth(String str) {
+		
+		String spacer = " ";
+		str = str.replaceAll(" da ", spacer);
+		str = str.replaceAll(" di ", spacer);
+		str = str.replaceAll(" del ", spacer);
+		str = str.replaceAll(" dei ", spacer);
+		str = str.replaceAll(" degli ", spacer);
+		str = str.replaceAll(" dell'", spacer);
+		str = str.replaceAll(" della ", spacer);
+		str = str.replaceAll(" dello ", spacer);
+		str = str.replaceAll(" delle ", spacer);
+		str = str.replaceAll(" in ", spacer);
+		str = str.replaceAll(" nel ", spacer);
+		str = str.replaceAll(" nell'", spacer);
+		str = str.replaceAll(" nella ", spacer);
+		str = str.replaceAll(" nelle ", spacer);
+		str = str.replaceAll(" negli ", spacer);
+		str = str.replaceAll(" alla ", spacer);
+		str = str.replaceAll(" all'", spacer);
+		str = str.replaceAll(" al ", spacer);
+		str = str.replaceAll(" a ", spacer);
+		str = str.replaceAll(" e ", spacer);
+		str = str.replaceAll(" o ", spacer);
+				
+		return str;
+	}
+
+	private static String singleSmooth(String str) {
+		//Follows italian rules...
+		
+		//Apply also strong smoothing?
+		str = strongSmooth(str);		
+
+		String[] words = str.split(" ");
+		
+		for(int i = 0; i < words.length; i++) {
+			String word = words[i];
+			
+			if(i == 0) {
+				str = "";
+			} else {
+				word = " " + word;
+			}
+			
+			int len = word.length();
+			if(len > 2) {
+				if(word.endsWith("e")) {
+					word = word.substring(0, len - 1);
+					word += "a";
+				}
+				if(word.endsWith("i")) {
+					word = word.substring(0, len - 1);
+					word += "o";
+				}
+				
+				str += word;
+			}
+		}
+
+		//Apply smooth?
+		str = smooth(str);
+
+		return str;
+	}
+
 	private static boolean matchClass(String name, OntologicalClass oc) {
 		
 		//System.out.println("Matching name " + name + " with class " + oc + "...");
