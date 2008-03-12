@@ -1,5 +1,6 @@
 package it.cnr.ittig.bacci.classifier;
 
+import it.cnr.ittig.bacci.classifier.gui.Gui;
 import it.cnr.ittig.bacci.classifier.resource.BasicResource;
 import it.cnr.ittig.bacci.classifier.resource.ConceptClass;
 import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
@@ -27,12 +28,8 @@ public class XlsMappingImporter {
 	
 	private static int THRESHOLD = 5;
 	
-	private static String classification = Conf.DATA_DIRECTORY + File.separatorChar 
-		+ Conf.CLASSIFICATION;
-	private static String mappings = Conf.DATA_DIRECTORY + "/" + File.separatorChar 
-		+ Conf.MAPPING;
-	
-	private static String definitions = Conf.DATA_DIRECTORY + "/" + "claw-def.xls";
+	private static String classification = null; 
+	private static String mappings = null;
 	
 	private static WritableWorkbook wb = null;
 	private static WritableSheet sheet = null;
@@ -45,6 +42,14 @@ public class XlsMappingImporter {
 	
 	private static Set<String> nonMatchingClass = new HashSet<String>();
 	private static Set<String> nonMatchingLemma = new HashSet<String>();
+	
+	public XlsMappingImporter() {
+
+		String dataDir = (String) Gui.appProperties.get("resDir");
+
+		classification = dataDir + File.separatorChar + Conf.CLASSIFICATION;
+		mappings =  dataDir + File.separatorChar + Conf.MAPPING;
+	}
 	
 	public static void classify(DataManager datam) {
 		//Adds ontological classes		

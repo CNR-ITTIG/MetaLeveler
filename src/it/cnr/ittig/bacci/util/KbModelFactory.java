@@ -1,5 +1,7 @@
 package it.cnr.ittig.bacci.util;
 
+import it.cnr.ittig.bacci.classifier.gui.Gui;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -66,6 +68,10 @@ public class KbModelFactory {
 		 * reasoner: sceglie il reasoner da utilizzare nel modello
 		 */
 		
+		String DATA_DIR = (String) Gui.appProperties.getProperty("resDir");
+		String ONTO = (String) Gui.appProperties.getProperty("ontoText");
+		String ONTO_NS = (String) Gui.appProperties.getProperty("ontoNs");
+
 		ModelMaker maker = ModelFactory.createMemModelMaker();
 
 		OntModelSpec spec = null;
@@ -101,7 +107,7 @@ public class KbModelFactory {
 		if(type.equalsIgnoreCase("dalos.full")) {
 			readLocalDocument(om, lang, Conf.CONCEPTS);
 			readLocalDocument(om, lang, Conf.TYPES);
-			readSchema(om, Conf.DOMAIN_ONTO);
+			readSchema(om, ONTO);
 		}
 		if(type.equalsIgnoreCase("dalos.lexicon")) {
 			readSchema(om, Conf.METALEVEL_ONTO);
@@ -115,7 +121,7 @@ public class KbModelFactory {
 			readLocalDocument(om, lang, Conf.TYPES);
 		}		
 		if(type.equalsIgnoreCase("dalos.ontology")) {
-			readSchema(om, Conf.DOMAIN_ONTO);
+			readSchema(om, ONTO);
 		}		
 		if(type.equalsIgnoreCase("dalos.concepts")) {
 			readLocalDocument(om, lang, Conf.CONCEPTS);
@@ -133,6 +139,10 @@ public class KbModelFactory {
 			
 	public static void readSchema(OntModel om, String url, boolean useRemote) {
 		
+		if(url.trim().length() < 1) {
+			System.err.println("readSchema() - URL is empty!");
+			return;
+		}
 		if(useRemote) {
 			URL u = null;
 			try {
@@ -149,8 +159,12 @@ public class KbModelFactory {
 			}
 		} else {
 			String localFile = odm.doAltURLMapping(url);
-			//System.out.println("localFile: " + localFile);
-			om.read(localFile);			
+			if(localFile.trim().length() < 1) {
+				System.err.println("readSchema() - Unable to resolve! URL: " 
+						+ url + " localFile: " + localFile);			
+				return;
+			}
+			om.read(localFile);
 		}
 	}
 

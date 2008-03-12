@@ -1,5 +1,6 @@
 package it.cnr.ittig.bacci.classifier;
 
+import it.cnr.ittig.bacci.classifier.gui.Gui;
 import it.cnr.ittig.bacci.classifier.resource.BasicResource;
 import it.cnr.ittig.bacci.classifier.resource.ConceptClass;
 import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
@@ -34,7 +35,9 @@ public class DataManager {
 	private Collection<BasicResource> resources;	
 	private Collection<OntologicalClass> classes;
 	
-	//private Collection<ConceptClass> concepts;
+	private String DATA_DIR = "";
+	private String ONTO = "";
+	private String ONTO_NS = "";
 	
 	//Maps
 	private Map<String,BasicResource> uriToResource;
@@ -65,6 +68,10 @@ public class DataManager {
 	}
 	
 	public boolean init() {
+				
+		DATA_DIR = (String) Gui.appProperties.getProperty("resDir");
+		ONTO = (String) Gui.appProperties.getProperty("ontoText");
+		ONTO_NS = (String) Gui.appProperties.getProperty("ontoNs");
 		
 		initDocuments();
 		
@@ -74,11 +81,11 @@ public class DataManager {
 		
 		conceptModel = KbModelFactory.getModel();
 		ontologyModel = KbModelFactory.getModel();
-		KbModelFactory.readSchema(ontologyModel, Conf.DOMAIN_ONTO, true);
+		KbModelFactory.readSchema(ontologyModel, ONTO, true);
 		
 //		KbModelFactory.addImport(conceptModel,
 //				"http://localhost/runtime.owl", 
-//				Conf.DOMAIN_ONTO);
+//				ONTO);
 		typeModel = KbModelFactory.getModel();
 		
 		return true;
@@ -186,10 +193,10 @@ public class DataManager {
 
 		fill();
 		
-		String fileName = Conf.DATA_DIRECTORY + File.separatorChar + Conf.CONCEPTS;
+		String fileName = DATA_DIR + File.separatorChar + Conf.CONCEPTS;
 		serialize(conceptModel, fileName);
 		
-		fileName = Conf.DATA_DIRECTORY + File.separatorChar + Conf.TYPES;
+		fileName = DATA_DIR + File.separatorChar + Conf.TYPES;
 		serialize(typeModel, fileName);
 	}
 	
@@ -272,7 +279,7 @@ public class DataManager {
 
 	private void initDocuments() {
 	
-		String workDir = Conf.DATA_DIRECTORY + File.separatorChar;
+		String workDir = DATA_DIR + File.separatorChar;
 		
 		File file = new File(workDir + Conf.CONCEPTS);
 		if(file.exists()) {
@@ -337,7 +344,7 @@ public class DataManager {
 			}
 			String ns = item.getNameSpace();
 			String name = item.getLocalName();
-			if(!ns.equalsIgnoreCase(Conf.DOMAIN_ONTO_NS)) {
+			if(!ns.equalsIgnoreCase(ONTO_NS)) {
 				continue;
 			}
 			getOntologicalClass(ns, name);			
@@ -406,7 +413,7 @@ public class DataManager {
 				}
 				String supNs = sup.getNameSpace();
 				String supName = sup.getLocalName();
-				if(!supNs.equalsIgnoreCase(Conf.DOMAIN_ONTO_NS)) {
+				if(!supNs.equalsIgnoreCase(ONTO_NS)) {
 					continue;
 				}
 				OntologicalClass oc = getOntologicalClass(supNs, supName);
@@ -543,7 +550,7 @@ public class DataManager {
 		EditorConf.ADD_ALIGNMENT = false;
 		EditorConf.LINK_TO_ONTOLOGY = false;
 		EditorConf.USE_JENA_DB = false;
-		EditorConf.DATA_DIR = Conf.DATA_DIRECTORY;
+		EditorConf.DATA_DIR = DATA_DIR;
 		EditorConf.LANGUAGE = "IT";
 		EditorConf.TYPE_INPUT = "ittig";
 		EditorConf.DBM = dbm;

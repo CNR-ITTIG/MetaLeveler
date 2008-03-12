@@ -10,6 +10,7 @@ import it.cnr.ittig.bacci.util.Conf;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -34,7 +35,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -61,7 +61,7 @@ public class Gui extends JFrame
 	private JRadioButton unlinkedRB;
 	private JRadioButton candidateRB;
 	
-	private JTextField ontoText;
+	private JLabel ontoText;
 	
 	private JList resourceList;
 	private JList classList;
@@ -72,12 +72,14 @@ public class Gui extends JFrame
 	private JList selectedResourceList;
 	private JList selectedClassList;
 	
-	private Properties appProperties;
+	public static Properties appProperties;
 
 	public Gui() {
 		
 		super("Meta Classifier");
 		
+		dm = new DataManager();
+
 		try {
 			initProperties();
 		} catch (FileNotFoundException e) {
@@ -90,10 +92,7 @@ public class Gui extends JFrame
 	    //Create and set up the window.
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLocation(50,50);
-	    
-//	    getContentPane().add(createLabelPanel(), 
-//	    		BorderLayout.NORTH);
-	    
+
 	    JPanel centralPanel = new JPanel(new BorderLayout());
 	    getContentPane().add(centralPanel, BorderLayout.CENTER);
 	    
@@ -107,9 +106,9 @@ public class Gui extends JFrame
 	    
 	    panel.add(createLinkedPanel());
 	    
-	    centralPanel.add(createInfoPanel(), BorderLayout.SOUTH);
+	    //centralPanel.add(createInfoPanel(), BorderLayout.SOUTH);
 	    
-	    panel = new JPanel(new GridLayout(1,5,30,30));
+	    panel = new JPanel(new GridLayout(1,7,30,30));
 	    panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 4, 10));
 	    getContentPane().add(panel, BorderLayout.SOUTH);
 	    
@@ -119,12 +118,12 @@ public class Gui extends JFrame
 
 	    loadButton = new JButton("Load");
 	    loadButton.addActionListener(this);
-	    loadButton.setEnabled(false);
+	    //loadButton.setEnabled(false);
 	    panel.add(loadButton);
 
 	    importButton = new JButton("Import DB");
 	    importButton.addActionListener(this);
-	    importButton.setEnabled(false);
+	    //importButton.setEnabled(false);
 	    panel.add(importButton);
 
 	    addButton = new JButton("Add");
@@ -153,29 +152,6 @@ public class Gui extends JFrame
 	    setVisible(true);    
 	}
 	
-//	private Component createLabelPanel() {
-//		
-//		JPanel panel = new JPanel(new GridLayout(1, 3, 10, 10));
-//		
-//		JPanel labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-//		labPanel.add(new JLabel("Resources"));
-//		panel.add(labPanel);
-//		resourceLabel = new JLabel("");		
-//		panel.add(resourceLabel);
-//		
-//		labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-//		labPanel.add(new JLabel("Classes"));
-//		panel.add(labPanel);
-//		classLabel = new JLabel("");		
-//		panel.add(classLabel);
-//		
-//		labPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-//		labPanel.add(new JLabel("Previews"));
-//		panel.add(labPanel);
-//		
-//		return panel;
-//	}
-	
 	private Component createInfoPanel() {
 		
 		JPanel panel = new JPanel(new GridLayout(1,3,10,10));
@@ -202,6 +178,8 @@ public class Gui extends JFrame
 	    resourceList.addListSelectionListener(this);
 	    JScrollPane scroll = new JScrollPane(resourceList);
 	    panel.add(scroll, BorderLayout.CENTER);
+	    
+	    panel.add(createFilterPanel(), BorderLayout.SOUTH);
 
 	    return panel;
 	}
@@ -255,23 +233,47 @@ public class Gui extends JFrame
 
 	    panel.add(scroll, BorderLayout.CENTER);
 
+	    panel.add(createOntologyPanel(), BorderLayout.SOUTH);
+	    
 	    return panel;
 	}
 
+//	private Component createOntologyPanel() {
+//		
+//		JPanel panel = new JPanel(new GridLayout(2,1,0,0));
+//		
+//		JPanel fpanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//		ontoText = new JLabel();
+//		ontoText.setSize(50, 25);
+//		//TODO preferences?
+//		String ontoStr = appProperties.getProperty("ontoText");		
+//		ontoText.setText(ontoStr);
+//		fpanel.add(ontoText);
+//		panel.add(fpanel);
+//		
+//		fpanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//		changeOntoButton = new JButton("Change...");
+//		changeOntoButton.addActionListener(this);
+//		fpanel.add(changeOntoButton);
+//		panel.add(fpanel);
+//		
+//		return panel;
+//	}
+	
 	private Component createOntologyPanel() {
 		
-		JPanel panel = new JPanel(new FlowLayout());
-				
-		panel.add(new JLabel("Selected Ontology:"));
-		ontoText = new JTextField();
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		ontoText = new JLabel();
+		ontoText.setSize(50, 25);
 		//TODO preferences?
 		String ontoStr = appProperties.getProperty("ontoText");		
 		ontoText.setText(ontoStr);
+		//ontoText.setPreferredSize(new Dimension(200,25));
 		panel.add(ontoText);
 		
 		return panel;
 	}
-	
+
 	private Component createLinkedPanel() {
 	
 		JPanel panel = new JPanel(new BorderLayout());
@@ -329,17 +331,24 @@ public class Gui extends JFrame
 
 		if(e.getSource() == setupButton) {
 			//Setup data directory and init data
-			if(setup()) {
-				dm = new DataManager();
-				Conf.DOMAIN_ONTO = ontoText.getText();
-				Conf.DOMAIN_ONTO_NS = ontoText.getText() + "#";
-				appProperties.setProperty("ontoText", 
-						ontoText.getText());
-				activateMainButtons();
-			}
+			
+			new SetupDialog(this);
+//			if(setup()) {
+//				dm = new DataManager();
+//				Conf.DOMAIN_ONTO = ontoText.getText();
+//				Conf.DOMAIN_ONTO_NS = ontoText.getText() + "#";
+//				appProperties.setProperty("ontoText", 
+//						ontoText.getText());
+//				activateMainButtons();
+//			}
 		}
 		
-		if(e.getSource() == loadButton) {			
+		if(e.getSource() == loadButton) {
+			
+			if(!checkPreferences()) {
+				checkFailedMsg();
+				return;
+			}
 			waitingState();
 			if(!dm.init()) {					
 			} else {
@@ -411,6 +420,7 @@ public class Gui extends JFrame
 		
 		addButton.setEnabled(true);
 		removeButton.setEnabled(true);
+		okButton.setEnabled(true);
 	}
 	
 	private void refresh() {
@@ -575,7 +585,7 @@ public class Gui extends JFrame
 	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 	    	File selectedDir = chooser.getSelectedFile();
-	    	Conf.DATA_DIRECTORY = selectedDir.getAbsolutePath();
+	    	//Conf.DATA_DIRECTORY = selectedDir.getAbsolutePath();
 	    	return true;
 	    }
 	    return false;
@@ -620,6 +630,12 @@ public class Gui extends JFrame
 				JOptionPane.WARNING_MESSAGE);
 	}
 	
+	private void checkFailedMsg() {
+		JOptionPane.showMessageDialog(this, 
+				"Preferences not set.", "Load",
+				JOptionPane.WARNING_MESSAGE);
+	}
+	
 	private boolean askConfirmation(String msg, String title) {
 	
 		Object returnVal = JOptionPane.showConfirmDialog(this, msg, title, 
@@ -635,12 +651,43 @@ public class Gui extends JFrame
 		return false;
 	}
 	
+	private boolean checkPreferences() {
+		
+		String value = (String) appProperties.get("ontoText");
+		if(value == null || value.trim().length() < 1) {
+			return false;
+		}
+		value = (String) appProperties.get("ontoNs");
+		if(value == null || value.trim().length() < 1) {
+			return false;
+		}
+		value = (String) appProperties.get("resDir");
+		if(value == null || value.trim().length() < 1) {
+			return false;
+		}
+		value = (String) appProperties.get("resNs");
+		if(value == null || value.trim().length() < 1) {
+			return false;
+		}
+		return true;		
+	}
+	
 	private void initProperties() throws FileNotFoundException, IOException {
 		
 		//set up default properties
 		Properties defProperties = new Properties();
+//		defProperties.setProperty("ontoText", 
+//			"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl");
+//		defProperties.setProperty("ontoNs", 
+//			"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#");
 		defProperties.setProperty("ontoText", 
-			"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl");
+			"");
+		defProperties.setProperty("ontoNs", 
+			"");
+		defProperties.setProperty("resDir", 
+			"");
+		defProperties.setProperty("resNs", 
+			"");
 		
 		//set up real properties
 		appProperties = new Properties(defProperties);

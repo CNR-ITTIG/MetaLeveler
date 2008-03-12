@@ -2,7 +2,7 @@ package it.cnr.ittig.bacci.util;
 
 public class Conf {
 
-	public static String DATA_DIRECTORY = "input";
+	//public static String DATA_DIRECTORY = "input";
 	
 	//public static boolean EXTERNAL_MAPPING = true;
 	public static boolean EXTERNAL_MAPPING = false;	
@@ -11,8 +11,10 @@ public class Conf {
 	
 	public static boolean WORDNET_DATA = true;
 	
-	public static String DOMAIN_ONTO = 
-		"";
+//	public static String DOMAIN_ONTO = 
+//		"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl";
+//	public static String DOMAIN_ONTO_NS = 
+//		"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#";
 	public static String METALEVEL_ONTO =
 		"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl";
 	public static String METALEVEL_PROP =
@@ -22,7 +24,6 @@ public class Conf {
 	public static String METALEVEL_FULL =
 		"http://turing.ittig.cnr.it/jwn/ontologies/language-properties-full.owl";
 	
-	public static String DOMAIN_ONTO_NS = "";
 	public static String METALEVEL_ONTO_NS = Conf.METALEVEL_ONTO + "#";	
 	public static String METALEVEL_PROP_NS = Conf.METALEVEL_PROP + "#";
 	public static String SOURCESCHEMA_NS = Conf.SOURCE_SCHEMA + "#";
