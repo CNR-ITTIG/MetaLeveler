@@ -2,7 +2,7 @@ package it.cnr.ittig.bacci.util;
 
 public class Conf {
 
-	//public static String DATA_DIRECTORY = "input";
+	public static String APPLICATION_DATA_DIR = "";
 	
 	//public static boolean EXTERNAL_MAPPING = true;
 	public static boolean EXTERNAL_MAPPING = false;	
@@ -57,7 +57,8 @@ public class Conf {
 	
 	//DATABASE
 	public static String dbUser = "juris";
-	public static String dbPass = "juris.";
+	//public static String dbPass = "juris.";
+	public static String dbPass = "";
 	public static String dbName = "cnipa";
 	public static String dbAddress = "172.16.0.12";
 	public static String dbType = "MySQL";

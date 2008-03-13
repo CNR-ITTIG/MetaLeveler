@@ -6,6 +6,7 @@ import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
 import it.cnr.ittig.bacci.database.DatabaseManager;
 import it.cnr.ittig.bacci.database.query.ClassifierQuery;
 import it.cnr.ittig.bacci.util.Conf;
+import it.cnr.ittig.bacci.util.EnvUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -80,6 +81,13 @@ public class Gui extends JFrame
 	public Gui() {
 		
 		super("Meta Classifier");
+		
+		File dataDir = EnvUtil.getApplicationDataDir("MetaClassifier");
+		if(dataDir != null) {
+			Conf.APPLICATION_DATA_DIR = dataDir.getAbsolutePath();
+			System.out.println(">>Setting app data dir: " + 
+					Conf.APPLICATION_DATA_DIR + "...");
+		}
 		
 		dm = new DataManager();
 
@@ -253,11 +261,7 @@ public class Gui extends JFrame
 	private Component createOntologyPanel() {
 		
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		ontoText = new JLabel();
-		ontoText.setSize(50, 25);
-		String ontoStr = appProperties.getProperty("ontoText");		
-		ontoText.setText(ontoStr);
-		//ontoText.setPreferredSize(new Dimension(200,25));
+		ontoText = new JLabel(" - ");
 		panel.add(ontoText);
 		
 		return panel;
@@ -317,17 +321,8 @@ public class Gui extends JFrame
 	public void actionPerformed(ActionEvent e) {
 
 		if(e.getSource() == setupButton) {
-			//Setup data directory and init data
-			
+
 			new SetupDialog(this);
-//			if(setup()) {
-//				dm = new DataManager();
-//				Conf.DOMAIN_ONTO = ontoText.getText();
-//				Conf.DOMAIN_ONTO_NS = ontoText.getText() + "#";
-//				appProperties.setProperty("ontoText", 
-//						ontoText.getText());
-//				activateMainButtons();
-//			}
 		}
 		
 		if(e.getSource() == loadButton) {
@@ -337,8 +332,13 @@ public class Gui extends JFrame
 				return;
 			}
 			waitingState();
-			if(!dm.init()) {					
+			if(!dm.init()) {
 			} else {
+				String ontoStr = appProperties.getProperty("ontoText");		
+				ontoText.setText(ontoStr);
+				setupButton.setEnabled(false);
+				loadButton.setEnabled(false);
+				importButton.setEnabled(false);
 				refresh();
 				activateEditButtons();
 			}
@@ -351,6 +351,7 @@ public class Gui extends JFrame
 					"Import from Db")) {
 				return;
 			}
+			new PasswordDialog(this);
 			waitingState();
 			if(!importFromDb()) {
 				activeState();
@@ -412,16 +413,31 @@ public class Gui extends JFrame
 		linkedClassList.setListData(new Object[]{});
 	}
 
-	private void refresh(Collection resData, Collection classData, 
-			Collection linkedClassData, Collection linkedResourceData) {
-		
-		refresh(resData, classData, linkedClassData, linkedResourceData,
-				null, null);
-	}
-		
+//	private void refresh(Collection resData, Collection classData, 
+//			Collection linkedClassData, Collection linkedResourceData) {
+//		
+//		refresh(resData, classData, linkedClassData, linkedResourceData,
+//				null, null);
+//	}
+//		
 	private void refresh(Collection resData, Collection classData, 
 			Collection linkedClassData, Collection linkedResourceData,
-			BasicResource br, OntologicalClass oc) {
+			BasicResource br) {
+				
+		refresh(resData, classData, linkedClassData, linkedResourceData);
+		refreshLabels(br);
+	}
+
+	private void refresh(Collection resData, Collection classData, 
+			Collection linkedClassData, Collection linkedResourceData,
+			OntologicalClass oc) {
+	
+		refresh(resData, classData, linkedClassData, linkedResourceData);
+		refreshLabels(oc);
+	}
+
+	private void refresh(Collection resData, Collection classData, 
+			Collection linkedClassData, Collection linkedResourceData) {
 		
 		if(resData != null) {
 			resourceList.setListData(resData.toArray());		
@@ -436,22 +452,28 @@ public class Gui extends JFrame
 			linkedResourceList.setListData(linkedResourceData.toArray());
 		}
 		
-		refreshLabels(br, oc);
+		refreshLabels();
 	}
 	
-	private void refreshLabels(BasicResource br, OntologicalClass oc) {
+	private void refreshLabels() {
 		
 		resourceLabel.setText(
 				" (" + resourceList.getModel().getSize() + ") ");			
 		classLabel.setText(
 				" (" + classList.getModel().getSize() + ")");
+	}
 
+	private void refreshLabels(BasicResource br) {
+		
 		if(br != null) {
 			classPrevLabel.setText(linkedClassList.getModel().getSize() 
 					+ " " + LINKED_CLASS + " for \"" + br + "\"");			
 		} else {
 			classPrevLabel.setText(LINKED_CLASS);
-		}
+		}		
+	}
+	
+	private void refreshLabels(OntologicalClass oc) {
 		
 		if(oc != null) {
 			resourcePrevLabel.setText(linkedResourceList.getModel().getSize()
@@ -487,11 +509,11 @@ public class Gui extends JFrame
 		if(values.length == 1) {
 			BasicResource br = (BasicResource) values[0];
 			Collection<OntologicalClass> data = dm.getClasses(br);
-			refresh(null, null, data, null, br, null);
+			refresh(null, null, data, null, br);
 		}
 		
 		if(values.length > 1) {
-			refresh(null, null, new Vector(), null);
+			refresh(null, null, new Vector(), null, (BasicResource) null);
 		}
 	}
 	
@@ -500,10 +522,10 @@ public class Gui extends JFrame
 		if(values.length == 1) {
 			OntologicalClass oc = (OntologicalClass) values[0];
 			Collection<BasicResource> data = dm.getResources(oc);
-			refresh(null, null, null, data, null, oc);
+			refresh(null, null, null, data, oc);
 		}
 		if(values.length > 1) {
-			refresh(null, null, null, new Vector());
+			refresh(null, null, null, new Vector(), (OntologicalClass) null);
 		}
 	}
 
@@ -527,11 +549,11 @@ public class Gui extends JFrame
 		//Show differences...
 		if(resValues.length == 1) {
 			BasicResource br = (BasicResource) resValues[0];
-			refresh(null, null, dm.getClasses(br), null, br, null);
+			refresh(null, null, dm.getClasses(br), null, br);
 		}
 		if(classValues.length == 1) {
 			OntologicalClass oc = (OntologicalClass) classValues[0];
-			refresh(null, null, null, dm.getResources(oc), null, oc);
+			refresh(null, null, null, dm.getResources(oc), oc);
 		}
 	}
 	
@@ -554,11 +576,11 @@ public class Gui extends JFrame
 		//Show differences...
 		if(resValues.length == 1) {
 			BasicResource br = (BasicResource) resValues[0];
-			refresh(null, null, dm.getClasses(br), null, br, null);
+			refresh(null, null, dm.getClasses(br), null, br);
 		}
 		if(classValues.length == 1) {
 			OntologicalClass oc = (OntologicalClass) classValues[0];
-			refresh(null, null, null, dm.getResources(oc), null, oc);
+			refresh(null, null, null, dm.getResources(oc), oc);
 		}
 	}
 	
@@ -695,7 +717,8 @@ public class Gui extends JFrame
 		
 		//set up real properties
 		appProperties = new Properties(defProperties);
-		FileInputStream appStream = new FileInputStream("appProperties");
+		String appPropFile = Conf.APPLICATION_DATA_DIR + "appProperties";
+		FileInputStream appStream = new FileInputStream(appPropFile);
 		appProperties.load(appStream);
 		appStream.close();
 		
@@ -718,7 +741,8 @@ public class Gui extends JFrame
 		appProperties.setProperty("width", String.valueOf((int) dim.getWidth()));
 		appProperties.setProperty("height", String.valueOf((int) dim.getHeight()));
 		
-		FileOutputStream fos = new FileOutputStream("appProperties");
+		String appPropFile = Conf.APPLICATION_DATA_DIR + "appProperties"; 
+		FileOutputStream fos = new FileOutputStream(appPropFile);
 		appProperties.store(fos, "---No Comment---");
 		fos.close();
 	}
