@@ -72,6 +72,9 @@ public class Gui extends JFrame
 	private JList selectedResourceList;
 	private JList selectedClassList;
 	
+	private String LINKED_RES = "linked resources";
+	private String LINKED_CLASS = "linked classes"; 
+	
 	public static Properties appProperties;
 
 	public Gui() {
@@ -84,7 +87,7 @@ public class Gui extends JFrame
 			initProperties();
 		} catch (FileNotFoundException e) {
 			System.err.println(
-					"Application properties file has to be initialized...");
+				"Application properties file has to be initialized...");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -282,8 +285,7 @@ public class Gui extends JFrame
 		JPanel panel = new JPanel(new BorderLayout());
 		
 		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		labelPanel.add(new JLabel("Linked classes"));
-		classPrevLabel = new JLabel("");
+		classPrevLabel = new JLabel(LINKED_CLASS);
 		labelPanel.add(classPrevLabel);
 		panel.add(labelPanel, BorderLayout.NORTH);
 		
@@ -300,8 +302,7 @@ public class Gui extends JFrame
 		JPanel panel = new JPanel(new BorderLayout());
 		
 		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		labelPanel.add(new JLabel("Linked resources"));
-		resourcePrevLabel = new JLabel("");
+		resourcePrevLabel = new JLabel(LINKED_RES);
 		labelPanel.add(resourcePrevLabel);
 		panel.add(labelPanel, BorderLayout.NORTH);
 		
@@ -414,6 +415,14 @@ public class Gui extends JFrame
 	private void refresh(Collection resData, Collection classData, 
 			Collection linkedClassData, Collection linkedResourceData) {
 		
+		refresh(resData, classData, linkedClassData, linkedResourceData,
+				null, null);
+	}
+		
+	private void refresh(Collection resData, Collection classData, 
+			Collection linkedClassData, Collection linkedResourceData,
+			BasicResource br, OntologicalClass oc) {
+		
 		if(resData != null) {
 			resourceList.setListData(resData.toArray());		
 		}
@@ -427,15 +436,29 @@ public class Gui extends JFrame
 			linkedResourceList.setListData(linkedResourceData.toArray());
 		}
 		
-		refreshLabels();
+		refreshLabels(br, oc);
 	}
 	
-	private void refreshLabels() {
+	private void refreshLabels(BasicResource br, OntologicalClass oc) {
 		
-		resourceLabel.setText(" (" + resourceList.getModel().getSize() + ")");
-		classLabel.setText(" (" + classList.getModel().getSize() + ")");
-		resourcePrevLabel.setText(" (" + linkedResourceList.getModel().getSize() + ")");
-		classPrevLabel.setText(" (" + linkedClassList.getModel().getSize() + ")");
+		resourceLabel.setText(
+				" (" + resourceList.getModel().getSize() + ") ");			
+		classLabel.setText(
+				" (" + classList.getModel().getSize() + ")");
+
+		if(br != null) {
+			classPrevLabel.setText(linkedClassList.getModel().getSize() 
+					+ " " + LINKED_CLASS + " for \"" + br + "\"");			
+		} else {
+			classPrevLabel.setText(LINKED_CLASS);
+		}
+		
+		if(oc != null) {
+			resourcePrevLabel.setText(linkedResourceList.getModel().getSize()
+					+ " " + LINKED_RES + " for \"" + oc + "\"");
+		} else {
+			resourcePrevLabel.setText(LINKED_RES);	
+		}		
 	}
 
 	public void valueChanged(ListSelectionEvent e) {
@@ -464,7 +487,7 @@ public class Gui extends JFrame
 		if(values.length == 1) {
 			BasicResource br = (BasicResource) values[0];
 			Collection<OntologicalClass> data = dm.getClasses(br);
-			refresh(null, null, data, null);
+			refresh(null, null, data, null, br, null);
 		}
 		
 		if(values.length > 1) {
@@ -477,14 +500,15 @@ public class Gui extends JFrame
 		if(values.length == 1) {
 			OntologicalClass oc = (OntologicalClass) values[0];
 			Collection<BasicResource> data = dm.getResources(oc);
-			refresh(null, null, null, data);
+			refresh(null, null, null, data, null, oc);
 		}
 		if(values.length > 1) {
 			refresh(null, null, null, new Vector());
 		}
 	}
-	
+
 	private void add() {
+		
 		Object[] resValues = selectedResourceList.getSelectedValues();
 		Object[] classValues = selectedClassList.getSelectedValues();
 		
@@ -503,11 +527,11 @@ public class Gui extends JFrame
 		//Show differences...
 		if(resValues.length == 1) {
 			BasicResource br = (BasicResource) resValues[0];
-			refresh(null, null, dm.getClasses(br), null);
+			refresh(null, null, dm.getClasses(br), null, br, null);
 		}
 		if(classValues.length == 1) {
 			OntologicalClass oc = (OntologicalClass) classValues[0];
-			refresh(null, null, null, dm.getResources(oc));
+			refresh(null, null, null, dm.getResources(oc), null, oc);
 		}
 	}
 	
@@ -530,11 +554,11 @@ public class Gui extends JFrame
 		//Show differences...
 		if(resValues.length == 1) {
 			BasicResource br = (BasicResource) resValues[0];
-			refresh(null, null, dm.getClasses(br), null);
+			refresh(null, null, dm.getClasses(br), null, br, null);
 		}
 		if(classValues.length == 1) {
 			OntologicalClass oc = (OntologicalClass) classValues[0];
-			refresh(null, null, null, dm.getResources(oc));
+			refresh(null, null, null, dm.getResources(oc), null, oc);
 		}
 	}
 	

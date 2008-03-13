@@ -46,8 +46,14 @@ public class Conf {
 	public static String synsetClassName = METALEVEL_ONTO_NS + "Synset";
 
 	public static String RES_NAMESPACE = ""; //dalos? cnipa?
-	public static String CNIPA_NS = "http://localhost/cnipa/";	
-	public static String DALOS_NS = "http://localhost/dalos/";
+	public static String CNIPA_NS = "http://localhost/cnipa/IT/";	
+	public static String DALOS_NS = "http://localhost/dalos/IT/";
+	public static String CNIPA_ONTO = 
+		"http://turing.ittig.cnr.it/jwn/ontologies/cnipa.owl";
+	public static String CNIPA_ONTO_NS = CNIPA_ONTO + "#"; 
+	public static String DALOS_ONTO = 
+		"http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl";
+	public static String DALOS_ONTO_NS = DALOS_ONTO + "#"; 
 	
 	//DATABASE
 	public static String dbUser = "juris";

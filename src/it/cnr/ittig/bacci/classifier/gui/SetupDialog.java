@@ -1,5 +1,7 @@
 package it.cnr.ittig.bacci.classifier.gui;
 
+import it.cnr.ittig.bacci.util.Conf;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -32,6 +34,9 @@ public class SetupDialog extends JDialog implements ActionListener {
 	private JTextField ontoText;
 	private JTextField ontoNsText;
 	
+	private JButton dalosButton;
+	private JButton cnipaButton;
+	
 	public SetupDialog(JFrame parent) {
 		
 		super(parent, true);
@@ -40,6 +45,15 @@ public class SetupDialog extends JDialog implements ActionListener {
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setLocation(50,60);
+		
+		JPanel upPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		dalosButton = new JButton("DALOS");
+		dalosButton.addActionListener(this);
+		upPanel.add(dalosButton);
+		cnipaButton = new JButton("CNIPA");
+		cnipaButton.addActionListener(this);
+		upPanel.add(cnipaButton);		
+		getContentPane().add(upPanel, BorderLayout.NORTH);
 		
 		JPanel centralPanel = new JPanel(new GridLayout(2,1,5,5));
 		getContentPane().add(centralPanel, BorderLayout.CENTER);
@@ -138,6 +152,18 @@ public class SetupDialog extends JDialog implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
+		if(e.getSource() == dalosButton) {
+			resNsText.setText(Conf.DALOS_NS);
+			ontoText.setText(Conf.DALOS_ONTO);
+			ontoNsText.setText(Conf.DALOS_ONTO_NS);
+		}
+		
+		if(e.getSource() == cnipaButton) {
+			resNsText.setText(Conf.CNIPA_NS);
+			ontoText.setText(Conf.CNIPA_ONTO);
+			ontoNsText.setText(Conf.CNIPA_ONTO_NS);			
+		}
+		
 		if(e.getSource() == changeDataDir) {
 			if(setupDataDir()) {
 				
@@ -184,10 +210,10 @@ public class SetupDialog extends JDialog implements ActionListener {
 	    	File selectedDir = chooser.getSelectedFile();
 	    	String value = selectedDir.getAbsolutePath();
 	    	resDirText.setText(value);
-	    	if(resNsText.getText().trim().length() < 1) {
-	    		resNsText.setText(value + File.separatorChar 
-	    				+ "individuals.owl#");
-	    	}
+//	    	if(resNsText.getText().trim().length() < 1) {
+//	    		resNsText.setText(value + File.separatorChar 
+//	    				+ "individuals.owl#");
+//	    	}
 	    	return true;
 	    }
 	    return false;
@@ -204,9 +230,9 @@ public class SetupDialog extends JDialog implements ActionListener {
 	    	File selected = chooser.getSelectedFile();
 	    	String value = selected.getAbsolutePath();
 	    	ontoText.setText(value);
-	    	if(ontoNsText.getText().trim().length() < 1) {
-	    		ontoNsText.setText(value + "#");
-	    	}	    	
+//	    	if(ontoNsText.getText().trim().length() < 1) {
+//	    		ontoNsText.setText(value + "#");
+//	    	}	    	
 	    	return true;
 	    }
 	    return false;
