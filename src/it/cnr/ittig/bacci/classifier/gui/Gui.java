@@ -89,9 +89,18 @@ public class Gui extends JFrame
 			e.printStackTrace();
 		}
 		
+		//Set last frame size
+		String w = (String) appProperties.get("width");
+		String h = (String) appProperties.get("height");		
+		if(w != null && h != null) {
+			setLocation(0,0);
+			int ww = Integer.valueOf(w);
+			int hh = Integer.valueOf(h);
+			setPreferredSize(new Dimension(ww,hh));
+		}
+		
 	    //Create and set up the window.
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    setLocation(50,50);
 
 	    JPanel centralPanel = new JPanel(new BorderLayout());
 	    getContentPane().add(centralPanel, BorderLayout.CENTER);
@@ -238,34 +247,11 @@ public class Gui extends JFrame
 	    return panel;
 	}
 
-//	private Component createOntologyPanel() {
-//		
-//		JPanel panel = new JPanel(new GridLayout(2,1,0,0));
-//		
-//		JPanel fpanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-//		ontoText = new JLabel();
-//		ontoText.setSize(50, 25);
-//		//TODO preferences?
-//		String ontoStr = appProperties.getProperty("ontoText");		
-//		ontoText.setText(ontoStr);
-//		fpanel.add(ontoText);
-//		panel.add(fpanel);
-//		
-//		fpanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-//		changeOntoButton = new JButton("Change...");
-//		changeOntoButton.addActionListener(this);
-//		fpanel.add(changeOntoButton);
-//		panel.add(fpanel);
-//		
-//		return panel;
-//	}
-	
 	private Component createOntologyPanel() {
 		
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		ontoText = new JLabel();
 		ontoText.setSize(50, 25);
-		//TODO preferences?
 		String ontoStr = appProperties.getProperty("ontoText");		
 		ontoText.setText(ontoStr);
 		//ontoText.setPreferredSize(new Dimension(200,25));
@@ -388,17 +374,11 @@ public class Gui extends JFrame
 			dm.save();
 			activeState();
 			showDoneMsg("Save");
-			try {
-				saveProperties();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			System.exit(0);
+			closeApp();
 		}
 		
 		if(e.getSource() == cancelButton) {
-			//Exit without saving changes
-			System.exit(0);
+			closeApp();
 		}
 		
 		if(e.getSource() == allRB || 
@@ -697,11 +677,25 @@ public class Gui extends JFrame
 		
 	}
 	
+	private void closeApp() {
+		
+		try {
+			saveProperties();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		System.exit(0);
+	}
+	
 	private void saveProperties() throws IOException {
+		
+		//Save frame size
+		Dimension dim = getSize();
+		appProperties.setProperty("width", String.valueOf((int) dim.getWidth()));
+		appProperties.setProperty("height", String.valueOf((int) dim.getHeight()));
 		
 		FileOutputStream fos = new FileOutputStream("appProperties");
 		appProperties.store(fos, "---No Comment---");
 		fos.close();
 	}
-	
 }

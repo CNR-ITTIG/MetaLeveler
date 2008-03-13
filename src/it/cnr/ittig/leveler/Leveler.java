@@ -136,26 +136,28 @@ public class Leveler {
 			manager.addIndividuals(EditorConf.MODEL_URI, appSynsets.values());
 		}
 
-		if(function.equals("write")) {			
+		if(function.equals("write")) {
 			manager.addModel(EditorConf.onto_ind, EditorConf.USE_JENA_DB);
 			manager.addModel(EditorConf.onto_indw, EditorConf.USE_JENA_DB);
-			manager.addModel(EditorConf.onto_ind_claw, EditorConf.USE_JENA_DB);
-			manager.addModel(EditorConf.onto_concepts, EditorConf.USE_JENA_DB);
-			manager.addModel(EditorConf.onto_types, EditorConf.USE_JENA_DB);
-			manager.addModel(EditorConf.onto_sources, EditorConf.USE_JENA_DB);
+			if(!EditorConf.ONLY_LEXICON) {
+				manager.addModel(EditorConf.onto_concepts, EditorConf.USE_JENA_DB);
+				manager.addModel(EditorConf.onto_types, EditorConf.USE_JENA_DB);
+				manager.addModel(EditorConf.onto_sources, EditorConf.USE_JENA_DB);
+			}
 			
 			manager.writeModel(EditorConf.onto_ind,
 					EditorConf.local_onto_ind, EditorConf.onto_ind);
 			manager.writeModel(EditorConf.onto_indw,
 					EditorConf.local_onto_indw, EditorConf.onto_indw);
-			manager.writeModel(EditorConf.onto_ind_claw,
-					EditorConf.local_onto_ind_claw, EditorConf.onto_ind_claw);
-			manager.writeModel(EditorConf.onto_concepts,
-					EditorConf.local_onto_concepts, EditorConf.onto_concepts);
-			manager.writeModel(EditorConf.onto_types,
-					EditorConf.local_onto_types, EditorConf.onto_types);
-			manager.writeModel(EditorConf.onto_sources,
-					EditorConf.local_onto_sources, EditorConf.onto_sources);
+			
+			if(!EditorConf.ONLY_LEXICON) {
+				manager.writeModel(EditorConf.onto_concepts,
+						EditorConf.local_onto_concepts, EditorConf.onto_concepts);
+				manager.writeModel(EditorConf.onto_types,
+						EditorConf.local_onto_types, EditorConf.onto_types);
+				manager.writeModel(EditorConf.onto_sources,
+						EditorConf.local_onto_sources, EditorConf.onto_sources);
+			}
 		}			
 	}
 
@@ -216,8 +218,6 @@ public class Leveler {
 			+ File.separatorChar + "individuals.owl";
 		EditorConf.local_onto_indw = EditorConf.DATA_DIR 
 			+ File.separatorChar + "individuals-word.owl";
-		EditorConf.local_onto_ind_claw = EditorConf.DATA_DIR 
-			+ File.separatorChar + "ind-to-consumer.owl";
 		EditorConf.local_onto_work = EditorConf.DATA_DIR 
 			+ File.separatorChar + "jurWordNet.owl";
 		EditorConf.local_onto_concepts = EditorConf.DATA_DIR 

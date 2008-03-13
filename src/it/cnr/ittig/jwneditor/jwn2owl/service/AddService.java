@@ -90,14 +90,12 @@ public class AddService {
 	
 //	String NS_IND = "file://" + EditorConf.local_onto_ind + "#";
 //	String NS_INDW = "file://" + EditorConf.local_onto_indw + "#";
-//	String NS_IND_CLAW = "file://" + EditorConf.local_onto_ind_claw + "#";
 //	String NS_CONC = "file://" + EditorConf.local_onto_concepts + "#";
 //	String NS_TYPE = "file://" + EditorConf.local_onto_types + "#";
 //	String NS_SOURCE = "file://" + EditorConf.local_onto_sources + "#";
 	
 	String NS_IND = EditorConf.onto_ind + "#";
 	String NS_INDW = EditorConf.onto_indw + "#";
-	String NS_IND_CLAW = EditorConf.onto_ind_claw + "#";
 	String NS_CONC = EditorConf.onto_concepts + "#";
 	String NS_TYPE = EditorConf.onto_types + "#";
 	String NS_SOURCE = EditorConf.onto_sources + "#";
@@ -118,10 +116,12 @@ public class AddService {
 				maker.createModel(EditorConf.onto_ind, false));
 		m_indw = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_indw, false));
-		m_conc = initConceptModel(spec, maker);
+		m_conc = ModelFactory.createOntologyModel(spec,
+				maker.createModel(EditorConf.onto_concepts, false));
+		//m_conc = initConceptModel(spec, maker);
 		m_types = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_types, false));
-		m_types = initTypeModel(spec, maker);
+		//m_types = initTypeModel(spec, maker);
 		m_sources = ModelFactory.createOntologyModel(spec,
 				maker.createModel(EditorConf.onto_sources, false));
 
@@ -143,8 +143,7 @@ public class AddService {
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_indw);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.ownSchema);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.langSchema);
-		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.clawModel);
-		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_ind_claw);
+		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.domainOntoModel);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_concepts);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.onto_types);
 		OWLUtil.addImport(m, EditorConf.onto_work, EditorConf.sourceSchema);
@@ -159,12 +158,12 @@ public class AddService {
 		setPrefixes(m_types);
 		setPrefixes(m_sources);
 		
-		odm.addAltEntry(EditorConf.onto_ind, EditorConf.local_onto_ind);
-		odm.addAltEntry(EditorConf.onto_indw, EditorConf.local_onto_indw);
-		odm.addAltEntry(EditorConf.onto_ind_claw, EditorConf.local_onto_ind_claw);
-		odm.addAltEntry(EditorConf.onto_concepts, EditorConf.local_onto_concepts);
-		odm.addAltEntry(EditorConf.onto_types, EditorConf.local_onto_types);
-		odm.addAltEntry(EditorConf.onto_sources, EditorConf.local_onto_sources);
+//		odm.addAltEntry(EditorConf.onto_ind, EditorConf.local_onto_ind);
+//		odm.addAltEntry(EditorConf.onto_indw, EditorConf.local_onto_indw);
+//		odm.addAltEntry(EditorConf.onto_ind_claw, EditorConf.local_onto_ind_claw);
+//		odm.addAltEntry(EditorConf.onto_concepts, EditorConf.local_onto_concepts);
+//		odm.addAltEntry(EditorConf.onto_types, EditorConf.local_onto_types);
+//		odm.addAltEntry(EditorConf.onto_sources, EditorConf.local_onto_sources);
 		
 		odm.loadImports(m);
 	}
@@ -251,12 +250,11 @@ public class AddService {
 	
 	private void setPrefixes(OntModel mod) {
 		
-		mod.setNsPrefix("claw", EditorConf.clawModelNs);
+		mod.setNsPrefix("claw", EditorConf.domainOntoModelNs);
 		mod.setNsPrefix("ind", NS_IND);
 		mod.setNsPrefix("indw", NS_INDW);
 		mod.setNsPrefix("owns", NS_SCHEMA);
 		mod.setNsPrefix("langf", LANG_SCHEMA);
-		mod.setNsPrefix("indclaw", NS_IND_CLAW);
 		mod.setNsPrefix("conc", NS_CONC);
 		mod.setNsPrefix("type", NS_TYPE);
 		mod.setNsPrefix("sources", SOURCE_SCHEMA);

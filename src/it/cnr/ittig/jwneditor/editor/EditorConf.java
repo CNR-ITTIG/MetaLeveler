@@ -37,6 +37,8 @@ public class EditorConf {
 	public final static String CLASSIFICATION = "classification-15-07.xls"; 
 	public final static String MAPPING = "mappings-15-07-mod.xls"; 
 	
+	public static boolean ONLY_LEXICON = false;
+	
 	//output level
 	public final static int DEBUG_LEVEL = 2; //0 error msg, 1 info msg, 2 debug msg
 	
@@ -77,15 +79,14 @@ public class EditorConf {
 	public static String sourceSchema = JWS + "ontologies/metasources.owl";
 
 	//public static String clawModel = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law-merge.owl"; //merge?
-	public static String clawModel = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl"; //merge?
-	public static String clawModelNs = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#";
+	public static String domainOntoModel = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl"; //merge?
+	public static String domainOntoModelNs = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl#";
 		
 	public static String dalos_ns = "http://localhost/dalos/";
 	public static String onto_ns =  dalos_ns + LANGUAGE + "/";
 	
 	public static String onto_ind = onto_ns + "individuals.owl";
 	public static String onto_indw = onto_ns + "individuals-word.owl";
-	public static String onto_ind_claw = onto_ns + "ind-to-consumer.owl";
 	public static String onto_work = onto_ns + "work.owl";
 	public static String onto_types = onto_ns + "types.owl";
 	public static String onto_sources = onto_ns + "sources.owl";
@@ -93,7 +94,6 @@ public class EditorConf {
 	
 	public static String local_onto_ind;
 	public static String local_onto_indw;
-	public static String local_onto_ind_claw;
 	public static String local_onto_work;
 	public static String local_onto_concepts;
 	public static String local_onto_types;

@@ -143,6 +143,13 @@ public class KbModelFactory {
 			System.err.println("readSchema() - URL is empty!");
 			return;
 		}
+		if(url.indexOf("http:/") != 0) {
+			//Local file ?
+			File file = new File(url);
+			om.read("file:///" + file.getAbsolutePath());
+			return;
+		}
+
 		if(useRemote) {
 			URL u = null;
 			try {

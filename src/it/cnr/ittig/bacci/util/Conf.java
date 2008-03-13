@@ -28,7 +28,7 @@ public class Conf {
 	public static String METALEVEL_PROP_NS = Conf.METALEVEL_PROP + "#";
 	public static String SOURCESCHEMA_NS = Conf.SOURCE_SCHEMA + "#";
 
-	public static String OWL_ROOT_CLASS = "http://www.w3.org/2002/07/owl#Thing";
+	//public static String OWL_ROOT_CLASS = "http://www.w3.org/2002/07/owl#Thing";
 	
 	public static String CONCEPTS = "concepts.owl";
 	public static String IND = "individuals.owl";
@@ -43,13 +43,11 @@ public class Conf {
 	public static String LOCAL_SOURCE_SCHEMA = "metasources.owl";
 	public static String LOCAL_METALEVEL_FULL = "language-properties-full.owl";
 	
-	public static String DALOS_NS = "http://localhost/dalos/";
-
-	public static String DALOS_CONCEPTS_NS = DALOS_NS + CONCEPTS + "#";
-
-	public static String conceptClassName = DALOS_CONCEPTS_NS + "Concept";	
-	
 	public static String synsetClassName = METALEVEL_ONTO_NS + "Synset";
+
+	public static String RES_NAMESPACE = ""; //dalos? cnipa?
+	public static String CNIPA_NS = "http://localhost/cnipa/";	
+	public static String DALOS_NS = "http://localhost/dalos/";
 	
 	//DATABASE
 	public static String dbUser = "juris";

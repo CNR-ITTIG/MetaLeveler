@@ -38,6 +38,9 @@ public class DataManager {
 	private String DATA_DIR = "";
 	private String ONTO = "";
 	private String ONTO_NS = "";
+	private String RES_NS = "";
+	private String CONCEPT_CLASS_NAME = "";
+	private String CONCEPT_NS = "";
 	
 	//Maps
 	private Map<String,BasicResource> uriToResource;
@@ -59,33 +62,25 @@ public class DataManager {
 		resources = new TreeSet<BasicResource>();		
 		classes = new TreeSet<OntologicalClass>();
 		
-		//concepts = new HashSet<ConceptClass>();
-		
 		uriToResource = new HashMap<String, BasicResource>(1024, 0.70f);
 		uriToClass = new HashMap<String, OntologicalClass>(128, 0.70f);
 		uriToConcept = new HashMap<String, ConceptClass>(1024, 0.70f);
-		
 	}
 	
 	public boolean init() {
 				
-		DATA_DIR = (String) Gui.appProperties.getProperty("resDir");
-		ONTO = (String) Gui.appProperties.getProperty("ontoText");
-		ONTO_NS = (String) Gui.appProperties.getProperty("ontoNs");
-		
-		initDocuments();
-		
+		initEnv();
+		initDocuments();		
 		initData();
+		
 		System.out.println("Data initialized! r:" + resources.size() +
 				" cc:" /* + concepts.size()*/ + " oc:" + classes.size());
 		
 		conceptModel = KbModelFactory.getModel();
 		ontologyModel = KbModelFactory.getModel();
-		KbModelFactory.readSchema(ontologyModel, ONTO, true);
 		
-//		KbModelFactory.addImport(conceptModel,
-//				"http://localhost/runtime.owl", 
-//				ONTO);
+		KbModelFactory.readSchema(ontologyModel, ONTO, true);			
+
 		typeModel = KbModelFactory.getModel();
 		
 		return true;
@@ -203,8 +198,8 @@ public class DataManager {
 	private void fill() {
 		
 		//Create main "Concept" class
-		conceptModel.createClass(Conf.conceptClassName);
-		OntClass conceptClass = conceptModel.getOntClass(Conf.conceptClassName);
+		conceptModel.createClass(CONCEPT_CLASS_NAME);
+		OntClass conceptClass = conceptModel.getOntClass(CONCEPT_CLASS_NAME);
 		
 		//Create a class for each ConceptClass object
 		
@@ -350,7 +345,7 @@ public class DataManager {
 			getOntologicalClass(ns, name);			
 		}
 		
-		OntClass conceptClass = fullModel.getOntClass(Conf.conceptClassName);
+		OntClass conceptClass = fullModel.getOntClass(CONCEPT_CLASS_NAME);
 		if(conceptClass == null) {
 			System.err.println("Concept class is null!");
 			return;
@@ -493,14 +488,14 @@ public class DataManager {
 	ConceptClass addArtificialConceptClass(BasicResource br) {
 		
 		String name = getNextArtificialName();
-		String uri = Conf.DALOS_CONCEPTS_NS + name;
+		String uri = CONCEPT_NS + name;
 		OntClass artClass = fullModel.getOntClass(uri);
 		if(artClass != null) {
 			System.err.println("artClass already exist! uri: " + uri);
 			return null;
 		}
 		
-		ConceptClass cc = getConceptClass(Conf.DALOS_CONCEPTS_NS, name);
+		ConceptClass cc = getConceptClass(CONCEPT_NS, name);
 		br.setConcept(cc);
 		return cc;
 	}
@@ -533,7 +528,7 @@ public class DataManager {
 	
 	private boolean isEmptyArtificial(ConceptClass cc) {
 		
-		String prefix = Conf.DALOS_CONCEPTS_NS + artificialPrefix;
+		String prefix = CONCEPT_NS + artificialPrefix;
 		if(cc.getURI().indexOf(prefix) == 0 &&
 				cc.getClasses().size() < 1 ) {
 			return true;
@@ -541,15 +536,36 @@ public class DataManager {
 		return false;
 	}
 	
+	private void initEnv() {
+		
+		DATA_DIR = (String) Gui.appProperties.getProperty("resDir");
+		ONTO = (String) Gui.appProperties.getProperty("ontoText");
+		ONTO_NS = (String) Gui.appProperties.getProperty("ontoNs");
+		RES_NS = (String) Gui.appProperties.getProperty("resNs");
+		CONCEPT_NS = RES_NS + Conf.CONCEPTS + "#";
+		CONCEPT_CLASS_NAME = CONCEPT_NS + "Concept";		
+	}
+	
 	public void processDb(DatabaseManager dbm) {
 		//Crea gli oggetti importando i dati del database;
 		//Salvali in RDF: si devono salvare soltanto i file 
 		//individuals e individuals-word !
 		
+		initEnv();
+		
+		EditorConf.onto_concepts = RES_NS + Conf.CONCEPTS;
+		EditorConf.onto_ind = RES_NS + "IT/" + Conf.IND;
+		EditorConf.onto_indw = RES_NS + "IT/" + Conf.INDW;
+		EditorConf.onto_types = RES_NS + "IT/" + Conf.TYPES;
+		EditorConf.onto_sources = RES_NS + "IT/" + Conf.SOURCES;
+		EditorConf.domainOntoModel = ONTO;
+		EditorConf.domainOntoModelNs = ONTO_NS;
+		
 		EditorConf.DIVIDE = false;
 		EditorConf.ADD_ALIGNMENT = false;
 		EditorConf.LINK_TO_ONTOLOGY = false;
 		EditorConf.USE_JENA_DB = false;
+		EditorConf.ONLY_LEXICON = true;
 		EditorConf.DATA_DIR = DATA_DIR;
 		EditorConf.LANGUAGE = "IT";
 		EditorConf.TYPE_INPUT = "ittig";
