@@ -44,10 +44,14 @@ public class Conf {
 	public static String LOCAL_METALEVEL_FULL = "language-properties-full.owl";
 	
 	public static String synsetClassName = METALEVEL_ONTO_NS + "Synset";
+	public static String conceptClassName = "Concept";
+
+	public static String CNIPA_NS = "http://localhost/cnipa/";	
+	public static String DALOS_NS = "http://localhost/dalos/";
 
 	public static String RES_NAMESPACE = ""; //dalos? cnipa?
-	public static String CNIPA_NS = "http://localhost/cnipa/IT/";	
-	public static String DALOS_NS = "http://localhost/dalos/IT/";
+	public static String CNIPA_RES_NS = CNIPA_NS + "IT/";	
+	public static String DALOS_RES_NS = DALOS_NS + "IT/";
 	public static String CNIPA_ONTO = 
 		"http://turing.ittig.cnr.it/jwn/ontologies/cnipa.owl";
 	public static String CNIPA_ONTO_NS = CNIPA_ONTO + "#"; 

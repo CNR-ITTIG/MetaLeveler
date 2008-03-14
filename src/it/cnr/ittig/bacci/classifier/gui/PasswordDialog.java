@@ -2,9 +2,7 @@ package it.cnr.ittig.bacci.classifier.gui;
 
 import it.cnr.ittig.bacci.util.Conf;
 
-import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -14,7 +12,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 
 public class PasswordDialog extends JDialog 
 	implements ActionListener {

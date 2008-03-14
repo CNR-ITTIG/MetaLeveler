@@ -10,7 +10,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -153,13 +152,13 @@ public class SetupDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		
 		if(e.getSource() == dalosButton) {
-			resNsText.setText(Conf.DALOS_NS);
+			resNsText.setText(Conf.DALOS_RES_NS);
 			ontoText.setText(Conf.DALOS_ONTO);
 			ontoNsText.setText(Conf.DALOS_ONTO_NS);
 		}
 		
 		if(e.getSource() == cnipaButton) {
-			resNsText.setText(Conf.CNIPA_NS);
+			resNsText.setText(Conf.CNIPA_RES_NS);
 			ontoText.setText(Conf.CNIPA_ONTO);
 			ontoNsText.setText(Conf.CNIPA_ONTO_NS);			
 		}

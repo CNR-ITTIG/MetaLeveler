@@ -347,7 +347,8 @@ public class DataManager {
 		
 		OntClass conceptClass = fullModel.getOntClass(CONCEPT_CLASS_NAME);
 		if(conceptClass == null) {
-			System.err.println("Concept class is null!");
+			System.err.println("Concept class is null! (" + 
+					CONCEPT_CLASS_NAME + ")");
 			return;
 		}
 		
@@ -541,9 +542,16 @@ public class DataManager {
 		DATA_DIR = (String) Gui.appProperties.getProperty("resDir");
 		ONTO = (String) Gui.appProperties.getProperty("ontoText");
 		ONTO_NS = (String) Gui.appProperties.getProperty("ontoNs");
-		RES_NS = (String) Gui.appProperties.getProperty("resNs");
+		RES_NS = (String) Gui.appProperties.getProperty("resNs");		
 		CONCEPT_NS = RES_NS + Conf.CONCEPTS + "#";
-		CONCEPT_CLASS_NAME = CONCEPT_NS + "Concept";		
+		//XXX a smarther way??
+		if(RES_NS.toLowerCase().indexOf("dalos") > -1) {
+			CONCEPT_NS = Conf.DALOS_NS + Conf.CONCEPTS + "#";
+		}
+		if(RES_NS.toLowerCase().indexOf("cnipa") > -1) {
+			CONCEPT_NS = Conf.CNIPA_NS + Conf.CONCEPTS + "#";
+		}
+		CONCEPT_CLASS_NAME = CONCEPT_NS + Conf.conceptClassName;		
 	}
 	
 	public void processDb(DatabaseManager dbm) {
