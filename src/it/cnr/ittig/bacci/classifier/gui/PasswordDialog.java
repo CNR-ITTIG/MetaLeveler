@@ -2,7 +2,9 @@ package it.cnr.ittig.bacci.classifier.gui;
 
 import it.cnr.ittig.bacci.util.Conf;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -12,11 +14,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
 public class PasswordDialog extends JDialog 
 	implements ActionListener {
 	
 	private JButton okButton;
+	
+	private JTextField userText;
 	
 	private JPasswordField passText;
 
@@ -27,17 +32,25 @@ public class PasswordDialog extends JDialog
 		setTitle("Import Db");
 		setLocation(100,100);
 		
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+		JPanel panel = new JPanel(new GridLayout(2,2,5,5));
+		
+		panel.add(new JLabel("Enter username: "));
+		
+		userText = new JTextField(12);
+		panel.add(userText);
+		
 		panel.add(new JLabel("Enter password: "));
 		
 		passText = new JPasswordField(12);
 		panel.add(passText);
-				
+						
+		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		okButton = new JButton("Ok");
 		okButton.addActionListener(this);
-		panel.add(okButton);
+		bottomPanel.add(okButton);
 		
-		getContentPane().add(panel);
+		getContentPane().add(panel, BorderLayout.CENTER);
+		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 		
 		pack();
 		setVisible(true);
@@ -50,6 +63,7 @@ public class PasswordDialog extends JDialog
 			char[] input = passText.getPassword();
 			String value = String.valueOf(input);
 			Conf.dbPass = value.trim();
+			Conf.dbUser = userText.getText().trim();
 			dispose();
 		}
 	}

@@ -346,11 +346,7 @@ public class Gui extends JFrame
 		}
 
 		if(e.getSource() == importButton) {
-			if(!askConfirmation(
-					"This will overwrite local data.\nContinue?",
-					"Import from Db")) {
-				return;
-			}
+
 			new PasswordDialog(this);
 			waitingState();
 			if(!importFromDb()) {
@@ -391,13 +387,6 @@ public class Gui extends JFrame
 		}
 	}
 	
-	private void activateMainButtons() {
-	
-		loadButton.setEnabled(true);
-		importButton.setEnabled(true);
-		okButton.setEnabled(true);
-	}
-	
 	private void activateEditButtons() {
 		
 		addButton.setEnabled(true);
@@ -413,13 +402,6 @@ public class Gui extends JFrame
 		linkedClassList.setListData(new Object[]{});
 	}
 
-//	private void refresh(Collection resData, Collection classData, 
-//			Collection linkedClassData, Collection linkedResourceData) {
-//		
-//		refresh(resData, classData, linkedClassData, linkedResourceData,
-//				null, null);
-//	}
-//		
 	private void refresh(Collection resData, Collection classData, 
 			Collection linkedClassData, Collection linkedResourceData,
 			BasicResource br) {
@@ -629,6 +611,11 @@ public class Gui extends JFrame
 				Conf.dbType
 		};
 		if(dbm.initDatabase(params)) {
+			if(!askConfirmation(
+					"This will overwrite local data.\nContinue?",
+					"Import from Db")) {
+				return false;
+			}
 			dm.processDb(dbm);
 			return true;
 		}

@@ -60,8 +60,9 @@ public class Conf {
 	public static String DALOS_ONTO_NS = DALOS_ONTO + "#"; 
 	
 	//DATABASE
-	public static String dbUser = "juris";
+	//public static String dbUser = "juris";
 	//public static String dbPass = "juris.";
+	public static String dbUser = "";
 	public static String dbPass = "";
 	public static String dbName = "cnipa";
 	public static String dbAddress = "172.16.0.12";
