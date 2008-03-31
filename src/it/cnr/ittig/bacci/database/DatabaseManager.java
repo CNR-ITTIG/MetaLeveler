@@ -3,11 +3,8 @@ package it.cnr.ittig.bacci.database;
 import it.cnr.ittig.bacci.database.query.QueryResolver;
 import it.cnr.ittig.jwneditor.editor.util.UtilEditor;
 
-import java.awt.Cursor;
 import java.util.Iterator;
 import java.util.Vector;
-
-import javax.swing.JFrame;
 
 /**
  * Classe di interfaccia tra applicazione e database.
@@ -131,7 +128,7 @@ public class DatabaseManager {
 	}
 	
 	/**
-	 * Controlla se esiste già una connessione al db aperta.
+	 * Controlla se esiste giï¿½ una connessione al db aperta.
 	 * Esegue l'update nella connessione esistente oppure
 	 * apre una nuova connessione, esegue l'update e poi
 	 * si disconnette.
@@ -149,7 +146,7 @@ public class DatabaseManager {
 	}
 	
 	/**
-	 * Controlla se esiste già una connessione al db aperta.
+	 * Controlla se esiste giï¿½ una connessione al db aperta.
 	 * Esegue la query nella connessione esistente oppure
 	 * apre una nuova connessione, esegue la query e poi
 	 * si disconnette.
@@ -175,7 +172,7 @@ public class DatabaseManager {
 	 * @param data parametri aggiuntivi per la query
 	 * @return 
 	 * False se la connessione al db fallisce oppure se la connessione
-	 * non era già stata creata, true altrimenti.
+	 * non era giï¿½ stata creata, true altrimenti.
 	 */
 	 public boolean connectedUpdate(String queryType, String[] data) {
 		
