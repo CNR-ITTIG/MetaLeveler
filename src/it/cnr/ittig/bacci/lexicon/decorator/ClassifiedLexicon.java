@@ -8,4 +8,9 @@ public class ClassifiedLexicon extends LexiconDecorator {
 		
 		//init classes...
 	}
+	
+	public void getInfo() {
+		super.getInfo();
+		System.out.print("< ClassifiedLexicon >");
+	}
 }

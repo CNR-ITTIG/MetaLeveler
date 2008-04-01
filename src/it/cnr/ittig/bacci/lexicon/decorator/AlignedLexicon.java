@@ -8,4 +8,10 @@ public class AlignedLexicon extends LexiconDecorator {
 		
 		//init...
 	}
+	
+	public void getInfo() {
+		super.getInfo();
+		System.out.print("< AlignedLexicon >");
+	}
+
 }

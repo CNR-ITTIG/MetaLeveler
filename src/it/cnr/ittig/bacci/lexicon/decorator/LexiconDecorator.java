@@ -1,6 +1,6 @@
 package it.cnr.ittig.bacci.lexicon.decorator;
 
-public class LexiconDecorator extends Lexicon {
+public abstract class LexiconDecorator extends Lexicon {
 	
 	Lexicon component = null;
 	
@@ -9,4 +9,7 @@ public class LexiconDecorator extends Lexicon {
 		this.component = component;
 	}
 
+	public void getInfo() {
+		component.getInfo(); //...does the trick!
+	}
 }

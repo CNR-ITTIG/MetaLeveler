@@ -8,4 +8,9 @@ public class MappedLexicon extends LexiconDecorator {
 		
 		//init...
 	}
+	
+	public void getInfo() {
+		super.getInfo();
+		System.out.print("< MappedLexicon >");
+	}
 }

@@ -59,4 +59,7 @@ public abstract class Lexicon {
 	public String getCode() {
 		return code;
 	}
+	
+	//COMMON METHODS
+	abstract public void getInfo();
 }
