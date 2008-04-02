@@ -1,65 +1,73 @@
 package it.cnr.ittig.bacci.lexicon.decorator;
 
-import it.cnr.ittig.bacci.lexicon.AlignedLexicon;
-
 import java.util.Collection;
-import java.util.Map;
+import java.util.Collections;
 
+/**
+ * Lexicons management implemented with 'Decorator' pattern.
+ * 
+ * @author Lorenzo Bacci
+ */
 public abstract class Lexicon {
 
 	//BASE LEXICON
-	private String name;
-	private String ns;	
-	private String fileName;
-	private String version;
+	protected String name = null;
+	protected String ns = null;	
+	protected String fileName = null;
+	protected String version = null;
 	
-	private Collection synsets;
+	protected Collection synsets = null;
 	
 	public Collection getSynsets() {
-		return synsets;
+		return Collections.unmodifiableCollection(synsets);
 	}
 	
 	//CLASSIFIED LEXICON
-	private String ontologyBaseNs = null;
-	private String ontologyUrl = null;
-	private Collection classes = null;
-	
-	public Collection getOntoClasses() {		
-		return classes;
-	}
+	abstract public Collection getOntoClasses();
+	abstract public String getOntologyBaseNs();
+	abstract public String getOntologyUrl();
 
-	public String getOntologyBaseNs() {
-		return ontologyBaseNs;
-	}
-
-	public String getOntologyUrl() {
-		return ontologyUrl;
-	}
-	
 	//ALIGNED LEXICON
-	private String lang = null;	
-	private Map<String, AlignedLexicon> langToLexicon = null;
+	abstract public AlignedLexicon getAlignedLexicon(String lang);
+	abstract public String getLang();
 
-	public AlignedLexicon getAlignedLexicon(String lang) {
-		return langToLexicon.get(lang);
-	}
-
-	public String getLang() {
-		return lang;
-	}
-	
 	//MAPPED LEXICON
-	private String code = null;	
-	private Map<String, MappedLexicon> codeToLexicon = null;
+	abstract public MappedLexicon getMappedLexicon(String code);
+	abstract public String getCode();
 
-	public MappedLexicon getMappedLexicon(String code) {		
-		return codeToLexicon.get(code);
-	}
-
-	public String getCode() {
-		return code;
-	}
-	
 	//COMMON METHODS
 	abstract public void getInfo();
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getNs() {
+		return ns;
+	}
+
+	public void setNs(String ns) {
+		this.ns = ns;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
 }

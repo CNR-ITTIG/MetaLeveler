@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -456,11 +457,14 @@ public class CeliOdbcImporter  extends ImporterUtil
 	private Connection openConnection() {
 		
 		Connection c = null;
+		Properties prop = new Properties();
+		//prop.setProperty("DB2e_ENCODING", "CP-1252");
+		prop.setProperty("DB2e_ENCODING", "Windows-1252");
 		
 		try {
 			String strConn = "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=" + mdbFileName;
 			Driver d = (Driver)Class.forName("sun.jdbc.odbc.JdbcOdbcDriver").newInstance();
-			c = DriverManager.getConnection(strConn);
+			c = DriverManager.getConnection(strConn, prop);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

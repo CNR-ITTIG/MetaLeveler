@@ -5,6 +5,7 @@ import it.cnr.ittig.bacci.classifier.resource.BasicResource;
 import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
 import it.cnr.ittig.bacci.database.DatabaseManager;
 import it.cnr.ittig.bacci.database.query.ClassifierQuery;
+import it.cnr.ittig.bacci.lexicon.decorator.RunLex;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.EnvUtil;
 
@@ -712,6 +713,8 @@ public class Gui extends JFrame
 	}
 	
 	private void closeApp() {
+		
+		//new RunLex();
 		
 		try {
 			saveProperties();
