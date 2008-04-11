@@ -3,6 +3,7 @@ package it.cnr.ittig.leveler.importer;
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn.Lemma;
+import it.cnr.ittig.jwneditor.jwn.Riferimento;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLUtil;
 import it.cnr.ittig.leveler.Leveler;
 
@@ -135,13 +136,22 @@ public class CeliOdbcImporter  extends ImporterUtil
 		
 		Connection c = openConnection();		
 
-		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode FROM " + termdocumentTBL + 
+		String sqlNoText = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode FROM " + termdocumentTBL + 
 			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
 			" ) AS T2 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
 			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
 			"AND T1.TD_OT_IdRelType = 'mention'" +
 			"";
-			
+		
+		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text FROM " + termdocumentTBL + 
+			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
+			") AS T2, (SELECT CO_NationalCode, CO_Text FROM " + corpusTBL + 
+			" ) AS T3 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
+			"AND T2.DN_NationalCode = T3.CO_NationalCode " +
+			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
+			//"AND T1.TD_OT_IdRelType = 'definition'" +
+			"";
+
 		Vector<String[]> results = eseguiQuery(c, sql);
 
 		int counter = 0;
@@ -151,6 +161,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 			//String lang = row[0].trim();
 			String id = row[0].trim();
 			String part = row[1].trim();
+			String text = row[2].trim();
 
 //			if(!lang.equalsIgnoreCase(EditorConf.LANGUAGE)) {
 //				continue;
@@ -168,7 +179,10 @@ public class CeliOdbcImporter  extends ImporterUtil
 			}
 
 			//Add a new reference
-			conc.riferimenti.add(part);			
+			Riferimento rif = new Riferimento();
+			rif.setText(text);
+			rif.setCode(part);
+			conc.addRiferimento(rif);			
 		}
 		closeConnection(c);
 	}
@@ -245,7 +259,50 @@ public class CeliOdbcImporter  extends ImporterUtil
 		
 		saveModels();		
 	}
-	
+
+	public void addDefinition() throws IOException {
+		
+		Connection c = openConnection();		
+
+		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text FROM " + termdocumentTBL + 
+			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
+			") AS T2, (SELECT CO_NationalCode, CO_Text FROM " + corpusTBL + 
+			" ) AS T3 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
+			"AND T2.DN_NationalCode = T3.CO_NationalCode " +
+			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
+			"AND T1.TD_OT_IdRelType = 'definition'" +
+			"";
+			
+		Vector<String[]> results = eseguiQuery(c, sql);
+
+		int counter = 0;
+		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
+			String[] row = i.next();
+
+			//String lang = row[0].trim();
+			String id = row[0].trim();
+			String part = row[1].trim();
+			//String code = row[2].trim();
+			String text = row[2].trim();
+
+			if(counter < 10) {
+				System.out.println("id: " + id + " part: " + part);
+			}
+			counter++;
+
+			Concetto conc = Leveler.appSynsets.get(id);
+			if(conc == null) {
+				System.out.println(">>WARNING<< NULL - " + id + " " + conc);
+				continue;
+			}
+
+			//Add definition
+			conc.setDefinizione(text);
+			System.out.println("CONCETTO: " + conc + " DEF: " + text);
+		}
+		closeConnection(c);
+	}
+
 	private Lemma getLemma(String proto, String lang) {
 		
 		String key = proto + lang;
@@ -381,49 +438,6 @@ public class CeliOdbcImporter  extends ImporterUtil
 			e.printStackTrace();
 		}
 	}	
-
-	public void addDefinition() throws IOException {
-		
-		Connection c = openConnection();		
-
-		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text FROM " + termdocumentTBL + 
-			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
-			") AS T2, (SELECT CO_NationalCode, CO_Text FROM " + corpusTBL + 
-			" ) AS T3 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
-			"AND T2.DN_NationalCode = T3.CO_NationalCode " +
-			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
-			"AND T1.TD_OT_IdRelType = 'definition'" +
-			"";
-			
-		Vector<String[]> results = eseguiQuery(c, sql);
-
-		int counter = 0;
-		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
-			String[] row = i.next();
-
-			//String lang = row[0].trim();
-			String id = row[0].trim();
-			String part = row[1].trim();
-			//String code = row[2].trim();
-			String text = row[2].trim();
-
-			if(counter < 10) {
-				System.out.println("id: " + id + " part: " + part);
-			}
-			counter++;
-
-			Concetto conc = Leveler.appSynsets.get(id);
-			if(conc == null) {
-				System.out.println(">>WARNING<< NULL - " + id + " " + conc);
-				continue;
-			}
-
-			//Add definition
-			conc.setDefinizione(text);
-			System.out.println("CONCETTO: " + conc + " DEF: " + text);
-		}
-		closeConnection(c);
-	}
 
 	private Vector<String[]> eseguiQuery(Connection c, String query) {
 		System.out.println("Exec query: " + query);

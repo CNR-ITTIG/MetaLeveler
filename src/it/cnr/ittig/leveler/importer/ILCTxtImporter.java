@@ -182,7 +182,7 @@ public class ILCTxtImporter implements MetaImporter {
 					System.out.println(">>WARNING<< NULL - " + data[0] + " " + conc);
 					continue;
 				}
-				conc.riferimenti.add(data[1]);
+				//conc.riferimenti.add(data[1]);
 			}
 		} finally {
 			if(inputStream != null) {

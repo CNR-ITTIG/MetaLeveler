@@ -4,6 +4,7 @@ import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.jwneditor.jwn.Concetto;
 import it.cnr.ittig.jwneditor.jwn.Lemma;
 import it.cnr.ittig.jwneditor.jwn.Relazione;
+import it.cnr.ittig.jwneditor.jwn.Riferimento;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLManager;
 import it.cnr.ittig.jwneditor.jwn2owl.OWLUtil;
 import it.cnr.ittig.jwneditor.jwn2owl.container.AbstractOntology;
@@ -55,6 +56,7 @@ public class AddService {
 	OntProperty candidateProperty;
 	
 	OntProperty sourceProp;
+	OntProperty contentProp;
 	OntProperty involvesSynset;
 	OntProperty involvesPartition;	
 	OntProperty belongsTo;
@@ -219,6 +221,7 @@ public class AddService {
 		protoProperty = m.getOntProperty(NS_SCHEMA + "protoForm");
 		
 		sourceProp = m.getOntProperty(SOURCE_SCHEMA + "source");
+		contentProp = m.getOntProperty(SOURCE_SCHEMA + "content");
 		involvesSynset = m.getOntProperty(SOURCE_SCHEMA + "involvesSynset");
 		involvesPartition = m.getOntProperty(SOURCE_SCHEMA + "involvesPartition");	
 		belongsTo = m.getOntProperty(SOURCE_SCHEMA + "belongsTo");
@@ -449,17 +452,21 @@ public class AddService {
 			return;
 		}
 		
-		int maxSources = item.riferimenti.size();
-
-		//Set a BOUND?
-		maxSources = 99999;
-		if(item.riferimenti.size() < maxSources) {
-			maxSources = item.riferimenti.size();
-		}
+		Collection<Riferimento> rifs = item.getRiferimenti(); 
+//		int maxSources = rifs.size();
+//
+//		//Set a BOUND?
+//		maxSources = 99999;
+//		if(rifs.size() < maxSources) {
+//			maxSources = rifs.size();
+//		}
 
 		//Aggiungi sources (non considera le frequenze al momento)		
-		for(int k = 0; k < maxSources; k++) {
-			String partitionCode = item.riferimenti.get(k);
+//		for(int k = 0; k < maxSources; k++) {
+		for(Iterator<Riferimento> k = rifs.iterator(); k.hasNext(); ) {
+			Riferimento rif = k.next();
+			String text = rif.getText();
+			String partitionCode = rif.getCode();
 			String documentCode = partitionCode.substring(0, partitionCode.
 					indexOf('-', partitionCode.indexOf('-') + 1));
 			String cid = item.getID();
@@ -481,6 +488,7 @@ public class AddService {
 			synset.addProperty(sourceProp, source);
 			source.addProperty(involvesSynset, synset);
 			source.addProperty(involvesPartition, partition);
+			source.addProperty(contentProp, m_sources.createLiteral(text));
 			partition.addProperty(belongsTo, document);
 			partition.addProperty(partCode, m_sources.createLiteral(partitionCode));
 			document.addProperty(docCode, m_sources.createLiteral(documentCode));

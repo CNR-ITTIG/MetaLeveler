@@ -20,7 +20,7 @@ public class Concetto implements Comparable {
 	public Vector<Fonte> fonti;				//l'ordine conta per la visualizzazione! (Vector, non HashSet)
 		
 	//Aggiunte per MetaLeveler:
-	public Vector<String> riferimenti;
+	private Vector<Riferimento> riferimenti;
 	public String language;
 	public Vector<String> ontoclassi;
 	
@@ -47,7 +47,7 @@ public class Concetto implements Comparable {
 		correlazioni = new Vector<Correlazione>();
 		fonti = new Vector<Fonte>();
 		ontoclassi = new Vector<String>();
-		riferimenti = new Vector<String>();
+		riferimenti = new Vector<Riferimento>();
 		
 		conceptLemma = null;
 	}
@@ -73,6 +73,15 @@ public class Concetto implements Comparable {
 	
 	public void setLang(String data) { language = data; }
 	public String getLang() { return language; }
+	
+	public Collection<Riferimento> getRiferimenti() {
+		return Collections.unmodifiableCollection(riferimenti);
+	}
+	
+	public boolean addRiferimento(Riferimento rif) {
+		
+		return riferimenti.add(rif);
+	}
 	
 	/*
 	 * Add new element at the end of Vector.

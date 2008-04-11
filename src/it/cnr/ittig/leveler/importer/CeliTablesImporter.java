@@ -201,7 +201,7 @@ public class CeliTablesImporter implements MetaImporter {
 				}				
 				if(itemid.equalsIgnoreCase(idPart)) {
 					//Add a new reference
-					conc.riferimenti.add(part);			
+					//conc.riferimenti.add(part);			
 					count++;
 				}
 			}
