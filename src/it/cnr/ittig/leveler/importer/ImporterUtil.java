@@ -9,6 +9,15 @@ public abstract class ImporterUtil {
 	
 	protected boolean addSingleRelation(
 			Concetto c1, Concetto c2, String relName) {
+		/*
+		 * c1 concetto FROM
+		 * c2 concetto TO
+		 * 
+		 * CELIDB
+		 * FROM: accesso all'attività
+		 * TO: accesso
+		 * RELNAME: has_hyperonym
+		 */
 
 		Relazione ipo = new Relazione(EditorConf.iponimia);
 		Relazione iper = new Relazione(EditorConf.iperonimia);
@@ -17,7 +26,7 @@ public abstract class ImporterUtil {
 		Relazione invRel = null;
 
 		if(relName.equalsIgnoreCase("has_hyponym")
-				|| relName.equalsIgnoreCase("hyperonym")
+				|| relName.equalsIgnoreCase("hyponym")
 				) {
 			thisRel = ipo;
 			invRel = iper;
@@ -31,7 +40,9 @@ public abstract class ImporterUtil {
 				) {
 			thisRel = fuzzy;
 			invRel = fuzzy;
-		} else {			
+		} else {
+			System.err.println("addSingleRelation() - " +
+					"Relation not found: " + relName + " !");
 			return false;
 		}
 		

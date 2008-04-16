@@ -99,7 +99,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 		
 		Connection c = openConnection();		
 		
-		String sql = "select * from " + intralinguisticTBL;		
+		String sql = "select * from " + intralinguisticTBL;
 		Vector<String[]> results = eseguiQuery(c, sql);
 
 		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
@@ -121,8 +121,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 				continue;
 			}
 			//Add new relation
-			if(!addSingleRelation(c1, c2, relName)) {
-				System.err.println("Relation not found: " + relName + " !");
+			if(!addSingleRelation(c1, c2, relName)) {				
 				break;
 			}
 		}

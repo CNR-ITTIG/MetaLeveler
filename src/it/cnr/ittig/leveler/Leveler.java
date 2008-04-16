@@ -90,12 +90,10 @@ public class Leveler {
 			if(EditorConf.ADD_ALIGNMENT) {
 				System.out.println("Adding alignment...");
 				parser.addAlignment();
-			}
-
-			if(EditorConf.ADD_ALIGNMENT) {
+				//Create "types" file and exit
 				return;
 			}
-			
+
 			if(EditorConf.LANGUAGE.equals("IT") && EditorConf.LINK_TO_ONTOLOGY) {
 				System.out.println("Adding ontologies classifications...");
 				xParser.classify();
