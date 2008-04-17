@@ -5,11 +5,11 @@ import it.cnr.ittig.bacci.database.DatabaseManager;
 
 public class EditorConf {
 
-	public static boolean DIVIDE = false;
-	//public static boolean DIVIDE = true;
+	//public static boolean DIVIDE = false;
+	public static boolean DIVIDE = true;
 	
-	public static String DIVIDE_TYPE = "lexical";
-	//public static String DIVIDE_TYPE = "source";
+	//public static String DIVIDE_TYPE = "lexical";
+	public static String DIVIDE_TYPE = "source";
 	//public static String DIVIDE_TYPE = "semantic";
 	
 	public static String DIVIDE_DIR = "segment";

@@ -135,16 +135,9 @@ public class CeliOdbcImporter  extends ImporterUtil
 		
 		Connection c = openConnection();		
 
-		String sqlNoText = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode FROM " + termdocumentTBL + 
+		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text, T3.CO_filePath FROM " + termdocumentTBL + 
 			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
-			" ) AS T2 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
-			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
-			"AND T1.TD_OT_IdRelType = 'mention'" +
-			"";
-		
-		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text FROM " + termdocumentTBL + 
-			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
-			") AS T2, (SELECT CO_NationalCode, CO_Text FROM " + corpusTBL + 
+			") AS T2, (SELECT CO_filePath, CO_NationalCode, CO_Text FROM " + corpusTBL + 
 			" ) AS T3 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
 			"AND T2.DN_NationalCode = T3.CO_NationalCode " +
 			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
@@ -161,6 +154,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 			String id = row[0].trim();
 			String part = row[1].trim();
 			String text = row[2].trim();
+			String fileName = row[3].trim();
 
 //			if(!lang.equalsIgnoreCase(EditorConf.LANGUAGE)) {
 //				continue;
@@ -181,7 +175,8 @@ public class CeliOdbcImporter  extends ImporterUtil
 			Riferimento rif = new Riferimento();
 			rif.setText(text);
 			rif.setCode(part);
-			conc.addRiferimento(rif);			
+			rif.setFileName(fileName);
+			conc.addRiferimento(rif);
 		}
 		closeConnection(c);
 	}

@@ -308,7 +308,30 @@ public class Divider {
 				"  ?o4 rdf:type owns:Word .  ?o4 ?p5 ?o5 .  } } ";			
 			
 		} else if(typeOfSegment.equalsIgnoreCase("source")) {
+			//Optional non funziona in questa query?
 
+//			query = 
+//				"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
+//				"PREFIX src: <http://turing.ittig.cnr.it/jwn/ontologies/metasources.owl#> " +
+//				"CONSTRUCT { " +
+//				resName + " src:source ?s . " +
+//				"?s src:involvesPartition ?p . " +
+//				"?s src:content ?cont . " +
+//				"?p src:partitionCode ?pcode . " +
+//				"?p src:belongsTo ?doc . " +
+//				"?doc src:documentCode ?dcode . " +
+//				"?doc src:link ?link . " +
+//				"} WHERE { " +
+//				resName + " src:source ?s . " +
+//				"?s src:involvesPartition ?p . " +
+//				"?p src:partitionCode ?pcode . " +
+//				"?p src:belongsTo ?doc . " +
+//				"?doc src:documentCode ?dcode . " +
+//				"OPTIONAL {" +
+//				"?s src:content ?cont . " +
+//				"?doc src:link ?link . } " +
+//				"}";
+			
 			query = 
 				"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
 				"PREFIX src: <http://turing.ittig.cnr.it/jwn/ontologies/metasources.owl#> " +
@@ -319,20 +342,30 @@ public class Divider {
 				"?p src:partitionCode ?pcode . " +
 				"?p src:belongsTo ?doc . " +
 				"?doc src:documentCode ?dcode . " +
-				"?doc src:link ?link . " +
-				"} WHERE { " +
+				"?doc src:link ?dlink . " +
+				"} WHERE { { " +
 				resName + " src:source ?s . " +
-				"?s src:involvesPartition ?p . " +				
+				"?s src:involvesPartition ?p . " +
 				"?p src:partitionCode ?pcode . " +
 				"?p src:belongsTo ?doc . " +
 				"?doc src:documentCode ?dcode . " +
-				"OPTIONAL {" +
+				" } UNION { " +
+				resName + " src:source ?s . " +
+				"?s src:involvesPartition ?p . " +
 				"?s src:content ?cont . " +
-				"?doc src:link ?link . } " +
+				"?p src:partitionCode ?pcode . " +
+				"?p src:belongsTo ?doc . " +
+				"?doc src:documentCode ?dcode . " +
+				" } UNION { " +
+				resName + " src:source ?s . " +
+				"?s src:involvesPartition ?p . " +
+				"?p src:partitionCode ?pcode . " +
+				"?p src:belongsTo ?doc . " +
+				"?doc src:documentCode ?dcode . " +
+				"?doc src:link ?dlink . } " +				
 				"}";
-			
+
 		} else if(typeOfSegment.equalsIgnoreCase("semantic")) {
-			
 		} else {
 			System.err.println("Divider - type of segment not supported: "
 					+ typeOfSegment);
