@@ -254,6 +254,53 @@ public class CeliOdbcImporter  extends ImporterUtil
 		saveModels();		
 	}
 
+	public void addInterAlignment() {
+		
+		Connection c = openConnection();		
+		
+		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_LG_IdLanguage_From, T1.IL_LG_IdLanguage_To, T1.IL_TE_IdTerm_From, T1.IL_TE_IdTerm_To " +
+			"FROM " + interlinguisticTBL + " T1 " +
+			"WHERE T1.IL_RT_IdRelType <> 'equivalent' " +
+			"";	
+
+		Vector<String[]> results = eseguiQuery(c, sql);
+
+		int counter = 0;
+		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
+			String[] row = i.next();
+
+			String relType = row[0].trim();
+			String langFrom = row[1].trim();
+			String langTo = row[2].trim();
+			String idFrom = row[3].trim();
+			String idTo = row[4].trim();
+						
+			if(relType.equalsIgnoreCase("equivalent")) {
+				continue;
+			}
+
+			if(counter < 10) {
+				System.out.println("proto: " + idFrom);
+			}
+			counter++;
+
+//			Concetto c1 = Leveler.appSynsets.get(idFrom);
+//			if(c1 == null ) {
+//				System.out.println(">>WARNING<< NULL - " + c1);
+//				continue;
+//			}
+
+//			Lemma lemmaFrom = getLemma(protoFrom, langFrom);
+//			Lemma lemmaTo = getLemma(protoTo, langTo);
+//			
+//			lemmaToLang.put(lemmaFrom, langFrom);
+//			lemmaToLang.put(lemmaTo, langTo);
+//			
+//			addLemmaConcept(lemmaFrom, lemmaTo);
+		}
+		closeConnection(c);
+	}
+
 	public void addDefinition() throws IOException {
 		
 		Connection c = openConnection();		
@@ -311,7 +358,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 	
 	private void prepareConcepts() {
 				
-		Collection<Lemma> finalConcepts = new HashSet<Lemma>();
+		Collection<Lemma> finalConceptsLemma = new HashSet<Lemma>();
 		Collection<Lemma> lemmas = lemmaToLemmi.keySet();
 		System.out.println("Preparing... lsize: " + lemmas.size());
 		for(Iterator<Lemma> i = lemmas.iterator(); i.hasNext(); ) {
@@ -321,16 +368,21 @@ public class CeliOdbcImporter  extends ImporterUtil
 				System.err.println("ERROR! empty concepts for lemma: " + lemma);
 				continue;
 			} 
-			Lemma mainConcept = getMainConcept(concepts);
-			finalConcepts.add(mainConcept);
+			Lemma mainConcept = getMainConcept(concepts); //Oppure mettere subito URI artificiali?
+			finalConceptsLemma.add(mainConcept);
 			lemmaToConcept.put(lemma, mainConcept);
 		}
 		
 		//Add final concepts to concept model
-		System.out.println("fcsize: " + finalConcepts.size());
-		for(Iterator<Lemma> i = finalConcepts.iterator(); i.hasNext(); ) {
+		System.out.println("fcsize: " + finalConceptsLemma.size());
+		for(Iterator<Lemma> i = finalConceptsLemma.iterator(); i.hasNext(); ) {
 			Lemma concept = i.next();
 			createConceptClass(concept);
+		}
+		
+		if(EditorConf.ADD_ALIGNMENT) {
+			//Add inter-linguistic relations between concepts...
+			//addInterAlignment();
 		}
 		
 		//Add types triples
@@ -538,5 +590,5 @@ public class CeliOdbcImporter  extends ImporterUtil
 		}
 		return res;
 	}
-
+	
 }

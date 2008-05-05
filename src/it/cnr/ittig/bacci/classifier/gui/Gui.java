@@ -5,9 +5,8 @@ import it.cnr.ittig.bacci.classifier.resource.BasicResource;
 import it.cnr.ittig.bacci.classifier.resource.OntologicalClass;
 import it.cnr.ittig.bacci.database.DatabaseManager;
 import it.cnr.ittig.bacci.database.query.ClassifierQuery;
-import it.cnr.ittig.bacci.lexicon.decorator.RunLex;
 import it.cnr.ittig.bacci.util.Conf;
-import it.cnr.ittig.bacci.util.EnvUtil;
+import it.cnr.ittig.bacci.util.Util;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -83,14 +82,14 @@ public class Gui extends JFrame
 		
 		super("Meta Classifier");
 		
-		File dataDir = EnvUtil.getApplicationDataDir("MetaClassifier");
+		File dataDir = Util.getApplicationDataDir("MetaClassifier");
 		if(dataDir != null) {
 			Conf.APPLICATION_DATA_DIR = dataDir.getAbsolutePath();
 			System.out.println(">>Setting app data dir: " + 
 					Conf.APPLICATION_DATA_DIR + "...");
 		}
 		
-		dm = new DataManager();
+		dm = new DataManager(this);
 
 		try {
 			initProperties();
@@ -642,6 +641,13 @@ public class Gui extends JFrame
 		JOptionPane.showMessageDialog(this, 
 				"Database not found", "DB Connection",
 				JOptionPane.WARNING_MESSAGE);
+	}
+	
+	public void initDataFailedMsg(String cause) {
+		JOptionPane.showMessageDialog(this, 
+				cause, "Data Init",
+				JOptionPane.WARNING_MESSAGE);
+		closeApp();
 	}
 	
 	private void checkFailedMsg() {

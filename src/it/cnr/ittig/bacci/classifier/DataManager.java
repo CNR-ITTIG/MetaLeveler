@@ -8,6 +8,7 @@ import it.cnr.ittig.bacci.classifier.resource.Synset;
 import it.cnr.ittig.bacci.database.DatabaseManager;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.KbModelFactory;
+import it.cnr.ittig.bacci.util.Util;
 import it.cnr.ittig.jwneditor.editor.EditorConf;
 import it.cnr.ittig.leveler.Leveler;
 
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.hp.hpl.jena.ontology.ConversionException;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntResource;
@@ -56,8 +58,12 @@ public class DataManager {
 	//Artificial concept class counter
 	private static int artificialCounter = 0;
 	private static String artificialPrefix = "artconc-";
+	
+	private Gui GUIClass = null;
 
-	public DataManager() {
+	public DataManager(Gui gui) {
+		
+		GUIClass = gui;
 		
 		resources = new TreeSet<BasicResource>();		
 		classes = new TreeSet<OntologicalClass>();
@@ -70,7 +76,7 @@ public class DataManager {
 	public boolean init() {
 				
 		initEnv();
-		initDocuments();		
+		Util.initDocuments(DATA_DIR);		
 		initData();
 		
 		System.out.println("Data initialized! r:" + resources.size() +
@@ -189,10 +195,10 @@ public class DataManager {
 		fill();
 		
 		String fileName = DATA_DIR + File.separatorChar + Conf.CONCEPTS;
-		serialize(conceptModel, fileName);
+		Util.serialize(conceptModel, fileName);
 		
 		fileName = DATA_DIR + File.separatorChar + Conf.TYPES;
-		serialize(typeModel, fileName);
+		Util.serialize(typeModel, fileName);
 	}
 	
 	private void fill() {
@@ -254,46 +260,6 @@ public class DataManager {
 		}		
 	}
 	
-	private void serialize(OntModel om, String fileName) {
-		
-		RDFWriter writer = om.getWriter("RDF/XML"); //faster than RDF/XML-ABBREV		
-		File outputFile = new File(fileName);
-		String relativeOutputFileName = "file://" + outputFile.getAbsolutePath();
-
-		System.out.println("Serializing ontology model to " + outputFile + "...");
-		try {
-			OutputStream out = new FileOutputStream(outputFile);
-			//Write down the BASE model only (don't follow imports...)
-			writer.write(om.getBaseModel(), out, relativeOutputFileName);
-			out.close();
-		} catch(Exception e) {
-			System.err.println("Exception serializing model:" + e.getMessage());
-			e.printStackTrace();
-		}
-	}	
-
-	private void initDocuments() {
-	
-		String workDir = DATA_DIR + File.separatorChar;
-		
-		File file = new File(workDir + Conf.CONCEPTS);
-		if(file.exists()) {
-			KbModelFactory.addDocument(Conf.CONCEPTS, workDir + Conf.CONCEPTS);
-		}
-		file = new File(workDir + Conf.TYPES);
-		if(file.exists()) {
-			KbModelFactory.addDocument(Conf.TYPES, workDir + Conf.TYPES);
-		}
-		file = new File(workDir + Conf.IND);
-		if(file.exists()) {
-			KbModelFactory.addDocument(Conf.IND, workDir + Conf.IND);
-		}
-		file = new File(workDir + Conf.INDW);
-		if(file.exists()) {
-			KbModelFactory.addDocument(Conf.INDW, workDir + Conf.INDW);
-		}
-	}
-	
 	private void initData() {
 		
 		//Con reasoner
@@ -344,6 +310,9 @@ public class DataManager {
 			}
 			getOntologicalClass(ns, name);			
 		}
+		
+//		OntModel concModel = KbModelFactory.getModel("dalos.concepts", "");
+//		OntClass conceptClass2 = concModel.getOntClass(CONCEPT_CLASS_NAME);
 		
 		OntClass conceptClass = fullModel.getOntClass(CONCEPT_CLASS_NAME);
 		if(conceptClass == null) {
@@ -401,19 +370,27 @@ public class DataManager {
 			}
 			
 			//For each concept class, get ontological super classes
-			for(ExtendedIterator z = item.listSuperClasses(true);
-					z.hasNext(); ) {
-				OntClass sup = (OntClass) z.next();
-				if(sup.isAnon()) {
-					continue;
+			try {
+				for(ExtendedIterator z = item.listSuperClasses(true);
+						z.hasNext(); ) {
+					OntClass sup = (OntClass) z.next();
+					if(sup.isAnon()) {
+						continue;
+					}
+					String supNs = sup.getNameSpace();
+					String supName = sup.getLocalName();
+					if(!supNs.equalsIgnoreCase(ONTO_NS)) {
+						continue;
+					}
+					OntologicalClass oc = getOntologicalClass(supNs, supName);
+					cc.addClass(oc);
 				}
-				String supNs = sup.getNameSpace();
-				String supName = sup.getLocalName();
-				if(!supNs.equalsIgnoreCase(ONTO_NS)) {
-					continue;
-				}
-				OntologicalClass oc = getOntologicalClass(supNs, supName);
-				cc.addClass(oc);
+			} catch (ConversionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				GUIClass.initDataFailedMsg("Wrong reference to some ontological class!\n" +
+						"Check links between concepts and ontology!\n" +
+						"Exiting application...");
 			}
 		}
 		

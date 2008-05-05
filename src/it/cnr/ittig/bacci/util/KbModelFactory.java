@@ -41,6 +41,9 @@ public class KbModelFactory {
 	}
 
 	public static OntModel getModel() {
+		/*
+		 * Returns an empty in-memory OntModel.
+		 */
 		
 		return getModel("", "", "", null);
 	}
@@ -125,6 +128,13 @@ public class KbModelFactory {
 		}		
 		if(type.equalsIgnoreCase("dalos.concepts")) {
 			readLocalDocument(om, lang, Conf.CONCEPTS);
+		}
+		if(type.equalsIgnoreCase("dalos.ontoconcepts")) {
+			readSchema(om, ONTO);
+			readLocalDocument(om, lang, Conf.CONCEPTS);
+		}
+		if(type.equalsIgnoreCase("dalos.metaconc")) {
+			readSchema(om, Conf.CONCEPT_SCHEMA);
 		}
 		odm.setProcessImports(true);
 		odm.loadImports(om);

@@ -1,8 +1,5 @@
-package it.cnr.ittig.jwneditor.jwn;
+package it.cnr.ittig.bacci.converter.objects;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Vector;
 
 public class Lemma implements Comparable {
@@ -19,7 +16,7 @@ public class Lemma implements Comparable {
 	private static String DEFAULT_POS = "N";
 	private static String DEFAULT_SENSE = "1";
 	
-	private Concetto synset;
+	private Synset synset;
 	
 	public Vector<String> variants;
 	
@@ -69,8 +66,8 @@ public class Lemma implements Comparable {
 	public String getOrdine() { return ordine; }
 	public void setOrdine(String o) { ordine = o; }
 
-	public Concetto getSynset() { return synset; }
-	public void setSynset(Concetto c) { synset = c; }
+	public Synset getSynset() { return synset; }
+	public void setSynset(Synset c) { synset = c; }
 
 	public String toString() {
 		if(partOfSpeech != null) {

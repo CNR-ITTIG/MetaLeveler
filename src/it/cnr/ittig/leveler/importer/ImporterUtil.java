@@ -39,7 +39,12 @@ public abstract class ImporterUtil {
 				|| relName.equalsIgnoreCase("related")
 				) {
 			thisRel = fuzzy;
-			invRel = fuzzy;
+			//invRel = fuzzy;
+			
+			//related term from ILC is not to be considered as
+			//a symmetric property !
+			invRel = null;
+			
 		} else {
 			System.err.println("addSingleRelation() - " +
 					"Relation not found: " + relName + " !");
@@ -48,8 +53,10 @@ public abstract class ImporterUtil {
 		
 		Correlazione cor = new Correlazione(c2, thisRel);
 		c1.add(cor);
-		cor = new Correlazione(c1, invRel);
-		c2.add(cor);
+		if(invRel != null) {
+			cor = new Correlazione(c1, invRel);
+			c2.add(cor);
+		}
 		return true;
 	}
 
