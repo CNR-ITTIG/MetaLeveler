@@ -34,6 +34,8 @@ public class Concept extends WebResource {
 		fuzzyConcepts = new HashSet<Concept>();
 		hyperConcepts = new HashSet<Concept>();
 
+		links = new HashSet<OntoClass>();
+		terms = new HashSet<Synset>();
 
 	}
 

@@ -71,9 +71,13 @@ public class KbModelFactory {
 		 * reasoner: sceglie il reasoner da utilizzare nel modello
 		 */
 		
-		String DATA_DIR = (String) Gui.appProperties.getProperty("resDir");
-		String ONTO = (String) Gui.appProperties.getProperty("ontoText");
-		String ONTO_NS = (String) Gui.appProperties.getProperty("ontoNs");
+//		String DATA_DIR = (String) Gui.appProperties.getProperty("resDir");
+//		String ONTO_NS = (String) Gui.appProperties.getProperty("ontoNs");
+		
+		String ONTO = Conf.DALOS_ONTO;
+		if(Gui.appProperties != null) {
+			ONTO = (String) Gui.appProperties.getProperty("ontoText");			
+		}
 
 		ModelMaker maker = ModelFactory.createMemModelMaker();
 
@@ -131,9 +135,11 @@ public class KbModelFactory {
 		}
 		if(type.equalsIgnoreCase("dalos.ontoconcepts")) {
 			readSchema(om, ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
 			readLocalDocument(om, lang, Conf.CONCEPTS);
 		}
 		if(type.equalsIgnoreCase("dalos.metaconc")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
 			readSchema(om, Conf.CONCEPT_SCHEMA);
 		}
 		if(type.equalsIgnoreCase("dalos.types")) {
@@ -143,6 +149,31 @@ public class KbModelFactory {
 			readSchema(om, Conf.METALEVEL_ONTO);
 			readLocalDocument(om, lang, Conf.IND);
 		}
+		//SINGLE LEXICONS
+		if(type.equalsIgnoreCase("dalos.lexicon.EN")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
+			readLocalDocument(om, lang, "EN" + Conf.IND);
+			readLocalDocument(om, lang, "EN" + Conf.LEXICALIZATION);
+		}		
+		if(type.equalsIgnoreCase("dalos.lexicon.ES")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
+			readLocalDocument(om, lang, "ES" + Conf.IND);
+			readLocalDocument(om, lang, "ES" + Conf.LEXICALIZATION);
+		}		
+		if(type.equalsIgnoreCase("dalos.lexicon.IT")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
+			readLocalDocument(om, lang, "IT" + Conf.IND);
+			readLocalDocument(om, lang, "IT" + Conf.LEXICALIZATION);
+		}		
+		if(type.equalsIgnoreCase("dalos.lexicon.NL")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
+			readLocalDocument(om, lang, "NL" + Conf.IND);
+			readLocalDocument(om, lang, "NL" + Conf.LEXICALIZATION);
+		}		
 		odm.setProcessImports(true);
 		odm.loadImports(om);
 		

@@ -4,7 +4,11 @@ public class Run {
 
 	public static void main(String[] args) {
 		
-		new Converter();
+		Converter app = new Converter();
+		//app.convert();
+		app.addInterlinguistic();
+		
+		
 	}
 
 }

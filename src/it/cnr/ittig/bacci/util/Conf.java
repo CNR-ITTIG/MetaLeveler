@@ -40,7 +40,7 @@ public class Conf {
 	
 	//NEW
 	public static String LINKS = "links.owl";
-	public static String INTERLINKS = "interlinks.owl";
+	public static String INTERCONCEPTS = "interconcepts.owl";
 	public static String LEXICALIZATION = "lexicalizations.owl";
 	
 	public static String LOCAL_DOMAIN_ONTO = "consumer-law.owl";
@@ -55,7 +55,7 @@ public class Conf {
 	
 	//New
 	public static String CONCEPT_CLASS = CONCEPTSCHEMA_NS + "Concept";
-	public static String LEXICALIZATION_PROP = "hasLexicalization";
+	public static String LEXICALIZATION_PROP = CONCEPTSCHEMA_NS + "hasLexicalization";
 
 	public static String CNIPA_NS = "http://localhost/cnipa/";	
 	public static String DALOS_NS = "http://localhost/dalos/";

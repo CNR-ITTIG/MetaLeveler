@@ -2,12 +2,14 @@ package it.cnr.ittig.bacci.converter.objects;
 
 import java.util.*;
 
-public class Synset implements Comparable {
+public class Synset implements Comparable { //dovrebbe estendere WebResource...
 	
 	private String definizione;	
 	
 	private String id;			//id all'interno del database
 	private String tmpId;		//id temporaneo (utile in fase di importazione)
+	
+	private String URI;
 	
 	private String datains;
 	private String datamod;
@@ -335,6 +337,14 @@ public class Synset implements Comparable {
 
 	public void setCandidate(boolean candidate) {
 		this.candidate = candidate;
+	}
+
+	public String getURI() {
+		return URI;
+	}
+
+	public void setURI(String uri) {
+		URI = uri;
 	}
 	
 }

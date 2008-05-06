@@ -2,7 +2,6 @@ package it.cnr.ittig.bacci.converter;
 
 import it.cnr.ittig.bacci.converter.objects.Concept;
 import it.cnr.ittig.bacci.converter.objects.OntoClass;
-import it.cnr.ittig.bacci.converter.objects.Synset;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.KbModelFactory;
 import it.cnr.ittig.bacci.util.Util;
@@ -48,9 +47,9 @@ public class Converter {
 		Util.initDocuments(dataDir);
 	}
 	
-	public void run() {
+	public void convert() {
 		
-		//crea il modello leggendo i vecchi concept		
+		//crea il modello leggendo i vecchi concept
 		//crea gli oggetti in memoria
 		initConcepts();		
 		
@@ -62,23 +61,29 @@ public class Converter {
 		
 	}
 	
+	public void addInterlinguistic() {
+		InterConceptAdder ica = new InterConceptAdder();
+		ica.addInterAlignment();
+	}	
+	
 	private void initConcepts() {
 		
 		OntModel oldConceptModel = KbModelFactory.getModel(
 			"dalos.ontoconcepts");
 
-		OntClass conceptClass = oldConceptModel.getOntClass(
-					Conf.conceptClassName);
-		if(conceptClass == null) {
+		OntClass oldConceptClass = oldConceptModel.getOntClass(
+			"http://localhost/dalos/concepts.owl#Concept");
+		if(oldConceptClass == null) {
 			System.err.println("ERROR! initConcepts() - conceptClass is null");
 			return;
 		}
 		
-		for(Iterator i = conceptClass.listSubClasses(); i.hasNext(); ) {
+		for(Iterator i = oldConceptClass.listSubClasses(); i.hasNext(); ) {
 			OntResource ores = (OntResource) i.next();
 			String puri = ores.getNameSpace() + ores.getLocalName();
 			Concept conc = new Concept();
 			conc.setURI(puri);
+			//System.out.println("Adding concept: " + puri); 
 			links.add(conc);
 			
 			for(StmtIterator k = oldConceptModel.listStatements(
@@ -89,15 +94,15 @@ public class Converter {
 				String objNS = obj.getNameSpace();
 				String objName = obj.getLocalName();
 				
-				//if(!objNS.equalsIgnoreCase(Conf.DOMAIN_ONTO_NS)) {
-				//continue;
-				//}
+				if(!objNS.equalsIgnoreCase(Conf.DALOS_ONTO_NS)) {
+					continue;
+				}
 				
 				String uri = objNS + objName;
 				OntoClass oc = (OntoClass) uriToOntoClass.get(uri); 
 				if(oc == null) {
-				oc = new OntoClass();
-				oc.setURI(uri);
+					oc = new OntoClass();
+					oc.setURI(uri);
 				}
 				conc.addLink(oc);
 				//oc.addConcept(conc);
@@ -118,7 +123,7 @@ public class Converter {
 			"dalos.ontology");
 		
 		OntClass conceptClass = metaConcModel.getOntClass(
-				Conf.CONCEPT_CLASS);
+			Conf.CONCEPT_CLASS);
 		if(conceptClass == null) {
 			System.err.println("ERROR! Converter - conceptClass is null");
 			return;
@@ -133,11 +138,13 @@ public class Converter {
 			for(Iterator<OntoClass> o = conc.getLinks().iterator(); o.hasNext();) {
 				OntoClass oc = o.next();
 				OntClass classRes = ontoModel.getOntClass(oc.getURI());
+				if(classRes == null) {
+					System.err.println("Ontological class is null: " + oc.getURI());
+					//continue;
+				}
 				linksModel.add(concRes, RDF.type, classRes);
 			}
 		}
-		
-		//Create inter-linguistic relations
 		
 		//Serialize
 		String fileName = dataDir + File.separatorChar + Conf.LINKS;
@@ -153,21 +160,26 @@ public class Converter {
 			"dalos.ind");
 		OntModel typesModel = KbModelFactory.getModel(
 			"dalos.types");
-		OntProperty lexProp = lexModel.getOntProperty(
-			Conf.CONCEPTSCHEMA_NS + Conf.LEXICALIZATION_PROP);
-	
+		
+		OntProperty lexProp = metaConcModel.getOntProperty(Conf.LEXICALIZATION_PROP);
+		if(lexProp == null) {
+			System.err.println("ERROR! ConverterLex - lexProp is null");
+			return;
+		}
+
 		OntClass conceptClass = metaConcModel.getOntClass(
 				Conf.CONCEPT_CLASS);
+		
 		if(conceptClass == null) {
 			System.err.println("ERROR! ConverterLex - conceptClass is null");
 			return;
 		}
-		
+				
 		//Create
 		StmtIterator si = typesModel.listStatements(null, RDF.type, (RDFNode) null); 		
 		for(; si.hasNext(); ) {
 			Statement stm = si.nextStatement();
-			Resource sub = stm.getResource();
+			Resource sub = stm.getSubject();
 			RDFNode obj = stm.getObject();
 			if(sub.isAnon() || obj.isAnon()) {
 				continue;
@@ -177,7 +189,20 @@ public class Converter {
 			String cUri = objRes.getNameSpace() + objRes.getLocalName();
 			OntResource synRes = indModel.getOntResource(sUri);
 			OntResource concRes = linksModel.getOntResource(cUri);
+			if(synRes == null) {
+				System.err.println("synRes is null: " + sUri);
+			}
+			if(concRes == null) {
+				System.err.println("concRes is null: " + cUri);
+			}
 			lexModel.add(concRes, lexProp, synRes);
-		}		
+		}
+		
+		//Serialize
+		String fileName = dataDir + File.separatorChar + Conf.LEXICALIZATION;
+		Util.serialize(lexModel, fileName);
+
 	}
+	
+	
 }
