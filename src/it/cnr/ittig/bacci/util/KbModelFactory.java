@@ -136,6 +136,13 @@ public class KbModelFactory {
 		if(type.equalsIgnoreCase("dalos.metaconc")) {
 			readSchema(om, Conf.CONCEPT_SCHEMA);
 		}
+		if(type.equalsIgnoreCase("dalos.types")) {
+			readLocalDocument(om, lang, Conf.TYPES);
+		}
+		if(type.equalsIgnoreCase("dalos.ind")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readLocalDocument(om, lang, Conf.IND);
+		}
 		odm.setProcessImports(true);
 		odm.loadImports(om);
 		

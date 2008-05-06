@@ -1,6 +1,5 @@
 package it.cnr.ittig.bacci.converter;
 
-import it.cnr.ittig.bacci.classifier.DataManager;
 import it.cnr.ittig.bacci.converter.objects.Concept;
 import it.cnr.ittig.bacci.converter.objects.OntoClass;
 import it.cnr.ittig.bacci.converter.objects.Synset;
@@ -9,8 +8,6 @@ import it.cnr.ittig.bacci.util.KbModelFactory;
 import it.cnr.ittig.bacci.util.Util;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +19,6 @@ import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -58,8 +54,11 @@ public class Converter {
 		//crea gli oggetti in memoria
 		initConcepts();		
 		
+		OntModel linksModel = KbModelFactory.getModel();
+
 		//serializza i concept secondo il nuovo formato
-		serializeConcepts();
+		serializeConcepts(linksModel);
+		serializeLexicalizations(linksModel);
 		
 	}
 	
@@ -111,11 +110,10 @@ public class Converter {
 		}
 	}
 	
-	private void serializeConcepts() {
+	private void serializeConcepts(OntModel linksModel) {
 		
 		OntModel metaConcModel = KbModelFactory.getModel(
 			"dalos.metaconc");
-		OntModel linksModel = KbModelFactory.getModel();
 		OntModel ontoModel = KbModelFactory.getModel(
 			"dalos.ontology");
 		
@@ -146,13 +144,17 @@ public class Converter {
 		Util.serialize(linksModel, fileName);
 	}	
 
-	private void serializeLexicalizations() {
+	private void serializeLexicalizations(OntModel linksModel) {
 		
 		OntModel lexModel = KbModelFactory.getModel();
 		OntModel metaConcModel = KbModelFactory.getModel(
-									"dalos.metaconc");
+			"dalos.metaconc");
+		OntModel indModel = KbModelFactory.getModel(
+			"dalos.ind");
+		OntModel typesModel = KbModelFactory.getModel(
+			"dalos.types");
 		OntProperty lexProp = lexModel.getOntProperty(
-				Conf.CONCEPTSCHEMA_NS + Conf.LEXICALIZATION_PROP);
+			Conf.CONCEPTSCHEMA_NS + Conf.LEXICALIZATION_PROP);
 	
 		OntClass conceptClass = metaConcModel.getOntClass(
 				Conf.CONCEPT_CLASS);
@@ -162,13 +164,20 @@ public class Converter {
 		}
 		
 		//Create
-		for(Iterator<Concept> i = links.iterator(); i.hasNext(); ) {
-			Concept conc = i.next();
-			for(Iterator<Synset> s = conc.getTerms().iterator(); s.hasNext(); ) {
-				Synset syn = s.next();
-				
+		StmtIterator si = typesModel.listStatements(null, RDF.type, (RDFNode) null); 		
+		for(; si.hasNext(); ) {
+			Statement stm = si.nextStatement();
+			Resource sub = stm.getResource();
+			RDFNode obj = stm.getObject();
+			if(sub.isAnon() || obj.isAnon()) {
+				continue;
 			}
-			
-		}
+			String sUri = sub.getNameSpace() + sub.getLocalName();
+			Resource objRes = (Resource) obj;
+			String cUri = objRes.getNameSpace() + objRes.getLocalName();
+			OntResource synRes = indModel.getOntResource(sUri);
+			OntResource concRes = linksModel.getOntResource(cUri);
+			lexModel.add(concRes, lexProp, synRes);
+		}		
 	}
 }
