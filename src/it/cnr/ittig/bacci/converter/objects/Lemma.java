@@ -1,74 +1,37 @@
 package it.cnr.ittig.bacci.converter.objects;
 
-import java.util.Vector;
+import it.cnr.ittig.bacci.classifier.resource.WebResource;
 
-public class Lemma implements Comparable {
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
-	private String lexicalForm;
+//This class defines WORDSENSE objects...
+
+public class Lemma extends WebResource {
+
 	private String partOfSpeech;
 	private String sense;
 	
-	private String ordine;
-	
-	private String id;
-	
-	//Prendere questi valori da un file Conf (EditorConf.java)
 	private static String DEFAULT_POS = "N";
 	private static String DEFAULT_SENSE = "1";
-	
-	private Synset synset;
-	
-	public Vector<String> variants;
-	
-	private String protoForm;
-	
-	private String lemmaLang;
 
-	public Lemma(String l) {
-		this(l, DEFAULT_POS);
-	}
+	//Word Collection
+	private Collection<Word> words;
 	
-	public Lemma(String l, String pos) {
-		this(l, pos, DEFAULT_SENSE);
-	}
-	
-	public Lemma(String l, String pos, String s) {
+	//Synset that contains this object
+	private Synset inSynset;
+
+	public Lemma() {
 				
-		variants = new Vector<String>();
+		words = new HashSet<Word>();
 		
-		l = checkPipe(l);
-		
-		lexicalForm = l;
-		partOfSpeech = pos;
-		sense = s;
-		protoForm = l;
-		
-		ordine = "";
-		id = null;
-		
-		synset = null;
-		
-		lemmaLang = null;
+		partOfSpeech = DEFAULT_POS;
+		sense = DEFAULT_SENSE;
+
+		inSynset = null;
 	}
 	
-	public void setID(String newId) { id = newId; }
-	public String getID() {	return id; }
-
-	public String getLexicalForm() { return lexicalForm; }
-	public void setLexicalForm(String lex) { lexicalForm = lex; }
-	
-	public String getPartOfSpeech() { return partOfSpeech; }
-	public void setPartOfSpeech(String pos) { partOfSpeech = pos; }
-	
-	public String getSense() { return sense; }
-	public void setSense(String s) { sense = s; }
-	
-	public String getOrdine() { return ordine; }
-	public void setOrdine(String o) { ordine = o; }
-
-	public Synset getSynset() { return synset; }
-	public void setSynset(Synset c) { synset = c; }
-
 	public String toString() {
 		if(partOfSpeech != null) {
 			return lexicalForm + "  [" + partOfSpeech + ", " + sense + "]";
@@ -77,73 +40,60 @@ public class Lemma implements Comparable {
 		}
 	}
 
-	public boolean equals(Object obj) {
-		
-		if(obj == null) {
-			return false;
-		}
-		if(!(obj instanceof Lemma)) {
-			return false;
-		}
-		Lemma l = (Lemma) obj;
-		
-		if(this.getLexicalForm().equalsIgnoreCase(l.getLexicalForm()) && 
-				this.getPartOfSpeech().equalsIgnoreCase(l.getPartOfSpeech()) &&
-				this.getSense().equalsIgnoreCase(l.getSense()) ) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	private String checkPipe(String l) {
-		
-		String form = l;
-		String[] forms = l.split("[|]");
-		//System.out.println("checkPipe() l:" + l + " fsize:" + forms.length);
-		if(forms.length > 1) {
-			for(int i = 0; i < forms.length; i++) {
-				String item = forms[i];
-				variants.add(item);
-				if(i == 0) {
-					form = item;
-				}				
-			}			
-		} else {
-			variants.add(form);
-		}
-		
-		return form;
+	public Synset getInSynset() {
+		return inSynset;
 	}
 
-	public String getProtoForm() {
-		return protoForm;
+	public void setInSynset(Synset inSynset) {
+		this.inSynset = inSynset;
 	}
 
-	public void setProtoForm(String protoForm) {
-		this.protoForm = protoForm;
+	public String getPartOfSpeech() {
+		return partOfSpeech;
 	}
 
-	public String getLemmaLang() {
-		return lemmaLang;
+	public void setPartOfSpeech(String partOfSpeech) {
+		this.partOfSpeech = partOfSpeech;
 	}
 
-	public void setLemmaLang(String lemmaLang) {
-		this.lemmaLang = lemmaLang;
+	public String getSense() {
+		return sense;
 	}
 
-	@Override
-	public int compareTo(Object obj) 
-		throws ClassCastException {
-
-		if(!(obj instanceof Lemma)) {
-			throw new ClassCastException(
-					"Object is not a valid Lemma! obj:" 
-					+ obj.getClass());			
-		}
-		
-		String objStr = ((Lemma) obj).toString();
-		return this.toString().compareToIgnoreCase(objStr);
+	public void setSense(String sense) {
+		this.sense = sense;
 	}
+
+	public Collection<Word> getWords() {
+		return Collections.unmodifiableCollection(words);
+	}
+
+	public boolean addWord(Word word) {
+		return words.add(word);
+	}
+
+	public boolean removeWord(Word word) {
+		return words.remove(word);
+	}
+
+//	private String checkPipe(String l) {
+//		
+//		String form = l;
+//		String[] forms = l.split("[|]");
+//		//System.out.println("checkPipe() l:" + l + " fsize:" + forms.length);
+//		if(forms.length > 1) {
+//			for(int i = 0; i < forms.length; i++) {
+//				String item = forms[i];
+//				variants.add(item);
+//				if(i == 0) {
+//					form = item;
+//				}				
+//			}			
+//		} else {
+//			variants.add(form);
+//		}
+//		
+//		return form;
+//	}
 
 }

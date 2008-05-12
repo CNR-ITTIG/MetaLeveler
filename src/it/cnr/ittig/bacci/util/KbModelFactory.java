@@ -112,9 +112,10 @@ public class KbModelFactory {
 		OntModel om = ModelFactory.createOntologyModel(spec, null);
 		
 		if(type.equalsIgnoreCase("dalos.full")) {
-			readLocalDocument(om, lang, Conf.CONCEPTS);
-			readLocalDocument(om, lang, Conf.TYPES);
 			readSchema(om, ONTO);
+			readLocalDocument(om, lang, Conf.TYPES);
+			//readLocalDocument(om, lang, Conf.CONCEPTS);
+			readLocalDocument(om, lang, Conf.LINKS);
 		}
 		if(type.equalsIgnoreCase("dalos.lexicon")) {
 			readSchema(om, Conf.METALEVEL_ONTO);
@@ -131,16 +132,34 @@ public class KbModelFactory {
 			readSchema(om, ONTO);
 		}		
 		if(type.equalsIgnoreCase("dalos.concepts")) {
+			//readLocalDocument(om, lang, Conf.CONCEPTS);
+			readLocalDocument(om, lang, Conf.LINKS);
+		}
+		if(type.equalsIgnoreCase("dalos.OLDontoconcepts")) {
+			readSchema(om, ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
 			readLocalDocument(om, lang, Conf.CONCEPTS);
 		}
 		if(type.equalsIgnoreCase("dalos.ontoconcepts")) {
 			readSchema(om, ONTO);
 			readSchema(om, Conf.CONCEPT_SCHEMA);
-			readLocalDocument(om, lang, Conf.CONCEPTS);
+			readLocalDocument(om, lang, Conf.LINKS);
 		}
 		if(type.equalsIgnoreCase("dalos.metaconc")) {
 			readSchema(om, Conf.METALEVEL_ONTO);
 			readSchema(om, Conf.CONCEPT_SCHEMA);
+		}
+		if(type.equalsIgnoreCase("dalos.concepts.meta")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
+			//readLocalDocument(om, lang, Conf.CONCEPTS);
+			readLocalDocument(om, lang, Conf.LINKS);
+		}
+		if(type.equalsIgnoreCase("dalos.concepts.all")) {
+			readSchema(om, ONTO);
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
+			readLocalDocument(om, lang, Conf.LINKS);
 		}
 		if(type.equalsIgnoreCase("dalos.types")) {
 			readLocalDocument(om, lang, Conf.TYPES);
@@ -149,6 +168,16 @@ public class KbModelFactory {
 			readSchema(om, Conf.METALEVEL_ONTO);
 			readLocalDocument(om, lang, Conf.IND);
 		}
+		if(type.equalsIgnoreCase("dalos.cleaner")) {
+			readSchema(om, ONTO);
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
+			readLocalDocument(om, lang, Conf.LINKS);
+			readLocalDocument(om, lang, Conf.IND);
+			readLocalDocument(om, lang, Conf.INDW);
+			readLocalDocument(om, lang, Conf.LEXICALIZATION);
+		}
+
 		//SINGLE LEXICONS
 		if(type.equalsIgnoreCase("dalos.lexicon.EN")) {
 			readSchema(om, Conf.METALEVEL_ONTO);
@@ -174,6 +203,41 @@ public class KbModelFactory {
 			readLocalDocument(om, lang, "NL" + Conf.IND);
 			readLocalDocument(om, lang, "NL" + Conf.LEXICALIZATION);
 		}		
+		if(type.equalsIgnoreCase("dalos.lexiconw.IT")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readSchema(om, Conf.CONCEPT_SCHEMA);
+			readLocalDocument(om, lang, "IT" + Conf.IND);
+			readLocalDocument(om, lang, "IT" + Conf.INDW);
+			readLocalDocument(om, lang, "IT" + Conf.LEXICALIZATION);
+		}		
+		
+		//SINGLE FILES
+		if(type.equalsIgnoreCase("single.ind")) {
+			readLocalDocument(om, lang, "IT" + Conf.IND);
+		}
+		if(type.equalsIgnoreCase("single.indw")) {
+			readLocalDocument(om, lang, "IT" + Conf.INDW);
+		}
+		if(type.equalsIgnoreCase("single.lex")) {
+			readLocalDocument(om, lang, "IT" + Conf.LEXICALIZATION);
+		}
+		if(type.equalsIgnoreCase("single.sources")) {
+			readLocalDocument(om, lang, "IT" + Conf.SOURCES);
+		}
+
+		if(type.equalsIgnoreCase("dalos.lexicalization.EN")) {
+			readLocalDocument(om, lang, "EN" + Conf.LEXICALIZATION);
+		}		
+		if(type.equalsIgnoreCase("dalos.lexicalization.ES")) {
+			readLocalDocument(om, lang, "ES" + Conf.LEXICALIZATION);
+		}		
+		if(type.equalsIgnoreCase("dalos.lexicalization.IT")) {
+			readLocalDocument(om, lang, "IT" + Conf.LEXICALIZATION);
+		}		
+		if(type.equalsIgnoreCase("dalos.lexicalization.NL")) {
+			readLocalDocument(om, lang, "NL" + Conf.LEXICALIZATION);
+		}		
+		
 		odm.setProcessImports(true);
 		odm.loadImports(om);
 		

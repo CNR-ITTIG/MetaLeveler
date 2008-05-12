@@ -69,12 +69,12 @@ public class Converter {
 	private void initConcepts() {
 		
 		OntModel oldConceptModel = KbModelFactory.getModel(
-			"dalos.ontoconcepts");
+			"dalos.OLDontoconcepts");
 
 		OntClass oldConceptClass = oldConceptModel.getOntClass(
 			"http://localhost/dalos/concepts.owl#Concept");
 		if(oldConceptClass == null) {
-			System.err.println("ERROR! initConcepts() - conceptClass is null");
+			System.err.println("ERROR! initConcepts() - oldConceptClass is null");
 			return;
 		}
 		
@@ -103,6 +103,7 @@ public class Converter {
 				if(oc == null) {
 					oc = new OntoClass();
 					oc.setURI(uri);
+					uriToOntoClass.put(uri, oc);
 				}
 				conc.addLink(oc);
 				//oc.addConcept(conc);
@@ -110,7 +111,6 @@ public class Converter {
 				//System.out.println("Adding pivot class " + poc + 
 				//" to tree class " + toc + " turi:" + turi);
 				
-				uriToOntoClass.put(uri, oc);			
 			}
 		}
 	}

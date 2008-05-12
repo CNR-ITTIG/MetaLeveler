@@ -50,12 +50,24 @@ public class Conf {
 	public static String LOCAL_SOURCE_SCHEMA = "metasources.owl";
 	public static String LOCAL_METALEVEL_FULL = "language-properties-full.owl";
 	
-	public static String synsetClassName = METALEVEL_ONTO_NS + "Synset";
+	public static String SYNSET_CLASS = METALEVEL_ONTO_NS + "Synset";
 	public static String conceptClassName = "Concept";
 	
 	//New
 	public static String CONCEPT_CLASS = CONCEPTSCHEMA_NS + "Concept";
 	public static String LEXICALIZATION_PROP = CONCEPTSCHEMA_NS + "hasLexicalization";
+	public static String SOURCE_PROP = SOURCESCHEMA_NS + "source";
+	public static String SYNID_PROP = METALEVEL_ONTO_NS + "synsetId";
+	public static String GLOSS_PROP = METALEVEL_ONTO_NS + "gloss";
+	public static String WORDSENSE_PROP = METALEVEL_ONTO_NS + "containsWordSense";
+	public static String WORD_PROP = METALEVEL_ONTO_NS + "word";
+	public static String LEXFORM_PROP = METALEVEL_ONTO_NS + "lexicalForm";
+	public static String PROTOFORM_PROP = METALEVEL_ONTO_NS + "protoForm";
+	
+	public static String NOUN_CLASS = METALEVEL_ONTO_NS + "NounSynset";
+	public static String VERB_CLASS = METALEVEL_ONTO_NS + "VerbSynset";
+	public static String ADVERB_CLASS = METALEVEL_ONTO_NS + "AdverbSynset";
+	public static String ADJECTIVE_CLASS = METALEVEL_ONTO_NS + "AdjectiveSynset";
 
 	public static String CNIPA_NS = "http://localhost/cnipa/";	
 	public static String DALOS_NS = "http://localhost/dalos/";

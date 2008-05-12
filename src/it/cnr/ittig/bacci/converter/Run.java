@@ -7,8 +7,5 @@ public class Run {
 		Converter app = new Converter();
 		//app.convert();
 		app.addInterlinguistic();
-		
-		
 	}
-
 }

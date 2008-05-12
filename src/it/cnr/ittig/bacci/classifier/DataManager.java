@@ -269,7 +269,7 @@ public class DataManager {
 			SynsetUtil.setModel(lexModel);
 		}
 
-		OntClass synsetClass = lexModel.getOntClass(Conf.synsetClassName);
+		OntClass synsetClass = lexModel.getOntClass(Conf.SYNSET_CLASS);
 		if(synsetClass == null) {
 			System.err.println("Synset class is null!");
 			return;

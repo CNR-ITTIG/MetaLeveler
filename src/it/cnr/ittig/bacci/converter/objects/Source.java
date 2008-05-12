@@ -1,6 +1,8 @@
 package it.cnr.ittig.bacci.converter.objects;
 
-public class Source {
+import it.cnr.ittig.bacci.classifier.resource.WebResource;
+
+public class Source extends WebResource {
 
 	private String text;
 	private String code;
