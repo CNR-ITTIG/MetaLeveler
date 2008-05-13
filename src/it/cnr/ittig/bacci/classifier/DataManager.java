@@ -34,7 +34,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 public class DataManager {
 	
 	//Sorted Data
-	private Collection<BasicResource> resources;	
+	private Collection<BasicResource> resources;
 	private Collection<OntologicalClass> classes;
 	
 	private String DATA_DIR = "";

@@ -86,7 +86,7 @@ public class SynsetUtil {
 				lcount++;
 			}
 			if(lcount == 0) {
-				System.err.println("Synset with 0 lexical form!!");
+				//System.err.println("Synset with 0 lexical form!!");
 				return false;
 			}
 		}

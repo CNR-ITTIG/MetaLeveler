@@ -46,8 +46,9 @@ public class Synset extends BasicResource {
 			return i.next();
 		}
 		
-		System.err.println("---- Surface form not found! size:" 
-				+ variants.size() + "! using proto form...");
+//		System.err.println("---- Surface form not found! size:" 
+//				+ variants.size() + "! using proto form...");
+		
 		return super.toString();
 	}
 }

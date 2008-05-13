@@ -204,7 +204,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 		for(int i = 0; i < EditorConf.languages.length; i++) {
 			String lang = EditorConf.languages[i];
 			langToTypeModel.put(lang, 
-					ModelFactory.createOntologyModel(spec, null));			
+				ModelFactory.createOntologyModel(spec, null));			
 		}				
 		
 		Connection c = openConnection();		
