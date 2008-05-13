@@ -74,6 +74,9 @@ public class KbModelFactory {
 //		String DATA_DIR = (String) Gui.appProperties.getProperty("resDir");
 //		String ONTO_NS = (String) Gui.appProperties.getProperty("ontoNs");
 		
+		System.out.println("KbModelFactory - type: " + type + 
+				" reasoner: " + reasoner + " lang: " + lang);
+		
 		String ONTO = Conf.DALOS_ONTO;
 		if(Gui.appProperties != null) {
 			ONTO = (String) Gui.appProperties.getProperty("ontoText");			
@@ -117,7 +120,19 @@ public class KbModelFactory {
 			//readLocalDocument(om, lang, Conf.CONCEPTS);
 			readLocalDocument(om, lang, Conf.LINKS);
 		}
+		if(type.equalsIgnoreCase("classifier.full")) {
+			readSchema(om, ONTO);
+			readLocalDocument(om, lang, Conf.TYPES);
+			readLocalDocument(om, lang, Conf.CONCEPTS);
+			//readLocalDocument(om, lang, Conf.LINKS);
+		}
 		if(type.equalsIgnoreCase("dalos.lexicon")) {
+			readSchema(om, Conf.METALEVEL_ONTO);
+			readLocalDocument(om, lang, Conf.IND);
+			readLocalDocument(om, lang, Conf.INDW);
+			//readLocalDocument(om, lang, Conf.TYPES);
+		}		
+		if(type.equalsIgnoreCase("classifier.lexicon")) {
 			readSchema(om, Conf.METALEVEL_ONTO);
 			readLocalDocument(om, lang, Conf.IND);
 			readLocalDocument(om, lang, Conf.INDW);
@@ -213,16 +228,16 @@ public class KbModelFactory {
 		
 		//SINGLE FILES
 		if(type.equalsIgnoreCase("single.ind")) {
-			readLocalDocument(om, lang, "IT" + Conf.IND);
+			readLocalDocument(om, lang, Conf.IND);
 		}
 		if(type.equalsIgnoreCase("single.indw")) {
-			readLocalDocument(om, lang, "IT" + Conf.INDW);
+			readLocalDocument(om, lang, Conf.INDW);
 		}
 		if(type.equalsIgnoreCase("single.lex")) {
-			readLocalDocument(om, lang, "IT" + Conf.LEXICALIZATION);
+			readLocalDocument(om, lang, Conf.LEXICALIZATION);
 		}
 		if(type.equalsIgnoreCase("single.sources")) {
-			readLocalDocument(om, lang, "IT" + Conf.SOURCES);
+			readLocalDocument(om, lang, Conf.SOURCES);
 		}
 
 		if(type.equalsIgnoreCase("dalos.lexicalization.EN")) {

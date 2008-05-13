@@ -4,8 +4,15 @@ public class Run {
 
 	public static void main(String[] args) {
 		
-		Converter app = new Converter();
-		//app.convert();
-		app.addInterlinguistic();
+		//Converter conv = new Converter();
+		//conv.convert();
+		//conv.addInterlinguistic();
+		
+//		LexiconCleaner lc = new LexiconCleaner();
+//		lc.clean();
+		
+		LexiconRefiner lr = new LexiconRefiner();
+		lr.refine();
+		
 	}
 }

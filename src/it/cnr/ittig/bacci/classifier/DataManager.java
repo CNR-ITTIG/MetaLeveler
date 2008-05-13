@@ -264,7 +264,7 @@ public class DataManager {
 		
 		//Con reasoner
 		OntModel lexModel = KbModelFactory.getModel(
-				"dalos.lexicon", "micro");
+				"classifier.lexicon", "micro");
 		if(Conf.WORDNET_DATA) {
 			SynsetUtil.setModel(lexModel);
 		}
@@ -295,7 +295,7 @@ public class DataManager {
 		lexModel = null;
 		
 		//Senza reasoner
-		fullModel = KbModelFactory.getModel("dalos.full", "");
+		fullModel = KbModelFactory.getModel("classifier.full", "");
 		
 		//List Ontology classes
 		for(ExtendedIterator ci = fullModel.listClasses(); ci.hasNext();) {
@@ -310,9 +310,6 @@ public class DataManager {
 			}
 			getOntologicalClass(ns, name);			
 		}
-		
-//		OntModel concModel = KbModelFactory.getModel("dalos.concepts", "");
-//		OntClass conceptClass2 = concModel.getOntClass(CONCEPT_CLASS_NAME);
 		
 		OntClass conceptClass = fullModel.getOntClass(CONCEPT_CLASS_NAME);
 		if(conceptClass == null) {

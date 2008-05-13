@@ -51,7 +51,7 @@ public class Converter {
 		
 		//crea il modello leggendo i vecchi concept
 		//crea gli oggetti in memoria
-		initConcepts();		
+		initConcepts();
 		
 		OntModel linksModel = KbModelFactory.getModel();
 

@@ -692,9 +692,13 @@ public class AddService {
 			//synset.addProperty(idProperty, id);
 			synset.addProperty(idProperty, lit);
 		} else {
-			System.out.println("========!!! id already in " + synset);
-			System.out.println("old:" + synset.getPropertyValue(idProperty) + 
-					" new:" + id);
+			Literal lit = (Literal) synset.getPropertyValue(idProperty);
+			String oldId = lit.getString();
+			if(oldId.equals(id)) {
+				System.out.println("========!!! id already in " + synset);
+				System.out.println("old:" + synset.getPropertyValue(idProperty) + 
+						" new:" + id);
+			}
 		}
 	}
 	

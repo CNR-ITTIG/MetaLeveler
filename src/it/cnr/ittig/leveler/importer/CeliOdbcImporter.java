@@ -68,13 +68,15 @@ public class CeliOdbcImporter  extends ImporterUtil
 		String sql = "select * from " + termsTBL;
 		Vector<String[]> results = eseguiQuery(c, sql);
 		
+		System.out.println("Results size: " + results.size());
+		
 		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
 			String[] row = i.next();
 			
 			String lang = row[0].trim();
 			String id = row[1].trim();
 			String lexical = row[2].trim();
-			String proto = row[3].trim();
+			//String proto = row[3].trim(); //IGNORARE !!!!!
 			
 			if(!lang.equalsIgnoreCase(EditorConf.LANGUAGE)) {
 				continue;
@@ -82,14 +84,17 @@ public class CeliOdbcImporter  extends ImporterUtil
 
 			Concetto conc = new Concetto();
 			conc.setID(id);
-			Lemma lemma = new Lemma(proto);
+			//Lemma lemma = new Lemma(proto);
+			Lemma lemma = new Lemma(lexical);
 			lemma.setLemmaLang(EditorConf.LANGUAGE);
 			conc.add(lemma);
 			Leveler.appSynsets.put(id, conc);
 			
-			//aggiungi le varianti dalla tabella AL LEMMA !! 
-			lemma.variants.add(lexical);
+			//aggiungi le varianti dalla tabella AL LEMMA !! <-- NON SONO QUI !! 
+			//lemma.variants.add(lexical);
 		}		
+		
+		System.out.println("Concepts: " + Leveler.appSynsets.values().size());
 		closeConnection(c);
 		
 		addDefinition();
@@ -160,9 +165,9 @@ public class CeliOdbcImporter  extends ImporterUtil
 //				continue;
 //			}
 			
-			if(counter < 10) {
-				System.out.println("id: " + id + " part: " + part);
-			}
+//			if(counter < 10) {
+//				System.out.println("id: " + id + " part: " + part);
+//			}
 			counter++;
 
 			Concetto conc = Leveler.appSynsets.get(id);
@@ -326,9 +331,9 @@ public class CeliOdbcImporter  extends ImporterUtil
 			//String code = row[2].trim();
 			String text = row[2].trim();
 
-			if(counter < 10) {
-				System.out.println("id: " + id + " part: " + part);
-			}
+//			if(counter < 10) {
+//				System.out.println("id: " + id + " part: " + part);
+//			}
 			counter++;
 
 			Concetto conc = Leveler.appSynsets.get(id);
@@ -339,7 +344,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 
 			//Add definition
 			conc.setDefinizione(text);
-			System.out.println("CONCETTO: " + conc + " DEF: " + text);
+			//System.out.println("CONCETTO: " + conc + " DEF: " + text);
 		}
 		closeConnection(c);
 	}

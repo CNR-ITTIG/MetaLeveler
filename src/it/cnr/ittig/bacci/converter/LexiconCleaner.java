@@ -39,7 +39,7 @@ public class LexiconCleaner {
 	
 	private OntModel indModel;
 	private OntModel indwModel;
-	private OntModel lexModel;
+	private OntModel lexicModel;
 	private OntModel sourceModel;
 	
 	private Map<String,Concept> uriToConcept = null;
@@ -86,7 +86,7 @@ public class LexiconCleaner {
 		
 		File dataDirFile = new File(".");
 		dataDir = dataDirFile.getAbsolutePath();
-		Util.initDocuments(dataDir);		
+		Util.initDocuments(dataDir);
 	}
 
 	public void clean() {
@@ -95,25 +95,25 @@ public class LexiconCleaner {
 		
 		indModel = KbModelFactory.getModel("single.ind");
 		indwModel = KbModelFactory.getModel("single.indw");
-		lexModel = KbModelFactory.getModel("single.lex");
+		lexicModel = KbModelFactory.getModel("single.lex");
 		sourceModel = KbModelFactory.getModel("single.sources");
 		
-		lexProp = lexModel.getOntProperty(Conf.LEXICALIZATION_PROP);
-		sourceProp = lexModel.getOntProperty(Conf.SOURCE_PROP);
+		lexProp = model.getOntProperty(Conf.LEXICALIZATION_PROP);
+		sourceProp = model.getOntProperty(Conf.SOURCE_PROP);
 		
-		idProp = lexModel.getOntProperty(Conf.SYNID_PROP);
-		glossProp = lexModel.getOntProperty(Conf.GLOSS_PROP);
+		idProp = model.getOntProperty(Conf.SYNID_PROP);
+		glossProp = model.getOntProperty(Conf.GLOSS_PROP);
 		
-		wsProp = lexModel.getOntProperty(Conf.WORDSENSE_PROP);
-		wProp = lexModel.getOntProperty(Conf.WORD_PROP);
+		wsProp = model.getOntProperty(Conf.WORDSENSE_PROP);
+		wProp = model.getOntProperty(Conf.WORD_PROP);
 		
-		lexFormProp = lexModel.getOntProperty(Conf.LEXFORM_PROP);
-		protoFormProp = lexModel.getOntProperty(Conf.PROTOFORM_PROP);	
+		lexFormProp = model.getOntProperty(Conf.LEXFORM_PROP);
+		protoFormProp = model.getOntProperty(Conf.PROTOFORM_PROP);	
 
-		nounClass = lexModel.getOntClass(Conf.NOUN_CLASS);
-		verbClass = lexModel.getOntClass(Conf.VERB_CLASS);
-		adverbClass = lexModel.getOntClass(Conf.ADVERB_CLASS);
-		adjectiveClass = lexModel.getOntClass(Conf.ADVERB_CLASS);
+		nounClass = model.getOntClass(Conf.NOUN_CLASS);
+		verbClass = model.getOntClass(Conf.VERB_CLASS);
+		adverbClass = model.getOntClass(Conf.ADVERB_CLASS);
+		adjectiveClass = model.getOntClass(Conf.ADVERB_CLASS);
 
 		initConcepts();
 		addLexicalizations(model);
@@ -135,18 +135,20 @@ public class LexiconCleaner {
 			}
 		}
 		
+		//TODO This cleaner works only for IT language!!
+		String dalosBase = Conf.DALOS_NS + "IT/";
 		//Serialize
 		String fileName = dataDir + File.separatorChar + Conf.IND;
-		Util.serialize(indModel, fileName);
+		Util.serialize(indModel, fileName, dalosBase + Conf.IND + "#");
 
 		fileName = dataDir + File.separatorChar + Conf.INDW;
-		Util.serialize(indwModel, fileName);
+		Util.serialize(indwModel, fileName, dalosBase + Conf.INDW + "#");
 		
 		fileName = dataDir + File.separatorChar + Conf.LEXICALIZATION;
-		Util.serialize(lexModel, fileName);
+		Util.serialize(lexicModel, fileName, dalosBase + Conf.LEXICALIZATION + "#");
 		
 		fileName = dataDir + File.separatorChar + Conf.SOURCES;
-		Util.serialize(sourceModel, fileName);
+		Util.serialize(sourceModel, fileName, dalosBase + Conf.SOURCES + "#");
 	}
 	
 	private void removeSynset(Synset syn) {
@@ -156,7 +158,7 @@ public class LexiconCleaner {
 		
 		involvedModels.add(indModel);
 		involvedModels.add(indwModel);
-		involvedModels.add(lexModel);
+		involvedModels.add(lexicModel);
 		involvedModels.add(sourceModel);
 		
 		//synset
@@ -312,12 +314,14 @@ public class LexiconCleaner {
 
 	private String getSynId(OntResource synRes) {
 		
-		RDFNode idNode = synRes.getPropertyValue(idProp);
-		if(idNode == null) {
+		if( !synRes.hasProperty(idProp) ) {
 			System.err.println("NO ID for " + 
 					synRes.getNameSpace() + synRes.getLocalName());
 			return "";
 		}
+		
+		RDFNode idNode = synRes.getPropertyValue(idProp);
+		//System.out.println("Getting id for " + synRes.getNameSpace() + synRes.getLocalName());
 		String rawId = ((Literal) idNode).getString();
 		rawId = rawId.substring(1); //toglie l'1 iniziale
 		Integer intId = Integer.valueOf(rawId); //toglie gli zeri iniziali
@@ -359,14 +363,14 @@ public class LexiconCleaner {
 		
 		//Id
 		if(synRes.hasProperty(idProp)) {
-			Literal lit = (Literal) synRes.getProperty(idProp);
+			Literal lit = (Literal) synRes.getPropertyValue(idProp);
 			String id = lit.getString();
 			syn.setSynsetId(id);			
 		}
 		
 		//Gloss
 		if(synRes.hasProperty(glossProp)) {
-			Literal lit = (Literal) synRes.getProperty(glossProp);
+			Literal lit = (Literal) synRes.getPropertyValue(glossProp);
 			String gloss = lit.getString();
 			syn.setGloss(gloss);			
 		}
@@ -401,7 +405,7 @@ public class LexiconCleaner {
 				
 				//Proto Form
 				if(wRes.hasProperty(protoFormProp)) {
-					Literal lit = (Literal) synRes.getProperty(protoFormProp);
+					Literal lit = (Literal) wRes.getPropertyValue(protoFormProp);
 					String proto = lit.getString();
 					word.setProtoForm(proto);
 				}

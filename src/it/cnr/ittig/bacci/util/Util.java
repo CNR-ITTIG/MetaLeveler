@@ -11,9 +11,19 @@ public class Util {
 	
 	public static void serialize(OntModel om, String fileName) {
 		
+		serialize(om, fileName, "");
+	}
+	
+	public static void serialize(OntModel om, String fileName, String base) {
+		
 		RDFWriter writer = om.getWriter("RDF/XML"); //faster than RDF/XML-ABBREV		
 		File outputFile = new File(fileName);
 		String relativeOutputFileName = "file://" + outputFile.getAbsolutePath();
+		
+		if(base.trim().length() > 1) {
+			//Set base property
+			writer.setProperty("xmlbase", base);
+		}
 
 		System.out.println("Serializing ontology model to " + outputFile + "...");
 		try {
@@ -46,6 +56,10 @@ public class Util {
 		file = new File(workDir + Conf.INDW);
 		if(file.exists()) {
 			KbModelFactory.addDocument(Conf.INDW, workDir + Conf.INDW);
+		}
+		file = new File(workDir + Conf.SOURCES);
+		if(file.exists()) {
+			KbModelFactory.addDocument(Conf.SOURCES, workDir + Conf.SOURCES);
 		}
 		file = new File(workDir + Conf.LINKS);
 		if(file.exists()) {
