@@ -39,7 +39,7 @@ public class Lemma implements Comparable {
 				
 		variants = new Vector<String>();
 		
-		l = checkPipe(l);
+		//l = checkPipe(l);
 		
 		lexicalForm = l;
 		partOfSpeech = pos;
@@ -99,25 +99,25 @@ public class Lemma implements Comparable {
 		return false;
 	}
 	
-	private String checkPipe(String l) {
-		
-		String form = l;
-		String[] forms = l.split("[|]");
-		//System.out.println("checkPipe() l:" + l + " fsize:" + forms.length);
-		if(forms.length > 1) {
-			for(int i = 0; i < forms.length; i++) {
-				String item = forms[i];
-				variants.add(item);
-				if(i == 0) {
-					form = item;
-				}				
-			}			
-		} else {
-			variants.add(form);
-		}
-		
-		return form;
-	}
+//	private String checkPipe(String l) {
+//		
+//		String form = l;
+//		String[] forms = l.split("[|]");
+//		//System.out.println("checkPipe() l:" + l + " fsize:" + forms.length);
+//		if(forms.length > 1) {
+//			for(int i = 0; i < forms.length; i++) {
+//				String item = forms[i];
+//				variants.add(item);
+//				if(i == 0) {
+//					form = item;
+//				}
+//			}		
+//		} else {
+//			variants.add(form);
+//		}
+//		
+//		return form;
+//	}
 
 	public String getProtoForm() {
 		return protoForm;
