@@ -17,7 +17,8 @@ public class OWLUtil {
 
 	public static String getConceptClassName(Lemma l) {
 		
-		return getConceptClassNameURI(l.getLexicalForm(), l.getPartOfSpeech(), l.getSense());
+		return getConceptClassNameURI(l.getTempConceptName(), l.getPartOfSpeech(), l.getSense());
+		//return getConceptClassNameURI(l.getLexicalForm(), l.getPartOfSpeech(), l.getSense());
 	}
 
 	public static String getSynsetClassName(Lemma l) {

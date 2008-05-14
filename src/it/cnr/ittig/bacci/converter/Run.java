@@ -6,12 +6,16 @@ public class Run {
 		
 		//Converter conv = new Converter();
 		//conv.convert();
+		
 		//conv.addInterlinguistic();
 		
 //		LexiconCleaner lc = new LexiconCleaner();
 //		lc.clean();
 		
-		LexiconRefiner lr = new LexiconRefiner();
+//		LexiconRefiner lr = new LexiconRefiner();
+//		lr.refine();
+		
+		LexiconRefinerForeign lr = new LexiconRefinerForeign();
 		lr.refine();
 		
 	}

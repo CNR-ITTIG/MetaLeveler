@@ -209,9 +209,9 @@ public class CeliOdbcImporter  extends ImporterUtil
 		
 		Connection c = openConnection();		
 		
-		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_LG_IdLanguage_From, T1.IL_LG_IdLanguage_To, T2.TE_Lemma, T3.TE_Lemma " +
-			"FROM " + interlinguisticTBL + " T1, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + 
-			" ) AS T2, (SELECT TE_IdTerm, TE_Lemma FROM " + termsTBL + " ) AS T3 " +
+		String sql = "SELECT T1.IL_RT_IdRelType, T1.IL_LG_IdLanguage_From, T1.IL_LG_IdLanguage_To, T2.TE_SurfaceForm, T3.TE_SurfaceForm, T2.TE_Lemma, T3.TE_Lemma " +
+			"FROM " + interlinguisticTBL + " T1, (SELECT TE_IdTerm, TE_SurfaceForm, TE_Lemma FROM " + termsTBL + 
+			" ) AS T2, (SELECT TE_IdTerm, TE_SurfaceForm, TE_Lemma FROM " + termsTBL + " ) AS T3 " +
 			"WHERE T1.IL_TE_IdTerm_From = T2.TE_IdTerm " +
 			"AND T1.IL_TE_IdTerm_To = T3.TE_IdTerm " +
 			//"AND T1.TD_OT_IdRelType = 'equivalent' " +
@@ -228,6 +228,8 @@ public class CeliOdbcImporter  extends ImporterUtil
 			String langTo = row[2].trim();
 			String protoFrom = row[3].trim();
 			String protoTo = row[4].trim();
+			String conceptFrom = row[5].trim();
+			String conceptTo = row[6].trim();
 						
 			if(!relType.equalsIgnoreCase("equivalent")) { //Ignorare le altre?
 				continue;
@@ -244,8 +246,8 @@ public class CeliOdbcImporter  extends ImporterUtil
 //				continue;
 //			}
 
-			Lemma lemmaFrom = getLemma(protoFrom, langFrom);
-			Lemma lemmaTo = getLemma(protoTo, langTo);
+			Lemma lemmaFrom = getLemma(protoFrom, langFrom, conceptFrom);
+			Lemma lemmaTo = getLemma(protoTo, langTo, conceptTo);
 			
 			lemmaToLang.put(lemmaFrom, langFrom);
 			lemmaToLang.put(lemmaTo, langTo);
@@ -349,7 +351,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 		closeConnection(c);
 	}
 
-	private Lemma getLemma(String proto, String lang) {
+	private Lemma getLemma(String proto, String lang, String conceptName) {
 		
 		String key = proto + lang;
 		Lemma lemma = protoLangToLemma.get(key);
@@ -357,6 +359,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 			lemma = new Lemma(proto);
 			protoLangToLemma.put(key, lemma);
 			lemma.setLemmaLang(lang);
+			lemma.setTempConceptName(conceptName);
 		}
 		return lemma;
 	}	

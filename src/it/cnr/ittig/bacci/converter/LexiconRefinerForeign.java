@@ -1,9 +1,15 @@
 package it.cnr.ittig.bacci.converter;
 
+import it.cnr.ittig.bacci.converter.objects.Concept;
+import it.cnr.ittig.bacci.converter.objects.Lemma;
+import it.cnr.ittig.bacci.converter.objects.OntoClass;
+import it.cnr.ittig.bacci.converter.objects.Source;
 import it.cnr.ittig.bacci.converter.objects.Synset;
+import it.cnr.ittig.bacci.converter.objects.Word;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.KbModelFactory;
 import it.cnr.ittig.bacci.util.Util;
+import it.cnr.ittig.jwneditor.editor.EditorConf;
 
 import java.io.File;
 import java.sql.Connection;
@@ -13,7 +19,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -26,15 +34,16 @@ import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 
-public class LexiconRefiner {
+public class LexiconRefinerForeign {
 
 	/*
 	 * Aggiunge le varianti per l'italiano collegandosi
 	 * ad un file .mdb; IND, INDW
 	 */
 	
-	private String mdbFileName = "dalos_dir+dec_con_np_ita_final.mdb";
+	private String mdbFileName = EditorConf.MDB_FILE_NAME;
 	
 	private String dataDir = null;
 	
@@ -53,7 +62,7 @@ public class LexiconRefiner {
 	private OntProperty lexFormProp = null;
 	private OntProperty protoFormProp = null;
 	
-	public LexiconRefiner() {
+	public LexiconRefinerForeign() {
 		
 		uriToSynset = new HashMap<String,Synset>();
 		idToSynset = new HashMap<String,Synset>();
@@ -141,9 +150,7 @@ public class LexiconRefiner {
 		//LEGGI DATABASE
 		Connection c = openConnection();		
 		
-		String sql = "SELECT T1.kwid, T1.forma_variante " +
-			"FROM wbt_app_glossario_varianti T1 " +
-			"";	
+		String sql = "select TE_LG_IdLanguage, TE_IdTerm, TE_SurfaceForm, TE_Lemma from TD_Terms";	
 
 		//Collection<Synset> dbSynsets = new HashSet<Synset>();
 		
@@ -153,13 +160,23 @@ public class LexiconRefiner {
 		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
 			String[] row = i.next();
 
-			String kwid = row[0].trim();
-			String variant = row[1].trim();
+			String lang = row[0].trim();
+			String kwid = row[1].trim();
+			String proto = row[2].trim();
+			String variant = row[3].trim();
+						
+			if( ! lang.equalsIgnoreCase("NL")) {
+				continue;
+			}
 			
 			Synset syn = idToSynset.get(kwid);
 			if(syn == null) {
 				System.err.println("Null syn for kwid: " + kwid);
 				nullCounter++;
+				continue;
+			}
+			
+			if(proto.equalsIgnoreCase(variant)) {
 				continue;
 			}
 			

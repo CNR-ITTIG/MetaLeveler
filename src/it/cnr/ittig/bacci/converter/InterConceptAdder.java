@@ -305,6 +305,9 @@ public class InterConceptAdder {
 		
 		Resource concRes = concModel.getResource(conc.getURI());
 		Resource synRes = lexiconModel.getResource(syn.getURI());
+		if(lexModel == esLexModel) {
+			System.out.println("++ ES ++ c:" + concRes.getLocalName() + " s:" + synRes.getLocalName());
+		}
 		lexModel.add(concRes, lexProp, synRes);
 	}
 	

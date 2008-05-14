@@ -6,8 +6,8 @@ import it.cnr.ittig.bacci.database.DatabaseManager;
 public class EditorConf {
 
 	//Attiva segmentazione?
-	public static boolean DIVIDE = false;
-	//public static boolean DIVIDE = true;
+	//public static boolean DIVIDE = false;
+	public static boolean DIVIDE = true;
 	
 	public static String DIVIDE_TYPE = "lexical";
 	//public static String DIVIDE_TYPE = "source";

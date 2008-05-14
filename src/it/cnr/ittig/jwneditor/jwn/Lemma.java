@@ -7,6 +7,8 @@ import java.util.Vector;
 
 public class Lemma implements Comparable {
 
+	private String tempConceptName = null;
+	
 	private String lexicalForm;
 	private String partOfSpeech;
 	private String sense;
@@ -147,6 +149,14 @@ public class Lemma implements Comparable {
 		
 		String objStr = ((Lemma) obj).toString();
 		return this.toString().compareToIgnoreCase(objStr);
+	}
+
+	public String getTempConceptName() {
+		return tempConceptName;
+	}
+
+	public void setTempConceptName(String tempConceptName) {
+		this.tempConceptName = tempConceptName;
 	}
 
 }
