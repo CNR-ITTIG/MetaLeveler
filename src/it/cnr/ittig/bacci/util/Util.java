@@ -2,6 +2,8 @@ package it.cnr.ittig.bacci.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import com.hp.hpl.jena.ontology.OntModel;
@@ -11,16 +13,21 @@ public class Util {
 	
 	public static void serialize(OntModel om, String fileName) {
 		
-		serialize(om, fileName, "");
+		serialize(om, fileName, null, null);
 	}
 	
 	public static void serialize(OntModel om, String fileName, String base) {
 		
+		serialize(om, fileName, base, null);
+	}
+	
+	public static void serialize(OntModel om, String fileName, String base, String encoding) {
+		
 		RDFWriter writer = om.getWriter("RDF/XML"); //faster than RDF/XML-ABBREV		
 		File outputFile = new File(fileName);
-		String relativeOutputFileName = "file://" + outputFile.getAbsolutePath();
+		//String relativeOutputFileName = "file://" + outputFile.getAbsolutePath();
 		
-		if(base.trim().length() > 1) {
+		if(base != null) {
 			//Set base property
 			writer.setProperty("xmlbase", base);
 		}
@@ -29,13 +36,43 @@ public class Util {
 		try {
 			OutputStream out = new FileOutputStream(outputFile);
 			//Write down the BASE model only (don't follow imports...)
-			writer.write(om.getBaseModel(), out, relativeOutputFileName);
+			//writer.write(om.getBaseModel(), out, relativeOutputFileName);
+			writer.write(om.getBaseModel(), out, base);
 			out.close();
 		} catch(Exception e) {
 			System.err.println("Exception serializing model:" + e.getMessage());
 			e.printStackTrace();
 		}
+
+		//Setup encoding in the XML file
+//		if(encoding != null) {
+//			try {
+//				setEncoding(fileName, encoding);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}			
+//		}	
 	}	
+	
+	private static void setEncoding(String fileName, String encoding) 
+		throws IOException {
+		
+		String encStr = "<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>";
+		File outFile = new File(fileName);		
+		FileWriter outFW = null;		
+		try {
+			outFW = new FileWriter(outFile);		
+			outFW.write(encStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(outFW != null) {
+				outFW.flush();
+				outFW.close();				
+			}
+		}
+	}
 
 	public static void initDocuments(String dataDir) {
 	

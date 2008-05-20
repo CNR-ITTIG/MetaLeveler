@@ -1,5 +1,6 @@
 package it.cnr.ittig.jwneditor.jwn2owl.service;
 
+import it.cnr.ittig.bacci.util.Util;
 import it.cnr.ittig.jwneditor.jwn2owl.container.OntologyContainer;
 
 import java.io.FileOutputStream;
@@ -11,6 +12,18 @@ import com.hp.hpl.jena.rdf.model.RDFWriter;
 public class SerializeService {
 
 	public void process(OntologyContainer container, String outputFile, String ns) {
+		
+		
+		
+		//XXX
+		//Util.serialize(container.getOntModel(false), outputFile, ns, "ISO-8859-1");
+//		Util.serialize(container.getOntModel(false), outputFile, ns, "UTF-8");
+//		if(true) return;
+		
+		
+		
+		
+		
 		
 		System.out.println("Serializing ontology model to " + outputFile + "...");
 

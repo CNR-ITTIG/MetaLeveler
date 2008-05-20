@@ -61,6 +61,9 @@ public class CeliOdbcImporter  extends ImporterUtil
 	private Map<Lemma, Lemma> lemmaToConcept;
 	private Map<Lemma, String> lemmaToLang;
 	
+	//SOURCES !!
+	private Map<String,Riferimento> codeToRif;
+	
 	public void createSynsets() throws IOException {
 		
 		Connection c = openConnection();		
@@ -138,6 +141,8 @@ public class CeliOdbcImporter  extends ImporterUtil
 	
 	public void addRif() throws IOException {
 		
+		codeToRif = new HashMap<String, Riferimento>();
+		
 		Connection c = openConnection();		
 
 		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text, T3.CO_filePath FROM " + termdocumentTBL + 
@@ -175,14 +180,26 @@ public class CeliOdbcImporter  extends ImporterUtil
 				System.out.println(">>WARNING<< NULL - " + id + " " + conc);
 				continue;
 			}
+			
+			//XXX
+//			if(conc.getRiferimenti().size() > 0) {
+//				continue;
+//			}
 
+			String code = fileName + part + text;
 			//Add a new reference
-			Riferimento rif = new Riferimento();
-			rif.setText(text);
-			rif.setCode(part);
-			rif.setFileName(fileName);
-			conc.addRiferimento(rif);
+			Riferimento rif = codeToRif.get(code);
+			if( rif == null ) {
+				rif = new Riferimento();
+				rif.setText(text);
+				rif.setCode(part);
+				rif.setFileName(fileName);
+				conc.addRiferimento(rif);
+				System.out.println("++ REF ++ text: " + text);
+				codeToRif.put(code, rif);
+			}
 		}
+		
 		closeConnection(c);
 	}
 	
@@ -528,6 +545,77 @@ public class CeliOdbcImporter  extends ImporterUtil
 		Properties prop = new Properties();
 		//prop.setProperty("DB2e_ENCODING", "CP-1252");
 		prop.setProperty("DB2e_ENCODING", "Windows-1252");
+		
+		/*
+		 *
+		 * http://bugs.mysql.com/bug.php?id=25022
+		 * 
+[28 Mar 2007 9:40] Freddy Kaiser
+
+Hi, similar issues with MS-SQL when the DB doesn't have default Collation (Latin... but
+French_CI_AS).
+I was able to resolve the migration with this:
+  The default/implicit jdbc connection is:
+jdbc:jtds:sqlserver://<ip>:1433/<db>;user=<userid>;password=<pwd>;charset=utf-8;domain=
+  => With this it failed
+  By using advanced on the Source Database I put this:
+jdbc:jtds:sqlserver://<ip>:1433/<db>;user=<userid>;password=<pwd>;domain=
+  => With this it was all fine (no other special option)
+   Based on the MS JDBC documentation their driver will choose the right charset
+Fix:
+  Either adding a dropdown/entryfield where this could be defined like the other options
+or removing the implicit charset=utf-8
+
+
+[30 Apr 2007 11:47] Michael G. Zinner
+
+The problem with MS Access is, that it does not support charsets and whatever is stored
+inside the database depends on the local system settings.
+
+When accessing the data via the JDBC/ODBC bridge there is no way to tell the encoding of
+the data stored in the MS Access database. Therefore we cannot correctly convert the
+data.
+
+The workaround of going through the MS SQL server is a good one, as there charsets are
+handled as expected.
+
+The charset handling in the connection dialog for the MS SQL server is limited due to the
+fact that the available list of charsets depends on the MS SQL server installation and is
+therefor custom. Manually stating the charset in the Advanced Option is the correct way to
+deal with this scenario.
+
+
+---------------------------
+Hi,
+I want to migrate the data (tables) of a MS SQL (Server 2000) database to MySQL (5.0.23).
+
+For this, i`m using the "MySQL Migration Toolkit" (v. 1.1.4).
+My problem is the encoding of the "special characters" like the german umlauts (e.g. ä,ü,ö).
+In the target MySQl database (resp. in the the generated script file) the umlauts for "Gemeindebhörden" are displayed as "Gemeindebehï¿½rden".
+
+The collation of the MS SQL database is Latin1_General_CP1_CI_AS.
+In step 3 of the migration (Object Mapping), i tried several charset/collation-settings (e.g. latin1/latin1_german1_ci, latin1/latin1_swedish_ci, utf8/utf8_general_ci).
+
+Does anybody have an idea how to migrate my data with the correct encoding settings ?
+Thanks in advance!
+
+Hi Pat!
+
+I have exact the same problem to migrate the data between MS SQL and MySQL. I will solve this customizing the jdbc connection string, adding useUnicode param in both connections (MSSQL and MySQL).
+
+It is in the first step, when select the source and target database, in Advanced >> option. I use the next jdbc connection string for MSSQL:
+
+jdbc:jtds:sqlserver://server:1433/database;user=user;password=password;useUnicode=true;domain=
+
+And the next one for MySQL:
+
+jdbc:mysql://server:3306/?user=user&password=password&useServerPrepStmts=false&useUnicode=true
+
+Replace with your database servers information, and try it ;)
+
+P.D: Finally in the Object Mapping step I use the option multilanguage for the MySQL Schema and tables, for use utf-8 charsets in the target database.
+
+		 */
 		
 		try {
 			String strConn = "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=" + mdbFileName;
