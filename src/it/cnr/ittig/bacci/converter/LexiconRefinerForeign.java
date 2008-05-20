@@ -1,11 +1,6 @@
 package it.cnr.ittig.bacci.converter;
 
-import it.cnr.ittig.bacci.converter.objects.Concept;
-import it.cnr.ittig.bacci.converter.objects.Lemma;
-import it.cnr.ittig.bacci.converter.objects.OntoClass;
-import it.cnr.ittig.bacci.converter.objects.Source;
 import it.cnr.ittig.bacci.converter.objects.Synset;
-import it.cnr.ittig.bacci.converter.objects.Word;
 import it.cnr.ittig.bacci.util.Conf;
 import it.cnr.ittig.bacci.util.KbModelFactory;
 import it.cnr.ittig.bacci.util.Util;
@@ -19,9 +14,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -34,14 +27,15 @@ import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 public class LexiconRefinerForeign {
 
 	/*
-	 * Aggiunge le varianti per l'italiano collegandosi
+	 * Aggiunge le varianti per la lingua LANGUAGE
 	 * ad un file .mdb; IND, INDW
 	 */
+	
+	private final String LANGUAGE = "EN";
 	
 	private String mdbFileName = EditorConf.MDB_FILE_NAME;
 	
@@ -165,7 +159,7 @@ public class LexiconRefinerForeign {
 			String proto = row[2].trim();
 			String variant = row[3].trim();
 						
-			if( ! lang.equalsIgnoreCase("NL")) {
+			if( ! lang.equalsIgnoreCase(LANGUAGE)) {
 				continue;
 			}
 			
