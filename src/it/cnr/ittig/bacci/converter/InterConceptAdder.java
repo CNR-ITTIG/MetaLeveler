@@ -458,7 +458,7 @@ public class InterConceptAdder {
 		Connection c = null;
 		Properties prop = new Properties();
 		//prop.setProperty("DB2e_ENCODING", "CP-1252");
-		prop.setProperty("DB2e_ENCODING", "Windows-1252");
+		//prop.setProperty("DB2e_ENCODING", "Windows-1252");
 		
 		try {
 			String strConn = "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=" + mdbFileName;

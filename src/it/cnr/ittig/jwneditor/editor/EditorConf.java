@@ -6,18 +6,19 @@ import it.cnr.ittig.bacci.database.DatabaseManager;
 public class EditorConf {
 
 	//Attiva segmentazione?
-	public static boolean DIVIDE = false;
-	//public static boolean DIVIDE = true;
+	//public static boolean DIVIDE = false;
+	public static boolean DIVIDE = true;
 	
+	//public static String DIVIDE_TYPE = "ALL";
 	public static String DIVIDE_TYPE = "lexical";
 	//public static String DIVIDE_TYPE = "source";
 	//public static String DIVIDE_TYPE = "semantic";
 	
 	public static String DIVIDE_DIR = "segment";
 	
-	public static String LANGUAGE = "IT";
 	//public static String LANGUAGE = "EN";
 	//public static String LANGUAGE = "ES";
+	public static String LANGUAGE = "IT";
 	//public static String LANGUAGE = "NL";
 	
 	 //Serve a produrre il global-concept.owl e i vari file types.owl
@@ -45,7 +46,8 @@ public class EditorConf {
 	
 	public static DatabaseManager DBM = null;
 	
-	public static boolean USE_JENA_DB = true;
+	//public static boolean USE_JENA_DB = true;
+	public static boolean USE_JENA_DB = false;
 	
 	//DATABASE RDF:
 //	public final static String OWL_ADDRESS = "jdbc:mysql://172.16.0.12/jena";  //eulero

@@ -195,7 +195,9 @@ public class CeliOdbcImporter  extends ImporterUtil
 				rif.setCode(part);
 				rif.setFileName(fileName);
 				conc.addRiferimento(rif);
-				System.out.println("++ REF ++ text: " + text);
+				if(text.indexOf("jn diensten weten zeer goed dat een diergeneesmiddel dat de substanties bevat die worden genoemd in de mededeling van het EBG over de beoordeling") > -1) {
+					System.out.println("++ REF ++ text: " + text);					
+				}
 				codeToRif.put(code, rif);
 			}
 		}

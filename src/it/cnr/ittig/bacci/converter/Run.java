@@ -4,7 +4,7 @@ public class Run {
 
 	public static void main(String[] args) {
 		
-		//Converter conv = new Converter();
+		Converter conv = new Converter();
 		//conv.convert();
 		
 		//conv.addInterlinguistic();

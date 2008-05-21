@@ -52,8 +52,16 @@ public class Leveler {
 
 		if(EditorConf.DIVIDE) {
 
-			segmentData();
-			
+			if(EditorConf.DIVIDE_TYPE.equalsIgnoreCase("ALL")) {
+				EditorConf.DIVIDE_TYPE = "lexical";
+				segmentData();
+				EditorConf.DIVIDE_TYPE = "source";
+				segmentData();
+//				EditorConf.DIVIDE_TYPE = "semantic";
+//				segmentData();				
+			} else {				
+				segmentData();
+			}
 			return;
 		}
 		

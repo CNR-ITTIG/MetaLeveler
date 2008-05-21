@@ -35,7 +35,7 @@ public class LexiconRefinerForeign {
 	 * ad un file .mdb; IND, INDW
 	 */
 	
-	private final String LANGUAGE = "EN";
+	private final String LANGUAGE = "NL";
 	
 	private String mdbFileName = EditorConf.MDB_FILE_NAME;
 	
