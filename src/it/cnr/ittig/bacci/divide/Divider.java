@@ -178,6 +178,11 @@ public class Divider {
 			fillSegment(res);			
 		}
 		
+		//Add remaining triples in the last segment...
+		if(typeOfSizing.equalsIgnoreCase("triple")) {
+			createSegment();
+		}
+		
 		try {
 			//Write down all the mappings
 			serializeMap();	
@@ -219,12 +224,8 @@ public class Divider {
 			saveSegment();
 		}
 		
-		//tripleInSegment = 0;
-		
-		//Crea un modello vuoto in memoria e fagli leggere
-		//il modello template.
+		//Crea un modello vuoto in memoria
 		segment = ModelFactory.createOntologyModel(spec, null);
-		//segment.add(templateModel, true); //true adds also reified statements
 		
 		//Set next segment name
 		setNextSegmentName();
@@ -239,8 +240,7 @@ public class Divider {
 		try {
 			OutputStream out = new FileOutputStream(outputFileName);
 			//Write down the BASE model only (don't follow imports...)
-			writer.write(segment.getBaseModel(), out, 
-					"file://" + outputFileName);
+			writer.write(segment.getBaseModel(), out, null); //"file://" + outputFileName);
 			out.close();
 		} catch(Exception e) {
 			System.err.println("Exception serializing model:" + e.getMessage());
