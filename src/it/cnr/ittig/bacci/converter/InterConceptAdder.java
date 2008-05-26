@@ -262,7 +262,6 @@ public class InterConceptAdder {
 			}
 		}
 		
-		
 		String fileName = dataDir + File.separatorChar + Conf.LINKS;
 		Util.serialize(newConcModel, fileName);
 		

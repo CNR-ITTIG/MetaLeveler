@@ -56,6 +56,7 @@ public class AddService {
 	OntProperty candidateProperty;
 	
 	OntProperty sourceProp;
+	OntProperty sourceDefProp;
 	OntProperty contentProp;
 	OntProperty involvesSynset;
 	OntProperty involvesPartition;	
@@ -81,6 +82,7 @@ public class AddService {
 	OntClass documentClass;
 	OntClass partitionClass;
 	OntClass sourceClass;
+	OntClass sourceDefClass;
 	
 	Set<OntClass> validClasses;
 	Set<String> invalidClasses;
@@ -221,6 +223,7 @@ public class AddService {
 		protoProperty = m.getOntProperty(NS_SCHEMA + "protoForm");
 		
 		sourceProp = m.getOntProperty(SOURCE_SCHEMA + "source");
+		sourceDefProp = m.getOntProperty(SOURCE_SCHEMA + "sourceDef");
 		contentProp = m.getOntProperty(SOURCE_SCHEMA + "content");
 		involvesSynset = m.getOntProperty(SOURCE_SCHEMA + "involvesSynset");
 		involvesPartition = m.getOntProperty(SOURCE_SCHEMA + "involvesPartition");	
@@ -246,6 +249,7 @@ public class AddService {
 		documentClass = m.getOntClass(SOURCE_SCHEMA + "Document");
 		partitionClass = m.getOntClass(SOURCE_SCHEMA + "Partition");
 		sourceClass = m.getOntClass(SOURCE_SCHEMA + "Source");
+		sourceDefClass = m.getOntClass(SOURCE_SCHEMA + "SourceDefinition");
 		
 		validClasses = new HashSet<OntClass>();		
 		invalidClasses = new HashSet<String>();
@@ -485,10 +489,16 @@ public class AddService {
 			if(document == null) {
 				document = m_sources.createOntResource(documentName);
 			}
-			synset.addProperty(sourceProp, source);
+			if(!rif.isDefinition()) {
+				synset.addProperty(sourceProp, source);
+				m_sources.add(source, RDF.type, sourceClass);
+			} else {
+				synset.addProperty(sourceDefProp, source);
+				m_sources.add(source, RDF.type, sourceDefClass);
+			}
 			source.addProperty(involvesSynset, synset);
 			source.addProperty(involvesPartition, partition);
-			source.addProperty(contentProp, m_sources.createLiteral(text));
+			partition.addProperty(contentProp, m_sources.createLiteral(text));
 			partition.addProperty(belongsTo, document);
 			partition.addProperty(partCode, m_sources.createLiteral(partitionCode));
 			document.addProperty(docCode, m_sources.createLiteral(documentCode));

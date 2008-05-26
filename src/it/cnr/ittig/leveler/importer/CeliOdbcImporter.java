@@ -100,7 +100,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 		System.out.println("Concepts: " + Leveler.appSynsets.values().size());
 		closeConnection(c);
 		
-		addDefinition();
+		//addDefinition();
 	}
 
 	public void addIpo() throws IOException {
@@ -145,13 +145,13 @@ public class CeliOdbcImporter  extends ImporterUtil
 		
 		Connection c = openConnection();		
 
-		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text, T3.CO_filePath FROM " + termdocumentTBL + 
+		//Crea una source anche per le Definizioni
+		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text, T3.CO_filePath, T1.TD_OT_IdRelType FROM " + termdocumentTBL + 
 			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
 			") AS T2, (SELECT CO_filePath, CO_NationalCode, CO_Text FROM " + corpusTBL + 
 			" ) AS T3 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
 			"AND T2.DN_NationalCode = T3.CO_NationalCode " +
 			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
-			//"AND T1.TD_OT_IdRelType = 'definition'" +
 			"";
 
 		Vector<String[]> results = eseguiQuery(c, sql);
@@ -165,6 +165,7 @@ public class CeliOdbcImporter  extends ImporterUtil
 			String part = row[1].trim();
 			String text = row[2].trim();
 			String fileName = row[3].trim();
+			String type = row[4].trim();
 
 //			if(!lang.equalsIgnoreCase(EditorConf.LANGUAGE)) {
 //				continue;
@@ -181,21 +182,19 @@ public class CeliOdbcImporter  extends ImporterUtil
 				continue;
 			}
 			
-			//XXX
-//			if(conc.getRiferimenti().size() > 0) {
-//				continue;
-//			}
-
-			String code = fileName + part + text;
-			//Add a new reference
-			Riferimento rif = codeToRif.get(code);
-			if( rif == null ) {
-				rif = new Riferimento();
+//			String code = fileName + part + text;
+//			//Add a new reference
+//			Riferimento rif = codeToRif.get(code);
+//			if( rif == null ) {
+				Riferimento rif = new Riferimento();
 				rif.setText(text);
 				rif.setCode(part);
-				rif.setFileName(fileName);
-				codeToRif.put(code, rif);
-			}
+				rif.setFileName(fileName);				
+//				codeToRif.put(code, rif);
+//			}
+				if(type.equalsIgnoreCase("definition")) {
+					rif.setDefinition(true);
+				}
 			conc.addRiferimento(rif);
 		}
 		
@@ -324,48 +323,48 @@ public class CeliOdbcImporter  extends ImporterUtil
 		closeConnection(c);
 	}
 
-	public void addDefinition() throws IOException {
-		
-		Connection c = openConnection();		
-
-		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text FROM " + termdocumentTBL + 
-			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
-			") AS T2, (SELECT CO_NationalCode, CO_Text FROM " + corpusTBL + 
-			" ) AS T3 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
-			"AND T2.DN_NationalCode = T3.CO_NationalCode " +
-			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
-			"AND T1.TD_OT_IdRelType = 'definition'" +
-			"";
-			
-		Vector<String[]> results = eseguiQuery(c, sql);
-
-		int counter = 0;
-		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
-			String[] row = i.next();
-
-			//String lang = row[0].trim();
-			String id = row[0].trim();
-			String part = row[1].trim();
-			//String code = row[2].trim();
-			String text = row[2].trim();
-
-//			if(counter < 10) {
-//				System.out.println("id: " + id + " part: " + part);
+//	public void addDefinition() throws IOException {
+//		
+//		Connection c = openConnection();		
+//
+//		String sql = "SELECT T1.TD_TE_IdTerm, T2.DN_NationalCode, T3.CO_Text FROM " + termdocumentTBL + 
+//			" T1, (SELECT DN_NationalCode, DN_IdDocumentNational FROM " + nationalTBL + 
+//			") AS T2, (SELECT CO_NationalCode, CO_Text FROM " + corpusTBL + 
+//			" ) AS T3 WHERE T1.TD_DN_IdDocumentNational = T2.DN_IdDocumentNational " +
+//			"AND T2.DN_NationalCode = T3.CO_NationalCode " +
+//			"AND T1.TD_LG_IdLanguage = '" + EditorConf.LANGUAGE + "' " +
+//			"AND T1.TD_OT_IdRelType = 'definition'" +
+//			"";
+//			
+//		Vector<String[]> results = eseguiQuery(c, sql);
+//
+//		int counter = 0;
+//		for(Iterator<String[]> i = results.iterator(); i.hasNext(); ) {
+//			String[] row = i.next();
+//
+//			//String lang = row[0].trim();
+//			String id = row[0].trim();
+//			String part = row[1].trim();
+//			//String code = row[2].trim();
+//			String text = row[2].trim();
+//
+////			if(counter < 10) {
+////				System.out.println("id: " + id + " part: " + part);
+////			}
+//			counter++;
+//
+//			Concetto conc = Leveler.appSynsets.get(id);
+//			if(conc == null) {
+//				System.out.println(">>WARNING<< NULL - " + id + " " + conc);
+//				continue;
 //			}
-			counter++;
-
-			Concetto conc = Leveler.appSynsets.get(id);
-			if(conc == null) {
-				System.out.println(">>WARNING<< NULL - " + id + " " + conc);
-				continue;
-			}
-
-			//Add definition
-			conc.setDefinizione(text);
-			//System.out.println("CONCETTO: " + conc + " DEF: " + text);
-		}
-		closeConnection(c);
-	}
+//
+//			//Add definition
+//			conc.setDefinizione(text);
+//			//System.out.println("CONCETTO: " + conc + " DEF: " + text);
+//		}
+//		closeConnection(c);
+//	}
 
 	private Lemma getLemma(String proto, String lang, String conceptName) {
 		

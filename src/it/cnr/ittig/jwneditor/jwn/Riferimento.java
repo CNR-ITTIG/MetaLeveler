@@ -6,11 +6,14 @@ public class Riferimento {
 	private String code;
 	private String fileName;
 	
+	private boolean definition;
+	
 	public Riferimento() {
 
 		this.text = null;
 		this.code = null;
 		this.fileName = null;
+		this.definition = false;
 	}
 	
 	public String getFileName() {
@@ -30,6 +33,14 @@ public class Riferimento {
 	}
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public boolean isDefinition() {
+		return definition;
+	}
+
+	public void setDefinition(boolean definition) {
+		this.definition = definition;
 	}
 	
 }
