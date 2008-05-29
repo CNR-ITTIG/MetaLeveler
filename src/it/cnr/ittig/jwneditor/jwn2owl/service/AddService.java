@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
 import com.hp.hpl.jena.ontology.OntClass;
@@ -56,7 +57,7 @@ public class AddService {
 	OntProperty candidateProperty;
 	
 	OntProperty sourceProp;
-	OntProperty sourceDefProp;
+	OntProperty hasDefProp;
 	OntProperty contentProp;
 	OntProperty involvesSynset;
 	OntProperty involvesPartition;	
@@ -221,9 +222,9 @@ public class AddService {
 		senseProperty = m.getOntProperty(NS_SCHEMA + "sense");
 		lexicalProperty = m.getOntProperty(NS_SCHEMA + "lexicalForm");
 		protoProperty = m.getOntProperty(NS_SCHEMA + "protoForm");
+		hasDefProp = m.getOntProperty(NS_SCHEMA + "hasDefinition");
 		
 		sourceProp = m.getOntProperty(SOURCE_SCHEMA + "source");
-		sourceDefProp = m.getOntProperty(SOURCE_SCHEMA + "sourceDef");
 		contentProp = m.getOntProperty(SOURCE_SCHEMA + "content");
 		involvesSynset = m.getOntProperty(SOURCE_SCHEMA + "involvesSynset");
 		involvesPartition = m.getOntProperty(SOURCE_SCHEMA + "involvesPartition");	
@@ -249,7 +250,7 @@ public class AddService {
 		documentClass = m.getOntClass(SOURCE_SCHEMA + "Document");
 		partitionClass = m.getOntClass(SOURCE_SCHEMA + "Partition");
 		sourceClass = m.getOntClass(SOURCE_SCHEMA + "Source");
-		sourceDefClass = m.getOntClass(SOURCE_SCHEMA + "SourceDefinition");
+		sourceDefClass = m.getOntClass(SOURCE_SCHEMA + "DefinitionSource");
 		
 		validClasses = new HashSet<OntClass>();		
 		invalidClasses = new HashSet<String>();
@@ -489,13 +490,23 @@ public class AddService {
 			if(document == null) {
 				document = m_sources.createOntResource(documentName);
 			}
-			if(!rif.isDefinition()) {
-				synset.addProperty(sourceProp, source);
-				m_sources.add(source, RDF.type, sourceClass);
-			} else {
-				synset.addProperty(sourceDefProp, source);
+//			if(!rif.isDefinition()) {
+//				synset.addProperty(sourceProp, source);
+//				m_sources.add(source, RDF.type, sourceClass);
+//			} else {
+//				System.out.println("Rilvata definizione - syn: " + item + " rif: " + rif);
+//				synset.addProperty(sourceDefProp, source);
+//				m_sources.add(source, RDF.type, sourceDefClass);
+//			}
+
+			synset.addProperty(sourceProp, source);
+			m_sources.add(source, RDF.type, sourceClass);
+			
+			if(rif.isDefinition()) {
+				synset.addProperty(hasDefProp, "true");
 				m_sources.add(source, RDF.type, sourceDefClass);
 			}
+			
 			source.addProperty(involvesSynset, synset);
 			source.addProperty(involvesPartition, partition);
 			partition.addProperty(contentProp, m_sources.createLiteral(text));

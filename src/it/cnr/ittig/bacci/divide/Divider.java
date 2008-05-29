@@ -306,7 +306,7 @@ public class Divider {
 				" ?p1 ?o1 .  ?o1 rdf:type owns:WordSense .  ?o1 ?p2 ?o2 .  " +
 				" } UNION {  " + resName + " ?p3 ?o3 .  ?o3 ?p4 ?o4 ." +
 				"  ?o4 rdf:type owns:Word .  ?o4 ?p5 ?o5 .  } } ";			
-			
+
 		} else if(typeOfSegment.equalsIgnoreCase("source")) {
 			//Optional non funziona in questa query?
 
@@ -316,53 +316,95 @@ public class Divider {
 //				"CONSTRUCT { " +
 //				resName + " src:source ?s . " +
 //				"?s src:involvesPartition ?p . " +
-//				"?s src:content ?cont . " +
 //				"?p src:partitionCode ?pcode . " +
+//				"?p src:content ?cont . " +
 //				"?p src:belongsTo ?doc . " +
 //				"?doc src:documentCode ?dcode . " +
-//				"?doc src:link ?link . " +
-//				"} WHERE { " +
+//				"?doc src:link ?dlink . " +
+//				"} WHERE { { " +
 //				resName + " src:source ?s . " +
 //				"?s src:involvesPartition ?p . " +
 //				"?p src:partitionCode ?pcode . " +
 //				"?p src:belongsTo ?doc . " +
 //				"?doc src:documentCode ?dcode . " +
-//				"OPTIONAL {" +
-//				"?s src:content ?cont . " +
-//				"?doc src:link ?link . } " +
+//				" } UNION { " +
+//				resName + " src:source ?s . " +
+//				"?s src:involvesPartition ?p . " +
+//				"?p src:partitionCode ?pcode . " +
+//				"?p src:content ?cont . " +
+//				"?p src:belongsTo ?doc . " +
+//				"?doc src:documentCode ?dcode . " +
+//				" } UNION { " +
+//				resName + " src:source ?s . " +
+//				"?s src:involvesPartition ?p . " +
+//				"?p src:partitionCode ?pcode . " +
+//				"?p src:belongsTo ?doc . " +
+//				"?doc src:documentCode ?dcode . " +
+//				"?doc src:link ?dlink . } " +				
 //				"}";
-			
+
+//			query = 
+//				"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
+//				"PREFIX src: <http://turing.ittig.cnr.it/jwn/ontologies/metasources.owl#> " +
+//				"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+//				"CONSTRUCT { " +
+//				resName + " ?genericprop ?s . " +
+//				"?s rdf:type src:Source . " +
+//				"?s ?sourceprop ?sourceobj . " +
+//				"?s src:involvesPartition ?p . " +
+//				"?p src:partitionCode ?pcode . " +
+//				"?p src:content ?cont . " +
+//				"?p src:belongsTo ?doc . " +
+//				"?doc src:documentCode ?dcode . " +
+//				"?doc src:link ?dlink . " +
+//				"} WHERE { { " +
+//				resName + " ?genericprop ?s . " +
+//				"?s rdf:type src:Source . " +
+//				"?s ?sourceprop ?sourceobj . " +
+//				"?s src:involvesPartition ?p . " +
+//				"?p src:partitionCode ?pcode . " +
+//				"?p src:belongsTo ?doc . " +
+//				"?doc src:documentCode ?dcode . " +
+//				" } UNION { " +
+//				resName + " ?genericprop ?s . " +
+//				"?s rdf:type src:Source . " +
+//				"?s ?sourceprop ?sourceobj . " +
+//				"?s src:involvesPartition ?p . " +
+//				"?p src:partitionCode ?pcode . " +
+//				"?p src:content ?cont . " +
+//				"?p src:belongsTo ?doc . " +
+//				"?doc src:documentCode ?dcode . " +
+//				" } UNION { " +
+//				resName + " ?genericprop ?s . " +
+//				"?s rdf:type src:Source . " +
+//				"?s ?sourceprop ?sourceobj . " +
+//				"?s src:involvesPartition ?p . " +
+//				"?p src:partitionCode ?pcode . " +
+//				"?p src:belongsTo ?doc . " +
+//				"?doc src:documentCode ?dcode . " +
+//				"?doc src:link ?dlink . } " +				
+//				"}";
+
 			query = 
 				"PREFIX rns: <http://localhost/dalos/" + lang + "/individuals.owl#> " +
 				"PREFIX src: <http://turing.ittig.cnr.it/jwn/ontologies/metasources.owl#> " +
+				"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
 				"CONSTRUCT { " +
-				resName + " src:source ?s . " +
+				resName + " ?genericprop ?s . " +
+				"?s rdf:type src:Source . " +
 				"?s src:involvesPartition ?p . " +
-				"?s src:content ?cont . " +
-				"?p src:partitionCode ?pcode . " +
 				"?p src:belongsTo ?doc . " +
-				"?doc src:documentCode ?dcode . " +
-				"?doc src:link ?dlink . " +
-				"} WHERE { { " +
-				resName + " src:source ?s . " +
+				"?s ?sourceprop ?sourceobj . " +
+				"?p ?partprop ?partobj . " +
+				"?doc ?docprop ?docobj . " +
+				"} WHERE { " +
+				resName + " ?genericprop ?s . " +
+				"?s rdf:type src:Source . " +
 				"?s src:involvesPartition ?p . " +
-				"?p src:partitionCode ?pcode . " +
 				"?p src:belongsTo ?doc . " +
-				"?doc src:documentCode ?dcode . " +
-				" } UNION { " +
-				resName + " src:source ?s . " +
-				"?s src:involvesPartition ?p . " +
-				"?s src:content ?cont . " +
-				"?p src:partitionCode ?pcode . " +
-				"?p src:belongsTo ?doc . " +
-				"?doc src:documentCode ?dcode . " +
-				" } UNION { " +
-				resName + " src:source ?s . " +
-				"?s src:involvesPartition ?p . " +
-				"?p src:partitionCode ?pcode . " +
-				"?p src:belongsTo ?doc . " +
-				"?doc src:documentCode ?dcode . " +
-				"?doc src:link ?dlink . } " +				
+				"?s ?sourceprop ?sourceobj . " +
+				"?p ?partprop ?partobj . " +
+				"?doc ?docprop ?docobj . " +
 				"}";
 
 		} else if(typeOfSegment.equalsIgnoreCase("semantic")) {

@@ -10,15 +10,15 @@ public class EditorConf {
 	public static boolean DIVIDE = true;
 	
 	//public static String DIVIDE_TYPE = "ALL";
-	public static String DIVIDE_TYPE = "lexical";
-	//public static String DIVIDE_TYPE = "source";
+	//public static String DIVIDE_TYPE = "lexical";
+	public static String DIVIDE_TYPE = "source";
 	//public static String DIVIDE_TYPE = "semantic";
 	
 	public static String DIVIDE_DIR = "segment";
 	
-	//public static String LANGUAGE = "EN";
+	public static String LANGUAGE = "EN";
 	//public static String LANGUAGE = "ES";
-	public static String LANGUAGE = "IT";
+	//public static String LANGUAGE = "IT";
 	//public static String LANGUAGE = "NL";
 	
 	 //Serve a produrre il global-concept.owl e i vari file types.owl
