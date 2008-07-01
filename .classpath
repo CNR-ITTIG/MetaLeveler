@@ -2,6 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jdbc/mysql-connector-java-3.1.13-bin.jar"/>
+	<classpathentry kind="lib" path="lib/xls/jxl.jar"/>
+	<classpathentry kind="lib" path="lib/checker/owlsyntax.jar"/>
 	<classpathentry kind="lib" path="lib/jena/antlr-2.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/jena/arq.jar"/>
 	<classpathentry kind="lib" path="lib/jena/arq-extra.jar"/>
@@ -19,33 +22,47 @@
 	<classpathentry kind="lib" path="lib/jena/wstx-asl-3.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/jena/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/jena/xml-apis.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/aterm-java-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/pellet.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/rdfapi.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/relaxngDatatype.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/xsdlib.jar"/>
-	<classpathentry kind="lib" path="lib/xls/jxl.jar"/>
-	<classpathentry kind="lib" path="lib/jdbc/mysql-connector-java-3.1.13-bin.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/antlr-2.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/pellet/jetty/jetty.jar"/>
 	<classpathentry kind="lib" path="lib/pellet/junit/junit.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/api-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/apibinding-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/aterm-java-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/pellet.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/servlet.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/arq.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/arq-extra.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/concurrent.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/icu4j_3_4.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/iri.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/jena.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/jenatest.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/json.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/junit.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/log4j-1.2.12.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/lucene-core-2.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/stax-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/wstx-asl-3.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/jena/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/pellet/owlapi/commons-lang-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/debugging-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/dig1_1-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/examples-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/functionalparser-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/functionalrenderer-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/impl-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/krssparser-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/log4j-1.2.13.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/oboparser-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/owlxmlparser-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/owlxmlrenderer-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/rdfapi-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/rdfxmlparser-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/rdfxmlrenderer-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/tutorial-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/pellet/owlapi/util-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/xsdlib/relaxngDatatype.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-api.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-apibinding.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-change.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-debugging.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-dig1_1.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-functionalparser.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-functionalrenderer.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-impl.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-krssparser.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-metrics.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-oboparser.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-owlxmlparser.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-owlxmlrenderer.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-rdfapi.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-rdfxmlparser.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-rdfxmlrenderer.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/owlapi/owlapi-util.jar"/>
+	<classpathentry kind="lib" path="lib/pellet/xsdlib/xsdlib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

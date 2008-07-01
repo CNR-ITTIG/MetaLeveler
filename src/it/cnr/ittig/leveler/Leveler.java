@@ -112,6 +112,9 @@ public class Leveler {
 			e.printStackTrace();
 		}
 		
+		//AGGIUSTA LE SOURCES  //NO MANCANO LE VARIANTI
+		//adjustSources();
+		
 		//Adesso si salvano su DB i modelli popolati con gli oggetti synset
 		long t1 = System.currentTimeMillis();
 		manager = new OWLManager();
@@ -349,62 +352,10 @@ public class Leveler {
 			e.printStackTrace();
 		}
 	}
-
-//	private static void adjustTypes() {
-//		
-//		ModelMaker maker = ModelFactory.createMemModelMaker();
-//		//OntModelSpec spec =  OntModelSpec.OWL_MEM ;
-//		OntModelSpec spec = new OntModelSpec( OntModelSpec.OWL_MEM );
-//		spec.setImportModelMaker(maker);
-//		Reasoner r = ReasonerRegistry.getOWLMicroReasoner();
-//		spec.setReasoner(r);
-//		OntModel model = ModelFactory.createOntologyModel(spec, null);
-//		OntModel indModel = ModelFactory.createOntologyModel(spec, null);
-//		OntModel modelOk = ModelFactory.createOntologyModel(spec, null);
-//		
-//		File file = new File(EditorConf.DATA_DIR + 
-//				File.separatorChar + "lexicalizations.owl");
-//		model.read("file:////" + file.getAbsolutePath());
-//		modelOk.read("file:////" + file.getAbsolutePath());
-//		
-//		file = new File(EditorConf.DATA_DIR + 
-//				File.separatorChar + "owns.owl");	
-//		indModel.read("file:////" + file.getAbsolutePath());
-//
-//		OntClass synClass = indModel.getOntClass(
-//				"http://turing.ittig.cnr.it/jwn/ontologies/owns.owl#NounSynset");
-//		
-//		if(synClass == null) {
-//			System.err.println("synClass is null!");
-//			return;
-//		}
-//
-//		for(StmtIterator si = model.listStatements(
-//				(Resource) null, RDF.type, (RDFNode) null); si.hasNext();) {
-//			Statement stmt = si.nextStatement();
-//			Resource subj = stmt.getSubject();
-//			Resource obj = (Resource) stmt.getObject();
-//			if(obj.isAnon() || subj.isAnon()) {
-//				continue;
-//			}
-//			if(obj.getNameSpace().equalsIgnoreCase(EditorConf.onto_concepts + "#")) {
-//				modelOk.add(subj, RDF.type, synClass);
-//			}
-//		}
-//		
-//		RDFWriter writer = model.getWriter("RDF/XML");
-//		
-//		String outputFileName = EditorConf.DATA_DIR + 
-//							File.separatorChar + "types-ok.owl";
-//		try {
-//			OutputStream out = new FileOutputStream(outputFileName);
-//			//Write down the BASE model only (don't follow imports...)
-//			writer.write(modelOk.getBaseModel(), out, 
-//					"file://" + outputFileName);
-//			out.close();
-//		} catch(Exception e) {
-//			System.err.println("Exception serializing model:" + e.getMessage());
-//			e.printStackTrace();
-//		}
-//	}
+	
+	private void adjustSources() {
+		
+		
+		
+	}
 }
