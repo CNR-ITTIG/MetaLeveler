@@ -24,7 +24,7 @@ public class SemTester {
 
 		if(model != null) {
 			validator.process(model);
-			checker.process(model);
+			//checker.process(model);
 		}
 
 	}
@@ -38,7 +38,9 @@ public class SemTester {
 		//String modelUrl = "file:///E:/Ontologies/dalos/consumer-law.owl";
 		model.read(modelUrl);
 		
-		loadModules(model);
+		//model.read("http://www.loa-cnr.it/ontologies/CLO/CoreLegal.owl");
+		
+		//loadModules(model);
 				
 		odm.setProcessImports(true);
 		odm.loadImports(model);
@@ -51,7 +53,7 @@ public class SemTester {
 		////////MODELS//////
 		
 		//Dolce + CLO
-		//model.read("http");
+		model.read("http://www.loa-cnr.it/ontologies/CLO/CoreLegal.owl");
 		
 		//Altri Moduli
 		model.read("file:///E:/Ontologies/dalos/owns.owl");
