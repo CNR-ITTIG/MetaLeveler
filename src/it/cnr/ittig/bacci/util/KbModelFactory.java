@@ -9,6 +9,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mindswap.pellet.jena.PelletReasonerFactory;
+
 import com.hp.hpl.jena.ontology.OntDocumentManager;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
@@ -82,38 +84,54 @@ public class KbModelFactory {
 			ONTO = (String) Gui.appProperties.getProperty("ontoText");			
 		}
 
+		OntModel om = null;
 		ModelMaker maker = ModelFactory.createMemModelMaker();
-
-		OntModelSpec spec = null;
-		if(reasoner.length() > 0) {
-			Reasoner r = null;
-			if(reasoner.equalsIgnoreCase("rdf")) {
-				r = ReasonerRegistry.getRDFSReasoner();
-			}
-			if(reasoner.equalsIgnoreCase("micro")) {
-				r = ReasonerRegistry.getOWLMicroReasoner();
-			}
-			if(reasoner.equalsIgnoreCase("mini")) {
-				r = ReasonerRegistry.getOWLMiniReasoner();
-			}
-			if(reasoner.equalsIgnoreCase("owl")) {
-				r = ReasonerRegistry.getOWLReasoner();
-			}
-			if(reasoner.equalsIgnoreCase("pellet")) {
-				//può servire pellet ? oppure un external reasoner?
-			}
-			if(r == null) {
-				System.err.println("getModel() - Reasoner type not found: " + type);
-				return null;
-			}
-			spec =  OntModelSpec.OWL_MEM ;
-			spec.setReasoner(r);
+				
+		if(reasoner.length() < 1) {
+			OntModelSpec spec = new OntModelSpec( OntModelSpec.OWL_MEM );
+			spec.setImportModelMaker(maker);
+			om = ModelFactory.createOntologyModel(spec, null);
+			
 		} else {
-			spec = new OntModelSpec( OntModelSpec.OWL_MEM );
+					
+			if( !reasoner.equalsIgnoreCase("pellet")) {
+			
+				OntModelSpec spec = null;
+				Reasoner r = null;
+				if(reasoner.equalsIgnoreCase("rdf")) {
+					r = ReasonerRegistry.getRDFSReasoner();
+				}
+				if(reasoner.equalsIgnoreCase("micro")) {
+					r = ReasonerRegistry.getOWLMicroReasoner();
+				}
+				if(reasoner.equalsIgnoreCase("mini")) {
+					r = ReasonerRegistry.getOWLMiniReasoner();
+				}
+				if(reasoner.equalsIgnoreCase("owl")) {
+					r = ReasonerRegistry.getOWLReasoner();
+				}
+				if(r == null) {
+					System.err.println("getModel() - Reasoner type not found: " + reasoner);
+					return null;
+				}
+				spec =  OntModelSpec.OWL_MEM ;
+				spec.setReasoner(r);
+				spec.setImportModelMaker(maker);
+				om = ModelFactory.createOntologyModel(spec, null);
+				
+			} else {
+				om = ModelFactory.createOntologyModel( 
+						PelletReasonerFactory.THE_SPEC );
+			}
 		}
-		spec.setImportModelMaker(maker);
-		OntModel om = ModelFactory.createOntologyModel(spec, null);
+
 		
+		if(type.equalsIgnoreCase("test.ontology")) {
+			readSchema(om, Conf.TEST_ONTO, true);
+		}		
+		if(type.equalsIgnoreCase("out.test.ontology")) {
+			readSchema(om, "output.owl");
+		}		
 		if(type.equalsIgnoreCase("dalos.full")) {
 			readSchema(om, ONTO);
 			readLocalDocument(om, lang, Conf.TYPES);

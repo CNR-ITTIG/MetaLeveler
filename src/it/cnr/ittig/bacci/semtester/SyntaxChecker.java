@@ -10,6 +10,8 @@ public class SyntaxChecker {
 
 	public void process(OntModel model) {
 		
+		System.out.println("Cheking syntax...");
+		
 		boolean expectingLite = false;
 
 		Checker ck = new Checker(expectingLite);

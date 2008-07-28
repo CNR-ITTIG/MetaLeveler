@@ -38,12 +38,12 @@ public class SemTester {
 		//String modelUrl = "file:///E:/Ontologies/dalos/consumer-law.owl";
 		model.read(modelUrl);
 		
-		//model.read("http://www.loa-cnr.it/ontologies/CLO/CoreLegal.owl");
+		model.read("http://www.loa-cnr.it/ontologies/CLO/CoreLegal.owl");
 		
 		//loadModules(model);
 				
-		odm.setProcessImports(true);
-		odm.loadImports(model);
+//		odm.setProcessImports(true);
+//		odm.loadImports(model);
 
 		return model;
 	}

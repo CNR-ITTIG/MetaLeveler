@@ -90,4 +90,11 @@ public class Conf {
 	public static String dbName = "cnipa";
 	public static String dbAddress = "172.16.0.12";
 	public static String dbType = "MySQL";
+	
+	//TEST ONTOLOGY
+	public static String TEST_ONTO = 
+		"http://turing.ittig.cnr.it/jwn/ontologies/test.owl";
+	public static String TEST_NS = TEST_ONTO + "#";
+
+
 }
