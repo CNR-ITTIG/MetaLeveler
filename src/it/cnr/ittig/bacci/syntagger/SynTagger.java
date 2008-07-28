@@ -33,9 +33,11 @@ public class SynTagger {
 	private OntModel model;
 	private OntClass documentClass;
 	private OntClass fragmentClass;
+	private OntClass leggeClass;
+	private OntClass leggeRegionaleClass;
 	private OntClass leggeTipoDocClass;
 	private Individual documentIndividual;
-	private OntProperty hasFragmentProperty;	
+	private OntProperty hasFragmentProperty;
 	
 	public SynTagger() {
 		
@@ -60,10 +62,15 @@ public class SynTagger {
 		hasFragmentProperty = model.getOntProperty(Conf.TEST_NS + "hasFragment");
 		documentClass = model.getOntClass(Conf.TEST_NS + "Document");
 		fragmentClass = model.getOntClass(Conf.TEST_NS + "Fragment");
+		leggeClass = model.getOntClass(Conf.TEST_NS + "Legge");
+		leggeRegionaleClass = model.getOntClass(Conf.TEST_NS + "LeggeRegionale");
 		leggeTipoDocClass = model.getOntClass(Conf.TEST_NS + "LeggeTipoDoc");
 		
 		//Set document individual
-		documentIndividual = documentClass.createIndividual(Conf.TEST_NS + "document_1");		
+		documentIndividual = documentClass.createIndividual(Conf.TEST_NS + "document_1");
+		
+		model.add(documentIndividual, RDF.type, leggeClass);
+		
 		
 		printReport();
 		
@@ -76,18 +83,18 @@ public class SynTagger {
 		
 		text.printFragments();
 		
-//		Validator validator = new Validator();
-//		validator.process(model);
+		Validator validator = new Validator();
+		validator.process(model);
 		
-		SyntaxChecker checker = new SyntaxChecker();
-		checker.process(model);
+//		SyntaxChecker checker = new SyntaxChecker();
+//		checker.process(model);
 		
 //		model.rebind();
 //		
 //		printReport();
 		
-//		File output = new File("output.owl");
-//		Util.serialize(model, output.getAbsolutePath());
+		File output = new File("output.owl");
+		Util.serialize(model, output.getAbsolutePath());
 	}
 	
 	private void checkTerm(String term) {
@@ -108,7 +115,9 @@ public class SynTagger {
 			
 			Individual fragInd = null;
 			if(term.equalsIgnoreCase("legge")) {
-				fragInd = leggeTipoDocClass.createIndividual(
+//				fragInd = leggeTipoDocClass.createIndividual(
+//						Conf.TEST_NS + "fragment_" + matcher.start());
+				fragInd = fragmentClass.createIndividual(
 						Conf.TEST_NS + "fragment_" + matcher.start());
 				//model.add(fragInd, RDF.type, leggeTipoDocClass);
 			} else {
