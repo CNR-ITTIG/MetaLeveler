@@ -23,8 +23,8 @@ public class SemTester {
 		SyntaxChecker checker = new SyntaxChecker();
 
 		if(model != null) {
-			validator.process(model);
-			//checker.process(model);
+			//validator.process(model);
+			checker.process(model);
 		}
 
 	}
@@ -34,12 +34,18 @@ public class SemTester {
 		OntModel model = ModelFactory.createOntologyModel( 
 				PelletReasonerFactory.THE_SPEC );   
 		
-		String modelUrl = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl";
-		//String modelUrl = "file:///E:/Ontologies/dalos/consumer-law.owl";
+		//String modelUrl = "http://turing.ittig.cnr.it/jwn/ontologies/consumer-law.owl";
+		String modelUrl = "file:///E:/Ontologies/dalos/consumer-law.owl";
 		model.read(modelUrl);
 		
-		model.read("http://www.loa-cnr.it/ontologies/CLO/CoreLegal.owl");
-		
+		model.read("http://www.loa-cnr.it/ontologies/DUL.owl");
+//		model.read("http://www.loa-cnr.it/ontologies/CLO/CoreLegal.owl");
+//		model.read("http://www.loa-cnr.it/ontologies/IOLite.owl");
+//		model.read("http://www.loa-cnr.it/ontologies/Conceptualization.owl");
+//		//model.read("http://www.loa-cnr.it/ontologies/CLO/NormativePositions.owl");
+//		model.read("http://www.loa-cnr.it/ontologies/SocialUnits.owl");
+//		model.read("");
+
 		//loadModules(model);
 				
 //		odm.setProcessImports(true);
