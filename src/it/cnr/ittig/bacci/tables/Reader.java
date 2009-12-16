@@ -27,7 +27,7 @@ public class Reader {
 		plainFileName = plain;
 		xmlFileName = xml;
 		
-		if(USEH == false) {
+		if(!USEH) {
 			xmlFileName += ".html";
 		}
 		
@@ -61,11 +61,10 @@ public class Reader {
 
 		String output = "";
 		
-		if(USEH == false) {
+		if(!USEH) {
 			H = "";
 			output += "<html><body>";
 		}
-		
 		
 		output += "<" + H + "table border=2>";
 		
@@ -75,11 +74,9 @@ public class Reader {
 		String pmS = "\\spm\\.?$";
 		Pattern pmPattern = Pattern.compile(pmS);
 		
-		int counter = 0;
 	    String strLine;
 	    
-	    boolean inCella = false;
-	    
+	    boolean inCella = false;	    
 	    boolean inLine = false;
 
 	    while ((strLine = br.readLine()) != null)   {
@@ -101,6 +98,7 @@ public class Reader {
 	    		}
 
 	    		if(!matching.equals("")) {
+	    			//Trovata cifra o pm
 	    			inCella = false;
 	    			int index = strLine.length() - matching.length();
 	    			//Aggiungi il testo precedente il match nell'ultima cella aperta
@@ -109,7 +107,7 @@ public class Reader {
 	    			output += "</" + H + "td><" + H + "td>" + matching + "</" + H + "td></" + H + "tr>";
 
 	    		} else {
-	    			//Aggiungi tutto il testo nell'ultima cella e non chiudere la cella
+	    			//Cifra o pm non ancora trovati, aggiungi tutto il testo nell'ultima cella e non chiudere la cella
 	    			output += strLine;
 	    		}
 	    		continue;
@@ -141,7 +139,7 @@ public class Reader {
 	    	}
 	    	
 	    	//Appendi alla inLine
-    		output += strLine; // + "</" + H + "td><" + H + "td>&nbsp;</" + H + "td><" + H + "td>&nbsp;</" + H + "td></" + H + "tr>";
+    		output += strLine;
 
 	    }
 		
@@ -155,14 +153,17 @@ public class Reader {
 			output += "</" + H + "td><" + H + "td>&nbsp;</" + H + "td><" + H + "td>&nbsp;</" + H + "td></" + H + "tr>";
 		}
 	    
+		//Finalizza
 	    output += "</" + H + "table>";
 	    
-	    if(USEH == false) {
+	    if(!USEH) {
 	    	output += "</body></html>";
 	    }
 		
-	    System.out.println("OUTPUT:\n\n" + output);
+	    //Print output?
+	    //System.out.println("OUTPUT:\n\n" + output);
 	    
+	    //Write output file?
 	    write(output);
 	    
 		return true;
