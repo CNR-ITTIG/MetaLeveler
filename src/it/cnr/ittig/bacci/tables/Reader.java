@@ -172,8 +172,8 @@ public class Reader {
 		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(xmlFile));
 		bw.write(output);
+		bw.flush();
 		bw.close();
-		
 	}
 	
 }
