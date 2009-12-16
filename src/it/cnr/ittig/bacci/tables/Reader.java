@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 public class Reader {
 	
+	//FALSE: genera html con tag standard - TRUE: genera xml con tag preceduti da "h:"
 	static boolean USEH = false;
 	static String H = "h:";
 
